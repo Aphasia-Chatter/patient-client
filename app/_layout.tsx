@@ -7,6 +7,13 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+import { NativeWindStyleSheet } from "nativewind";
+
+NativeWindStyleSheet.setOutput({
+  default: "native",
+});
+
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -14,6 +21,9 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
+    SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-Bold.ttf'),
+    SpaceMonoItalic: require('../assets/fonts/SpaceMono-Bold.ttf'),
   });
 
   useEffect(() => {
@@ -29,8 +39,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="index" options={{ headerShown: false}}/>
+        <Stack.Screen name="(auth)" options={{ headerShown: false}}/>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false}}/>
       </Stack>
     </ThemeProvider>
   );
