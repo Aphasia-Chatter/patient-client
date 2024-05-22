@@ -7,16 +7,17 @@ interface CustomButtonProps extends TouchableOpacityProps {
   containerStyles?: StyleProp<ViewStyle>;
   textStyles?: StyleProp<TextStyle>;
   isLoading?: boolean;
+  backgroundColor?: string;
 }
 
-const CustomButton: React.FC<CustomButtonProps> = ({ title, handlePress, containerStyles, textStyles, isLoading, ...props }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ title, handlePress, containerStyles, textStyles, isLoading, backgroundColor, ...props }) => {
   return (
     <Pressable
       onPress={handlePress}
       activeOpacity={0.7}
       style={[
         {
-          backgroundColor: 'green', // Example background color
+          backgroundColor, // Example background color
           borderRadius: 10, // Example border radius
           minHeight: 62, // Example minimum height
           justifyContent: 'center',

@@ -20,7 +20,7 @@ const register = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-white h-full">
       <ScrollView>
         <View
           className="w-full flex justify-center items-center h-full px-4 my-3"
@@ -32,7 +32,7 @@ const register = () => {
           <View className="relative">
             <Text className="text-3xl text-black font-bold text-center">
               Register for an{"\n"}
-              <Text className="text-tertiary">Account</Text>{" "}
+              <Text className="text-primary">Account</Text>{" "}
             </Text>
 
             <Image
@@ -71,6 +71,7 @@ const register = () => {
           <CustomButton
             title="Register"
             handlePress={submit}
+            backgroundColor="#0072B2"
             containerStyles={[{ width: '100%' }, { marginTop: 14 }]}
             isLoading={isSubmitting}
           />
@@ -79,7 +80,7 @@ const register = () => {
           <View className="flex-row justify-center mt-4">
             <Text className="text-black font-semibold">Have an account already?</Text>
             <Pressable onPress={() => router.push("/login")}>
-              <Text className="font-semibold text-tertiary"> Login here</Text>
+              <Text className="font-semibold text-secondary"> Login here</Text>
             </Pressable>
           </View>
         </View>

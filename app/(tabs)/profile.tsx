@@ -11,7 +11,7 @@ const profile = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-white h-full">
       <View className="w-full flex justify-center items-center mt-6 mb-12 px-4">
         <Pressable
           onPress={logout}

@@ -9,14 +9,14 @@ const home = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   return (
-    <SafeAreaView className="bg-primary">
+    <SafeAreaView className="bg-white">
       <View className="flex my-6 px-4 space-y-6">
         <View className="flex justify-between items-start flex-row">
           <View>
           <Text className="font-bold text-2xl text-black">
               Welcome back,
             </Text>
-            <Text className="font-bold text-2xl text-tertiary">
+            <Text className="font-bold text-2xl text-primary">
               John Doe
             </Text>
             <Image
