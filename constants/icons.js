@@ -8,7 +8,6 @@ import rightArrow from "../assets/icons/right-arrow.png";
 import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
-import chatbot from "../assets/icons/chatbot.png";
 
 export default {
   home,
@@ -21,5 +20,4 @@ export default {
   logout,
   eyeHide,
   eye,
-  chatbot
 };
