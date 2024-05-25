@@ -3,9 +3,7 @@ import React from 'react'
 import { Redirect, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
-
-import { tailwind, getColor } from '../tailwind'; // Import the tailwind utility and getColor function
-import { images } from "../constants";
+import { images, icons } from "../constants";
 import CustomButton from "../components/CustomButton";
 
 const Welcome = () => {
@@ -18,7 +16,16 @@ const Welcome = () => {
           }}
         >
           <View className="w-full flex justify-center items-center h-full px-4">
-            <View className="relative mt-5">
+            <View className="relative mt-5 items-center">
+              {/* Chatbot Icon */}
+              <Image
+                source={icons.chatbot}
+                className="rounded-2xl mb-5"
+                resizeMode="contain"
+                style={{height: 128, width: 128}}
+                />
+
+              {/* Welcome To the App */}
               <Text className="text-3xl text-black font-bold text-center">
                 Welcome to{"\n"}
                 <Text className="text-primary">AphasiaChatter</Text>{" "}
@@ -31,7 +38,8 @@ const Welcome = () => {
               />
             </View>
 
-            <Text className="text-sm font-pregular text-black mt-7 text-center">
+            {/* Tagline */}
+            <Text className="text-xl font-pregular text-black mt-7 text-center">
               Let's get started on your journey to improve your communication!
             </Text>
 
@@ -46,7 +54,6 @@ const Welcome = () => {
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
-      <StatusBar backgroundColor="#161622" style="dark" />
     </SafeAreaView>
   );
 };
