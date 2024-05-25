@@ -16,7 +16,7 @@ const login = () => {
   });
 
   const submit = async () => {
-    router.replace("/home");
+    router.replace("/chatbot");
   };
 
   return (
