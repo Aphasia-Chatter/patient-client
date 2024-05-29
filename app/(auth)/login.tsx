@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, StyleSheet, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 
 import { images } from "../../constants";
 import CustomButton from "../../components/CustomButton";
@@ -11,7 +11,7 @@ import FormField from "../../components/FormField";
 const login = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -28,7 +28,7 @@ const login = () => {
     <SafeAreaView className="bg-white h-full">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View
-            className="w-full flex justify-center items-center h-full px-4 my-3"
+            className="w-full flex justify-center items-center h-full px-4 my-4"
               // style={{
               //   minHeight: Dimensions.get("window").height - 100,
               // }}
@@ -53,12 +53,12 @@ const login = () => {
             </View>
 
             <FormField
-              title="Email"
-              value={form.email}
-              handleChangeText={(e) => setForm({ ...form, email: e })}
-              placeholder="Enter your email"
+              title="Username"
+              value={form.username}
+              handleChangeText={(e) => setForm({ ...form, username: e })}
+              placeholder="Enter your username"
               otherStyles="mt-7"
-              keyboardType="email-address"
+              keyboardType="default"
             />
 
             <FormField
@@ -91,30 +91,5 @@ const login = () => {
   </KeyboardAvoidingView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  inner: {
-    padding: 24,
-    flex: 1,
-    justifyContent: 'space-around',
-  },
-  header: {
-    fontSize: 36,
-    marginBottom: 48,
-  },
-  textInput: {
-    height: 40,
-    borderColor: '#000000',
-    borderBottomWidth: 1,
-    marginBottom: 36,
-  },
-  btnContainer: {
-    backgroundColor: 'white',
-    marginTop: 12,
-  },
-});
 
 export default login
