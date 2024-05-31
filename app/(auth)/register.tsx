@@ -4,20 +4,55 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 
 import { images } from "../../constants";
+import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 const register = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
     password: "",
     confirmPassword: "",
-    enrollmentCode: "",
+    enrolmentCode: "",
   });
 
   const submit = async () => {
-    router.replace("/home");
+    setSubmitting(true);
+
+    try {
+      // Send POST request for patient registration
+      const response = await fetch('http://10.0.2.2:44818/api/patient/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+          confirmPassword: form.confirmPassword,
+          enrolmentCode: form.enrolmentCode,
+        }),
+      });
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        // Handle successful registration
+        router.replace("/login");
+      } else {
+        // Handle errors
+        console.error("HTTP status ${response.status}");
+        console.error(jsonResponse.message);
+        setModalVisible(true);
+      }
+    } catch (error) { // Error such as Network request failed
+      console.error('Error:', error);
+      
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -35,6 +70,13 @@ const register = () => {
               //   minHeight: Dimensions.get("window").height - 100,
               // }}
             >
+              <ErrorModal 
+                headerMessage="Register "
+                errorMessage="Username already exist. Try again."
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+              />
+
               <View className="relative">
                 <Text className="text-3xl text-black font-bold text-center">
                   Register for an{"\n"}
@@ -74,8 +116,8 @@ const register = () => {
 
               <FormField
                 title="Enrollment Code"
-                value={form.enrollmentCode}
-                handleChangeText={(e) => setForm({ ...form, enrollmentCode: e })}
+                value={form.enrolmentCode}
+                handleChangeText={(e) => setForm({ ...form, enrolmentCode: e })}
                 placeholder="Enter the enrollment code"
                 otherStyles="mt-7"
                 keyboardType="default"
