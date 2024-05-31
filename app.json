@@ -17,8 +17,14 @@
       "supportsTablet": true,
       "softwareKeyboardLayoutMode": "pan",
       "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
         "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
+          "NSAllowsArbitraryLoads": true,
+          "NSAllowsLocalNetworking": true,
+          "NSExceptionDomains": {
+            "NSIncludesSubdomains": true,
+            "NSExceptionAllowsInsecureHTTPLoads": true
+          }
         }
       }
     },

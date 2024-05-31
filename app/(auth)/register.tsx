@@ -23,7 +23,8 @@ const register = () => {
 
     try {
       // Send POST request for patient registration
-      const response = await fetch('http://10.0.2.2:44818/api/patient/register', {
+      // Use ipconfig to find ip address of your pc in the local network
+      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
