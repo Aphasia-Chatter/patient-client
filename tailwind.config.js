@@ -21,10 +21,10 @@ module.exports = {
           light: "#F9C04A",
         },
         black: {
-          DEFAULT: "#212121",
+          DEFAULT: "#000000",
         },
         dark: {
-          DEFAULT: "#38383A"
+          DEFAULT: "#212121"
         },
         light: {
           DEFAULT: "#F9F9F9"

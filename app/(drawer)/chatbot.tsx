@@ -113,10 +113,10 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   };
 
   return (
-    <View className="flex-1 bg-light dark:bg-dark">
-      <SafeAreaView className="flex-1 flex mx-4 ">
+    <View className="flex-1 flex-shrink flex-grow py-4 px-4 bg-light dark:bg-dark">
+      <SafeAreaView className="rounded-lg bg-light dark:bg-black">
         {messages.length > 0 ? (
-          <View className="rounded-3xl p-3">
+          <View className="px-3">
             <FlatList
               data={messages}
               renderItem={renderItem}
@@ -129,17 +129,18 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         ) : (
           <></>
         )}
-        {/* Recording Button */}
-        <View className="flex justify-center items-center">
-          <CustomButton
-            title={isRecording ? "Recording..." : "Tap to start recording"}
-            handlePress={toggleRecording}
-            backgroundColor={isRecording ? "#d55e00" : "#0072B2"}
-            containerStyles={[{ width: '100%' }, { marginTop: 14 }]}
-            isLoading={isRecording}
-          />
-        </View>
       </SafeAreaView>
+
+      {/* Recording Button */}
+      <View className="flex justify-center items-center">
+        <CustomButton
+          title={isRecording ? "Recording..." : "Tap to start recording"}
+          handlePress={toggleRecording}
+          backgroundColor={isRecording ? "#d55e00" : "#0072B2"}
+          containerStyles={[{ width: '100%' }, { marginTop: 14 }]}
+          isLoading={isRecording}
+        />
+      </View>
     </View>
   );
 };

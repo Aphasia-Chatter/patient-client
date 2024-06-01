@@ -2,7 +2,7 @@ import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View } from 'reac
 import React, { useEffect } from 'react'
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
-import { AntDesign, Foundation, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, usePathname } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
@@ -34,7 +34,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       {/* CHATBOT DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
-          <MaterialCommunityIcons name="robot-happy-outline" size={24} color={pathname == '/chatbot' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')}/>
+          <View
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-red-500'>
+            <MaterialCommunityIcons name="robot-happy-outline" size={24} color='#fff'/>
+          </View>
         )}
         label={'Chatbot'}
         labelStyle={[
@@ -50,7 +53,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       {/* RESULTS DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
-          <Foundation name="results" size={24} color={pathname == '/result' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')}/>
+          <View
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-teal-500'>
+            <Feather name="bar-chart-2" size={24} color='#fff'/>
+          </View>
         )}
         label={'Results'}
         labelStyle={[
@@ -66,7 +72,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       {/* PROFILE DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
-          <AntDesign name="user" size={24} color={pathname == '/profile' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')}/>
+          <View
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-amber-500'>
+            <Feather name="user" size={24} color='#fff'/>
+          </View>
         )}
         label={'Profile'}
         labelStyle={[
@@ -82,7 +91,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       {/* SETTINGS DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
-          <Ionicons name="settings-outline" size={24} color={ pathname == '/settings' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')}/>
+          <View
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-gray-500'>
+            <Feather name="settings" size={24} color='#fff'/>
+          </View>
         )}
         label={'Settings'}
         labelStyle={[
