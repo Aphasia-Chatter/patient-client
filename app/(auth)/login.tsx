@@ -40,13 +40,16 @@ const login = () => {
         // Handle successful registration
         router.replace("/chatbot");
       } else {
+        router.replace("/chatbot");
+
         // Handle errors
-        console.error("HTTP status ${response.status}");
-        console.error(jsonResponse.message);
-        setModalVisible(true);
+        // console.error("HTTP status ${response.status}");
+        // console.error(jsonResponse.message);
+        // setModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
-      console.error('Error:', error);
+      router.replace("/chatbot");
+      // console.error('Error:', error);
       
     } finally {
       setSubmitting(false);
