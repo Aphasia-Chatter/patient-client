@@ -23,7 +23,7 @@ const login = () => {
     try {
       // Send POST request for patient login
       // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/register', {
+      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,6 +67,13 @@ const login = () => {
               //   minHeight: Dimensions.get("window").height - 100,
               // }}
           >
+            <ErrorModal 
+              headerMessage="Login "
+              errorMessage="Incorrect username or password! Please try again."
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+            />
+
             <Image
               source={images.logo}
               className="w-[260px] h-[168px]"
