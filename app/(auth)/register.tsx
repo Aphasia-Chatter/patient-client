@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
@@ -58,11 +59,11 @@ const register = () => {
 
   return (
     <KeyboardAvoidingView
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -200}
-    style={{ flex: 1 }}
+      className="flex-1 bg-light dark:bg-dark"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <SafeAreaView className="bg-white h-full">
+      <SafeAreaView className="h-full bg-light dark:bg-dark">
         <ScrollView>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View
@@ -79,7 +80,7 @@ const register = () => {
               />
 
               <View className="relative">
-                <Text className="text-3xl text-black font-bold text-center">
+                <Text className="text-3xl font-bold text-center text-dark dark:text-light">
                   Register for an{"\n"}
                   <Text className="text-primary">Account</Text>{" "}
                 </Text>
@@ -134,8 +135,8 @@ const register = () => {
               />
 
               {/* Redirect to Login Page*/}
-              <View className="flex-row justify-center mt-4">
-                <Text className="text-black font-semibold">Have an account already?</Text>
+              <View className="flex-row justify-center mt-8">
+                <Text className="font-semibold text-dark dark:text-light">Have an account already?</Text>
                 <Pressable onPress={() => router.push("/login")}>
                   <Text className="font-semibold text-secondary"> Login here</Text>
                 </Pressable>

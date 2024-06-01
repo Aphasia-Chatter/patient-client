@@ -1,6 +1,8 @@
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image, Text, View, FlatList, ListRenderItem } from "react-native";
+
 import CustomButton from "../../components/CustomButton";
 import { images, icons } from "../../constants";
 
@@ -72,7 +74,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               style={{ height: 32, width: 32, marginRight: 8 }}
             />
             {/* Chatbot Image Message Bubble */}
-            <View className="p-2 flex rounded-2xl bg-blue-200 rounded-tl-none">
+            <View className="p-2 flex rounded-2xl rounded-tl-none bg-gray-200 dark:bg-gray-600">
               <Image
                 source={images.cycling}
                 className="rounded-2xl"
@@ -93,8 +95,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               style={{ height: 32, width: 32, marginRight: 8 }}
             />
             {/* Chatbot Message Bubble */}
-            <View className="bg-blue-200 rounded-xl p-2 rounded-tl-none flex-1">
-              <Text>{item.content}</Text>
+            <View className="rounded-xl p-2 rounded-tl-none flex-1 bg-gray-200 dark:bg-gray-600">
+              <Text className='text-dark dark:text-light'>{item.content}</Text>
             </View>
           </View>
         );
@@ -103,28 +105,26 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       // Patient Input
       return (
         // Patient Message Bubble
-        <View key={index} className="bg-white rounded-xl p-2 rounded-tr-none ml-16 mb-3">
-          <Text>{item.content}</Text>
+        <View key={index} className="rounded-xl p-2 rounded-tr-none ml-16 mb-3 bg-blue-500 dark:bg-blue-600">
+          <Text className='text-light'>{item.content}</Text>
         </View>
       );
     }
   };
 
   return (
-    <View className="flex-1 bg-white">
-      <SafeAreaView className="flex-1 flex mx-5 mb-5">
+    <View className="flex-1 bg-light dark:bg-dark">
+      <SafeAreaView className="flex-1 flex mx-4 ">
         {messages.length > 0 ? (
-          <View className="space-y-2 flex-1">
-            <View className="bg-neutral-200 rounded-3xl p-4">
-              <FlatList
-                data={messages}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-                ref={flatListRef}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-              />
-            </View>
+          <View className="rounded-3xl p-3">
+            <FlatList
+              data={messages}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => index.toString()}
+              showsVerticalScrollIndicator={false}
+              ref={flatListRef}
+              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            />
           </View>
         ) : (
           <></>

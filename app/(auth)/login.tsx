@@ -5,10 +5,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 
 import { images } from "../../constants";
+import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 const login = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -16,16 +18,48 @@ const login = () => {
   });
 
   const submit = async () => {
-    router.replace("/chatbot");
+    setSubmitting(true);
+
+    try {
+      // Send POST request for patient login
+      // Use ipconfig to find ip address of your pc in the local network
+      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+        }),
+      });
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        // Handle successful registration
+        router.replace("/chatbot");
+      } else {
+        // Handle errors
+        console.error("HTTP status ${response.status}");
+        console.error(jsonResponse.message);
+        setModalVisible(true);
+      }
+    } catch (error) { // Error such as Network request failed
+      console.error('Error:', error);
+      
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-        style={{ flex: 1, backgroundColor: 'white' }}
+      className="flex-1 bg-light dark:bg-dark"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-    <SafeAreaView className="bg-white h-full">
+    <SafeAreaView className="h-full bg-light dark:bg-dark">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View
             className="w-full flex justify-center items-center h-full px-4 my-4"
@@ -40,7 +74,7 @@ const login = () => {
             />
 
             <View className="relative">
-              <Text className="text-3xl text-black font-bold text-center">
+              <Text className="text-3xl font-bold text-center text-dark dark:text-light">
                 Log in with your{"\n"}
                 <Text className="text-primary">Account</Text>{" "}
               </Text>
@@ -79,8 +113,8 @@ const login = () => {
             />
 
             {/* Redirect to Register Page */}
-            <View className="flex-row justify-center mt-4">
-              <Text className="text-black font-semibold">Don't have an account?</Text>
+            <View className="flex-row justify-center mt-8">
+              <Text className="font-semibold text-dark dark:text-light">Don't have an account?</Text>
               <Pressable onPress={() => router.push("/register")}>
                 <Text className="font-semibold text-secondary"> Register here</Text>
               </Pressable>

@@ -1,11 +1,9 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { StatusBar } from "expo-status-bar";
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from "nativewind";
 
 import { NativeWindStyleSheet } from "nativewind";
 
@@ -17,7 +15,7 @@ NativeWindStyleSheet.setOutput({
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
@@ -36,13 +34,11 @@ const RootLayout = () => {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false}}/>
-        <Stack.Screen name="(auth)" options={{ headerShown: false}}/>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false}}/>
-      </Stack>
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false}}/>
+      <Stack.Screen name="(auth)" options={{ headerShown: false}}/>
+      <Stack.Screen name="(drawer)" options={{ headerShown: false}}/>
+    </Stack>  
   );
 }
 
