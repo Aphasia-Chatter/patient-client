@@ -1,20 +1,23 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
-import { images } from "../../constants";
-import ErrorModal from "../../components/ErrorModal";
-import CustomButton from "../../components/CustomButton";
-import FormField from "../../components/FormField";
+import { images } from "../../../constants";
+import ErrorModal from "../../../components/ErrorModal";
+import CustomButton from "../../../components/CustomButton";
+import FormField from "../../../components/FormField";
 
-const login = () => {
+const change_password = () => {
+  const { colorScheme } = useColorScheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    username: "",
-    password: "",
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
   });
 
   const submit = async () => {
@@ -23,14 +26,15 @@ const login = () => {
     try {
       // Send POST request for patient login
       // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/login', {
+      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/change_password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: form.username,
-          password: form.password,
+            oldPassword: form.oldPassword,
+            newPassword: form.newPassword,
+            confirmNewPassword: form.confirmNewPassword,
         }),
       });
 
@@ -38,9 +42,9 @@ const login = () => {
 
       if (response.ok) {
         // Handle successful registration
-        router.replace("/chatbot");
+        router.replace("/(drawer)/profile");
       } else {
-        router.replace("/chatbot");
+        router.replace("/(drawer)/profile");
 
         // Handle errors
         // console.error("HTTP status ${response.status}");
@@ -48,7 +52,7 @@ const login = () => {
         // setModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
-      router.replace("/chatbot");
+      router.replace("/(drawer)/profile");
       // console.error('Error:', error);
       
     } finally {
@@ -62,7 +66,6 @@ const login = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      
     <SafeAreaView className=" bg-light dark:bg-dark">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="w-full h-full flex justify-center items-center px-4"
@@ -78,8 +81,8 @@ const login = () => {
             </View>
 
           <ErrorModal 
-            headerMessage="Login "
-            errorMessage="Incorrect username or password! Please try again."
+            headerMessage="Update Password "
+            errorMessage="Incorrect old password, new password or confirm password! Please try again."
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
           />
@@ -92,8 +95,8 @@ const login = () => {
 
           <View className="relative">
             <Text className="text-3xl font-bold text-center text-dark dark:text-light">
-              Log in with your{"\n"}
-              <Text className="text-primary">Account</Text>{" "}
+              Change Your Account{"\n"}
+              <Text className="text-primary">Password</Text>{" "}
             </Text>
 
             <Image
@@ -104,38 +107,30 @@ const login = () => {
           </View>
 
           <FormField
-            title="Username"
-            value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e })}
+            title="Old Password"
+            value={form.oldPassword}
+            handleChangeText={(e) => setForm({ ...form, oldPassword: e })}
             placeholder="Enter your username"
             otherStyles="mt-7"
             keyboardType="default"
           />
 
           <FormField
-            title="Password"
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
+            title="New Password"
+            value={form.newPassword}
+            handleChangeText={(e) => setForm({ ...form, newPassword: e })}
             placeholder="Enter your password"
             otherStyles="mt-4"
           />
 
-          {/* Login */}
+          {/* Update Password */}
           <CustomButton
-            title="Sign In"
+            title="Update Password"
             handlePress={submit}
             backgroundColor="#0072B2"
             containerStyles={[{ width: '100%' }, { marginTop: 16 }]}
             isLoading={isSubmitting}
           />
-
-          {/* Redirect to Register Page */}
-          <View className="flex-row justify-center mt-8">
-            <Text className="font-semibold text-dark dark:text-light">Don't have an account?</Text>
-            <Pressable onPress={() => router.push("/register")}>
-              <Text className="font-semibold text-orange-400 dark:text-yellow-500"> Register here</Text>
-            </Pressable>
-          </View>
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -143,4 +138,4 @@ const login = () => {
   )
 }
 
-export default login
+export default change_password

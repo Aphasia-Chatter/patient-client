@@ -1,8 +1,6 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import { Link, router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, SafeAreaView, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";

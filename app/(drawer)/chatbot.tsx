@@ -1,6 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Image, Text, View, FlatList, ListRenderItem, StyleSheet } from "react-native";
 
 import CustomButton from "../../components/CustomButton";

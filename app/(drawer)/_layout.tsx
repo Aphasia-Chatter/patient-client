@@ -120,7 +120,12 @@ const DrawerLayout = () => {
           headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
           headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
           drawerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight
-        }}/>
+        }}
+      >
+        <Drawer.Screen name="chatbot" options={{headerShown: true}} />
+        <Drawer.Screen name="result" options={{headerShown: true}} />
+        <Drawer.Screen name="profile" options={{headerShown: true}} />
+      </Drawer>
       
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </>

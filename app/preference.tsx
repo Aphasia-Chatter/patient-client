@@ -7,7 +7,7 @@ const preference = () => {
   const {colorScheme, toggleColorScheme} = useColorScheme();
 
   return (
-    <View className='flex-1 flex-grow px-4 py-4 flex-shrink bg-light dark:bg-dark'>
+    <View className='flex-1 flex-grow flex-shrink px-4 py-4 bg-light dark:bg-dark'>
       <ScrollView>
         <SafeAreaView className="rounded-lg bg-light-MID dark:bg-dark-MID">
           {/* Select Language */}

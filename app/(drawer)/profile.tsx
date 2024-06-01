@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, router } from "expo-router";
 import { StyleSheet, SafeAreaView, View, ScrollView, Text, TouchableOpacity, Pressable, Switch, Image} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
@@ -9,10 +10,10 @@ const profile = () => {
   const {colorScheme, toggleColorScheme} = useColorScheme();
 
   return (
-    <View className='flex-1 flex-shrink flex-grow py-4 px-4 bg-light dark:bg-dark'>
+    <View className='flex-1 flex-grow flex-shrink py-4 px-4 bg-light dark:bg-dark'>
       <ScrollView>
         {/* IMAGE DISPLAY */}
-        <SafeAreaView className='rounded-lg mb-10 pt-3 pb-6 px-6'>
+        <SafeAreaView className='rounded-lg pb-6 px-6'>
           <View className='px-3 pt-3 items-center justify-start'>
             <Image
               source={icons.chatbot}
@@ -31,6 +32,7 @@ const profile = () => {
                 <Pressable
                   onPress={() => {
                     // handle onPress
+                    router.push("/register")
                   }}
                   className='flex-row items-center justify-start pr-4 h-12'>
                   <View

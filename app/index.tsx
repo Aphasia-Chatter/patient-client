@@ -1,8 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React from 'react'
 import { Redirect, router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Image, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, SafeAreaView, Text, Image, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
 import { images, icons } from "../constants";
@@ -50,7 +49,7 @@ const Welcome = () => {
               {/* Continue to login page */}
               <CustomButton
                 title="Continue"
-                handlePress={() => router.push("/login")} // change to the page you want for faster debug
+                handlePress={() => router.push("/(drawer)/profile")} // change to the page you want for faster debug
                 backgroundColor="#0072B2" 
                 containerStyles={[{ width: '100%' }, { marginTop: 16 }]}
                 isLoading={false}
