@@ -31,7 +31,7 @@ const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handle
           {...props}
         />
 
-        {(title === "Password" || title === "Confirm Password") && (
+        {(title === "Password" || title === "Confirm Password" || title === "Current Password" || title === "New Password" || title === "Confirm New Password") && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <FontAwesome5
               name={showPassword === true ? "eye" : "eye-slash"}

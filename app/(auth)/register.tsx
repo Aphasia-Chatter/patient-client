@@ -65,7 +65,7 @@ const register = () => {
         <ScrollView>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View
-              className="w-full flex justify-center items-center h-full px-4 my-4"
+              className="w-full flex justify-center items-center px-4 my-4"
               // style={{
               //   minHeight: Dimensions.get("window").height - 100,
               // }}
@@ -128,7 +128,7 @@ const register = () => {
                 title="Register"
                 handlePress={submit}
                 backgroundColor="#0072B2"
-                containerStyles={[{ width: '100%' }, { marginTop: 14 }]}
+                containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
                 isLoading={isSubmitting}
               />
 

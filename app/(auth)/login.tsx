@@ -125,7 +125,7 @@ const login = () => {
             title="Sign In"
             handlePress={submit}
             backgroundColor="#0072B2"
-            containerStyles={[{ width: '100%' }, { marginTop: 16 }]}
+            containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
             isLoading={isSubmitting}
           />
 

@@ -42,6 +42,13 @@ const RootLayout = () => {
           options={{ 
             headerShown: false
         }}/>
+        
+        <Stack.Screen
+          name="(auth)"
+          options={{
+            headerShown: false,
+            headerTitle: "Back"
+        }}/>
 
         <Stack.Screen
           name="preference"
@@ -49,18 +56,23 @@ const RootLayout = () => {
             headerShown: true,
             headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
             headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
-        }}/>
-        
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false
+            headerTitle: "Preference"
         }}/>
 
         <Stack.Screen
           name="(drawer)"
           options={{
-            headerShown: false
+            headerShown: false,
+            headerTitle: "Back"
+        }}/>
+
+        <Stack.Screen
+          name="account/change_password"
+          options={{
+            headerShown: true,
+            headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
+            headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
+            headerTitle: "Change Password"
         }}/>
       </Stack>  
     

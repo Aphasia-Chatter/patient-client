@@ -133,7 +133,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           title={isRecording ? "Recording..." : "Tap to start recording"}
           handlePress={toggleRecording}
           backgroundColor={isRecording ? "#d55e00" : "#0072B2"}
-          containerStyles={[{ width: '75%' }, { marginTop: 14 }]}
+          containerStyles={[{ width: '75%' }, { marginTop: 18 }]}
           isLoading={isRecording}
         />
       </View>

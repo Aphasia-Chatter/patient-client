@@ -29,7 +29,7 @@ const preference = () => {
           </View>
 
           {/* Dark Mode Toggle */}
-          <View className='border-t-2 border-t-gray-200 dark:border-t-gray-500'>
+          <View className='border-t-2 border-t-neutral-200 dark:border-t-neutral-700'>
             <View className='flex-row items-center justify-start pr-4 h-12'>
               <View
                 className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-blue-600'>
