@@ -1,7 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { Redirect, Stack } from "expo-router";
+import { useColorScheme } from 'nativewind';
 
 const AuthLayout = () => {
+  const { colorScheme } = useColorScheme();
+
   return (
     <>
       <Stack>
@@ -18,6 +21,8 @@ const AuthLayout = () => {
           }}
         />
       </Stack>
+
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </>
   );
 };

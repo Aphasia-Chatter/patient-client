@@ -1,8 +1,9 @@
-import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View } from 'react-native'
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from 'react'
+import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View } from 'react-native'
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
-import { AntDesign, Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, usePathname } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
@@ -20,15 +21,13 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   return(
     <DrawerContentScrollView {...props}>
       {/* APP NAME WITH LOGO */}
-      <SafeAreaView className="pt-5 pb-5 ">
-        <View className="flex-row items-center justify-center">
-          <Image
-            source={images.logoSmall}
-            className="w-9 h-10"
-            resizeMode="contain"
-          />
-          <Text className="ml-4 text-base text-dark dark:text-light">AphasiaChatter</Text>
-        </View>
+      <SafeAreaView className="flex-row items-center justify-center">
+        <Image
+          source={images.logoSmall}
+          className="w-10 h-10"
+          resizeMode="contain"
+        />
+        <Text className="font-sans text-xl ml-2 text-dark dark:text-light">AphasiaChatter</Text>
       </SafeAreaView>
 
       {/* CHATBOT DRAWER ITEM */}
@@ -44,7 +43,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           styles.navItemLabel,
           { color: pathname == '/chatbot' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
         ]}
-        style={{backgroundColor: pathname == '/chatbot' ? '#0072B2' : (colorScheme === 'dark' ? '#333' : '#fff')}}
+        style={{backgroundColor: pathname == '/chatbot' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
         onPress={() => {
           router.push('/(drawer)/chatbot')
         }}
@@ -63,7 +62,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           styles.navItemLabel,
           { color: pathname == '/result' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
         ]}
-        style={{backgroundColor: pathname == '/result' ? '#0072B2' : (colorScheme === 'dark' ? '#333' : '#fff')}}
+        style={{backgroundColor: pathname == '/result' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
         onPress={() => {
           router.push('/(drawer)/result')
         }}
@@ -82,28 +81,9 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           styles.navItemLabel,
           { color: pathname == '/profile' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
         ]}
-        style={{backgroundColor: pathname == '/profile' ? '#0072B2' : (colorScheme === 'dark' ? '#333' : '#fff')}}
+        style={{backgroundColor: pathname == '/profile' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
         onPress={() => {
           router.push('/(drawer)/profile')
-        }}
-      />
-      
-      {/* SETTINGS DRAWER ITEM */}
-      <DrawerItem
-        icon={({color, size}) => (
-          <View
-          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-gray-500'>
-            <Feather name="settings" size={24} color='#fff'/>
-          </View>
-        )}
-        label={'Settings'}
-        labelStyle={[
-          styles.navItemLabel,
-          { color: pathname == '/settings' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
-        ]}
-        style={{backgroundColor: pathname == '/settings' ? '#0072B2' : (colorScheme === 'dark' ? '#333' : '#fff')}}
-        onPress={() => {
-          router.push('/(drawer)/settings')
         }}
       />
 
@@ -118,7 +98,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
             styles.navItemLabel,
             { color: '#d55e00' },   
           ]}
-          style={{backgroundColor: (colorScheme === 'dark' ? '#333' : '#fff')}}
+          style={{backgroundColor: (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
           onPress={() => {
             router.push('/(auth)/login')
           }}
@@ -132,24 +112,28 @@ const DrawerLayout = () => {
   const { colorScheme } = useColorScheme();
 
   return (
-    <Drawer 
-      drawerContent={(props) => <CustomDrawerContent children={undefined} {...props}/>}
-      screenOptions={{
-        headerTitleAlign: 'center',
-        headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
-        headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
-        drawerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight
-      }}/>
+    <>
+      <Drawer 
+        drawerContent={(props) => <CustomDrawerContent children={undefined} {...props}/>}
+        screenOptions={{
+          headerTitleAlign: 'center',
+          headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
+          headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
+          drawerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight
+        }}/>
+      
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   navItemLabel: {marginLeft: -8, fontSize: 16},
   drawerDark: {
-    backgroundColor: '#333', // Dark background color
+    backgroundColor: '#171717', // Dark background color
   },
   drawerLight: {
-    backgroundColor: '#fff', // Light background color
+    backgroundColor: '#F9F9F9', // Light background color
   },
 })
 

@@ -87,7 +87,7 @@ const register = () => {
 
                 <Image
                   source={images.path}
-                  className="w-[136px] h-[15px] absolute -bottom-2 -right-8"
+                  className="w-[136px] h-[15px] absolute -bottom-3 -right-0"
                   resizeMode="contain"
                 />
               </View>
@@ -138,7 +138,7 @@ const register = () => {
               <View className="flex-row justify-center mt-8">
                 <Text className="font-semibold text-dark dark:text-light">Have an account already?</Text>
                 <Pressable onPress={() => router.push("/login")}>
-                  <Text className="font-semibold text-secondary"> Login here</Text>
+                  <Text className="font-semibold text-orange-400 dark:text-yellow-500"> Login here</Text>
                 </Pressable>
               </View>
             </View>

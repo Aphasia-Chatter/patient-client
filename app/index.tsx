@@ -3,10 +3,14 @@ import React from 'react'
 import { Redirect, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Image, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { useColorScheme } from 'nativewind';
+
 import { images, icons } from "../constants";
 import CustomButton from "../components/CustomButton";
 
 const Welcome = () => {
+  const { colorScheme } = useColorScheme();
+
   return (
       <SafeAreaView className="h-full bg-light dark:bg-dark">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -26,14 +30,14 @@ const Welcome = () => {
                   />
 
                 {/* Welcome To the App */}
-                <Text className="text-3xl font-bold text-center text-dark dark:text-light">
+                <Text className="text-3xl text font-bold text-center text-dark dark:text-light">
                   Welcome to{"\n"}
                   <Text className="text-primary">AphasiaChatter</Text>{" "}
                 </Text>
 
                 <Image
                   source={images.path}
-                  className="w-[136px] h-[15px] absolute -bottom-2 -right-8"
+                  className="w-[136px] h-[15px] absolute -bottom-3 -right-11"
                   resizeMode="contain"
                 />
               </View>
@@ -46,9 +50,9 @@ const Welcome = () => {
               {/* Continue to login page */}
               <CustomButton
                 title="Continue"
-                handlePress={() => router.push("/login")}
+                handlePress={() => router.push("/login")} // change to the page you want for faster debug
                 backgroundColor="#0072B2" 
-                containerStyles={[{ width: '100%' }, { marginTop: 14 }]}
+                containerStyles={[{ width: '100%' }, { marginTop: 16 }]}
                 isLoading={false}
               />
             </View>

@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from "nativewind";
+import { StyleSheet } from 'react-native';
 
 import { NativeWindStyleSheet } from "nativewind";
 
@@ -34,12 +35,49 @@ const RootLayout = () => {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false}}/>
-      <Stack.Screen name="(auth)" options={{ headerShown: false}}/>
-      <Stack.Screen name="(drawer)" options={{ headerShown: false}}/>
-    </Stack>  
+    <>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{ 
+            headerShown: false
+        }}/>
+
+        <Stack.Screen
+          name="preference"
+          options={{
+            headerShown: true,
+            headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
+            headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
+        }}/>
+        
+        <Stack.Screen
+          name="(auth)"
+          options={{
+            headerShown: false
+        }}/>
+
+        <Stack.Screen
+          name="(drawer)"
+          options={{
+            headerShown: false
+        }}/>
+      </Stack>  
+    
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    </>
+
   );
 }
+
+const styles = StyleSheet.create({
+  navItemLabel: {marginLeft: -8, fontSize: 16},
+  drawerDark: {
+    backgroundColor: '#171717', // Dark background color
+  },
+  drawerLight: {
+    backgroundColor: '#F9F9F9', // Light background color
+  },
+})
 
 export default RootLayout

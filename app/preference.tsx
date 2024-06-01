@@ -3,18 +3,13 @@ import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch } f
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
-export default function Example() {
+const preference = () => {
   const {colorScheme, toggleColorScheme} = useColorScheme();
-  const [form, setForm] = useState({
-    darkMode: false,
-    emailNotifications: true,
-    pushNotifications: false,
-  });
 
   return (
-    <View className='flex-1 py-4 px-4 flex-grow flex-shrink bg-light dark:bg-dark'>
+    <View className='flex-1 flex-grow px-4 py-4 flex-shrink bg-light dark:bg-dark'>
       <ScrollView>
-        <SafeAreaView className="rounded-lg bg-neutral-100 dark:bg-gray-600">
+        <SafeAreaView className="rounded-lg bg-light-MID dark:bg-dark-MID">
           {/* Select Language */}
           <View >
             <Pressable
@@ -26,9 +21,9 @@ export default function Example() {
                 className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-orange-500'>
                 <Feather color="#fff" name="globe" size={20} />
               </View>
-              <Text className="font-medium text-lg text-dark dark:text-light">Language</Text>
+              <Text className="font-normal text-lg text-dark dark:text-light">Language</Text>
               <View className='flex-grow flex-shrink' />
-              <Text className="font-medium text-lg mr-2 text-dark dark:text-light">English</Text>
+              <Text className="font-normal text-lg mr-2 text-dark dark:text-light">English</Text>
               <Feather color="#C6C6C6" name="chevron-right" size={24} />
             </Pressable>
           </View>
@@ -41,7 +36,7 @@ export default function Example() {
                 <Feather color="#fff" name="moon" size={20} />
               </View>
 
-              <Text className="font-medium text-lg text-dark dark:text-light">Dark Mode</Text>
+              <Text className="font-normal text-lg text-dark dark:text-light">Dark Mode</Text>
               <View className='flex-grow flex-shrink' />
 
               <Switch value={colorScheme === 'dark'} onChange={toggleColorScheme}></Switch>
@@ -53,15 +48,4 @@ export default function Example() {
   );
 }
 
-const styles = StyleSheet.create({
-
-
-  /** Row */
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingRight: 16,
-    height: 50,
-  },
-});
+export default preference

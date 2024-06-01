@@ -14,38 +14,29 @@ interface FormFieldProps extends TextInputProps {
 const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handleChangeText, otherStyles, ...props }) => {
   const { colorScheme } = useColorScheme();
   const [showPassword, setShowPassword] = useState(false);
+  
   return (
     <View className={`space-y-2 ${otherStyles}`}>
-      <Text className="text-base font-pmedium text-dark dark:text-light">{title}</Text>
+      <Text className="text-base font-normal text-dark dark:text-light">{title}</Text>
 
-      <View className="w-full h-16 px-4 py-4 text-gray-100 rounded-xl border-2 border-black-200 focus:border-secondary flex flex-row items-center">
+      <View className="w-full h-16 px-4 py-4 text-gray-100 rounded-xl border-2 border-light-MID dark:border-dark-MID bg-light-MID dark:bg-dark-MID focus:border-secondary flex flex-row items-center">
         <TextInput
-          className="flex-1 font-psemibold text-base "
+          className="flex-1 font-psemibold text-base text-dark dark:text-light bg-light-MID dark:bg-dark-MID"
           value={value}
           placeholder={placeholder}
-          placeholderTextColor={colorScheme === 'dark' ? '#fff' : '#000'}
+          placeholderTextColor={colorScheme === 'dark' ? '#fff' : '#525252'}
           onChangeText={handleChangeText}
-          secureTextEntry={title === "Password" || title === "Confirm Password" && !showPassword}
+          secureTextEntry={(title === "Password" || title === "Confirm Password") && !showPassword}
           autoCorrect={false}
           {...props}
         />
 
-        {title === "Password" && (
+        {(title === "Password" || title === "Confirm Password") && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <FontAwesome5
-              name={!showPassword ? "eye" : "eye-slash"}
+              name={showPassword === true ? "eye" : "eye-slash"}
               size={24}
-              color={colorScheme ? '#fff' : '#000'}
-            />
-          </TouchableOpacity>
-        )}
-
-        {title === "Confirm Password" && (
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <FontAwesome5
-              name={!showPassword ? "eye" : "eye-slash"}
-              size={24}
-              color={colorScheme ? '#fff' : '#000'}
+              color={colorScheme === 'dark'  ? '#fff' : '#525252'}
             />
           </TouchableOpacity>
         )}
