@@ -21,7 +21,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   return(
     <DrawerContentScrollView {...props}>
       {/* APP NAME WITH LOGO */}
-      <SafeAreaView className="flex-row items-center justify-center">
+      <SafeAreaView className="flex-row items-center justify-center mb-6">
         <Image
           source={images.logoSmall}
           className="w-10 h-10"

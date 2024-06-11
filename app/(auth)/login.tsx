@@ -22,8 +22,8 @@ const login = () => {
 
     try {
       // Send POST request for patient login
-      // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/login', {
+      // Use ipconfig to find ip address of your pc/emulator in the local network
+      const response = await fetch('http://10.0.2.2:44818/api/patient/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,8 +62,7 @@ const login = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      
-    <SafeAreaView className=" bg-light dark:bg-dark">
+    <SafeAreaView className="h-full bg-light dark:bg-dark">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="w-full h-full flex justify-center items-center px-4"
             // style={{
@@ -71,11 +70,13 @@ const login = () => {
             // }}
         >
           {/* Preference Logo */}
-            <View className='w-30 h-30 absolute top-0 right-0 mt-4 mr-8 p-1 rounded-full justify-items-center align-middle bg-neutral-300 dark:bg-neutral-700'>
-              <Pressable onPress={() => router.push("/preference")}>
-                <Feather name="settings" size={24} color={'#F9F9F9'}/>
-              </Pressable>
-            </View>
+          
+          <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
+            <Pressable onPress={() => router.push("/preference")}>
+              <Feather name="settings" size={24} color={'#F9F9F9'}/>
+            </Pressable>
+          </View>
+
 
           <ErrorModal 
             headerMessage="Login "
