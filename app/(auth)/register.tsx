@@ -4,11 +4,25 @@ import { View, SafeAreaView, Text, Image, ScrollView, Pressable, KeyboardAvoidin
 
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
+import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 const register = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const handleSuccessModalDismiss = () => {
+    // Redirect to home page
+    setSuccessModalVisible(false);
+    router.replace("/login");
+  };
+
+
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -39,13 +53,17 @@ const register = () => {
       const jsonResponse = await response.json();
 
       if (response.ok) {
-        // Handle successful registration
-        router.replace("/login");
+        // Handle successful login
+        setSuccessHeaderMessage(jsonResponse.status)
+        setSuccessMessage(jsonResponse.message)
+        setSuccessModalVisible(true);
+
+
       } else {
         // Handle errors
-        console.error("HTTP status ${response.status}");
-        console.error(jsonResponse.message);
-        setModalVisible(true);
+        setErrorHeaderMessage(jsonResponse.status)
+        setErrorMessage(jsonResponse.message)
+        setErrorModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
       console.error('Error:', error);
@@ -69,10 +87,17 @@ const register = () => {
             // }}
           >
             <ErrorModal 
-              headerMessage="Register "
-              errorMessage="Username already exist. Try again."
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
+              headerMessage={errorHeaderMessage}
+              errorMessage={errorMessage}
+              modalVisible={errorModalVisible}
+              setModalVisible={setErrorModalVisible}
+            />
+
+            <SuccessModal
+              headerMessage={successHeaderMessage}
+              successMessage={successMessage}
+              modalVisible={successModalVisible}
+              onDismiss={handleSuccessModalDismiss}
             />
 
             <View className="relative">

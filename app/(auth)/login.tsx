@@ -2,15 +2,27 @@ import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
+import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 const login = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const handleSuccessModalDismiss = () => {
+    // Redirect to home page
+    setSuccessModalVisible(false);
+    router.replace("/chatbot");
+  };
+
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -37,19 +49,19 @@ const login = () => {
       const jsonResponse = await response.json();
 
       if (response.ok) {
-        // Handle successful registration
-        router.replace("/chatbot");
-      } else {
-        router.replace("/chatbot");
+        // Handle successful login
+        setSuccessHeaderMessage(jsonResponse.status)
+        setSuccessMessage(jsonResponse.message)
+        setSuccessModalVisible(true);
 
+      } else {
         // Handle errors
-        // console.error("HTTP status ${response.status}");
-        // console.error(jsonResponse.message);
-        // setModalVisible(true);
+        setErrorHeaderMessage(jsonResponse.status)
+        setErrorMessage(jsonResponse.message)
+        setErrorModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
-      router.replace("/chatbot");
-      // console.error('Error:', error);
+      console.error('Error:', error);
       
     } finally {
       setSubmitting(false);
@@ -70,7 +82,6 @@ const login = () => {
             // }}
         >
           {/* Preference Logo */}
-          
           <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
             <Pressable onPress={() => router.push("/preference")}>
               <Feather name="settings" size={24} color={'#F9F9F9'}/>
@@ -79,10 +90,17 @@ const login = () => {
 
 
           <ErrorModal 
-            headerMessage="Login "
-            errorMessage="Incorrect username or password! Please try again."
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
+            headerMessage={errorHeaderMessage}
+            errorMessage={errorMessage}
+            modalVisible={errorModalVisible}
+            setModalVisible={setErrorModalVisible}
+          />
+
+          <SuccessModal
+            headerMessage={successHeaderMessage}
+            successMessage={successMessage}
+            modalVisible={successModalVisible}
+            onDismiss={handleSuccessModalDismiss}
           />
 
           <Image
