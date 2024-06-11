@@ -1,6 +1,6 @@
 import {Alert, Modal, StyleSheet, Text, Pressable, View} from 'react-native';
 import React from 'react'
-import { useState } from "react";
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface ErrorModalProps {
     headerMessage: string;
@@ -12,9 +12,11 @@ interface ErrorModalProps {
 const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, modalVisible, setModalVisible }) => {
     // Modal Header
     const modalHeader=(
-        <View style={styles.modalHeader}>
-          <Text style={styles.title}>{headerMessage}</Text>
-          <View style={styles.divider}></View>
+        <View className='bg-red-500' style={styles.modalHeader}>
+          <View className='flex-row items-center'>
+            <MaterialIcons name="error" size={36} color='#fff'/>
+            <Text style={styles.title}>{headerMessage}</Text>
+          </View>
         </View>
     )
 
@@ -30,7 +32,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, mo
     <View style={styles.modalFooter}>
         <View style={styles.divider}></View>
         <View style={{flexDirection:"row-reverse",margin:10}}>
-        <Pressable style={{...styles.actions,backgroundColor:"#db2828"}} 
+        <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
             onPress={() => {
               setModalVisible(false)
             }}>
@@ -87,13 +89,13 @@ const styles = StyleSheet.create({
       borderRadius:5
     },
     modalHeader:{
-      
+      paddingStart: 12
     },
     title:{
       fontWeight:"bold",
       fontSize:20,
       padding:15,
-      color:"#000"
+      color:"#fff"
     },
     divider:{
       width:"100%",
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
     modalBody:{
       backgroundColor:"#fff",
       paddingVertical:20,
-      paddingHorizontal:10
+      paddingHorizontal:15
     },
     modalFooter:{
     },
