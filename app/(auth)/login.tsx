@@ -2,26 +2,18 @@ import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import * as SecureStore from 'expo-secure-store';
 
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
-import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
+import { save, getValueFor } from "../../helpers/SecureStore";
 
 const login = () => {
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [successModalVisible, setSuccessModalVisible] = useState(false);
-  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const handleSuccessModalDismiss = () => {
-    // Redirect to home page
-    setSuccessModalVisible(false);
-    router.replace("/chatbot");
-  };
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -49,10 +41,12 @@ const login = () => {
       const jsonResponse = await response.json();
 
       if (response.ok) {
-        // Handle successful login
-        setSuccessHeaderMessage(jsonResponse.status)
-        setSuccessMessage(jsonResponse.message)
-        setSuccessModalVisible(true);
+        // 1. Create session in the database
+
+        // 2. Save session into local storage in device
+
+        // 3. Handle successful login
+        router.replace("/chatbot");
 
       } else {
         // Handle errors
@@ -88,19 +82,11 @@ const login = () => {
             </Pressable>
           </View>
 
-
           <ErrorModal 
             headerMessage={errorHeaderMessage}
             errorMessage={errorMessage}
             modalVisible={errorModalVisible}
             setModalVisible={setErrorModalVisible}
-          />
-
-          <SuccessModal
-            headerMessage={successHeaderMessage}
-            successMessage={successMessage}
-            modalVisible={successModalVisible}
-            onDismiss={handleSuccessModalDismiss}
           />
 
           <Image

@@ -14,6 +14,9 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "supportsTablet": true,
       "softwareKeyboardLayoutMode": "pan",
       "infoPlist": {
@@ -30,7 +33,7 @@
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
-      "usesCleartextTraffic":"true",
+      "usesCleartextTraffic": "true",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -42,7 +45,11 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      {
+        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      }
     ],
     "experiments": {
       "typedRoutes": true
