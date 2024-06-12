@@ -3,10 +3,10 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from "nativewind";
 import { StyleSheet } from 'react-native';
+import { NativeWindStyleSheet, useColorScheme } from "nativewind";
 
-import { NativeWindStyleSheet } from "nativewind";
+import { AuthProvider } from "../context/AuthContext"
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -35,7 +35,7 @@ const RootLayout = () => {
   }
 
   return (
-    <>
+    <AuthProvider>
       <Stack>
         <Stack.Screen
           name="index"
@@ -77,7 +77,7 @@ const RootLayout = () => {
       </Stack>  
     
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-    </>
+    </AuthProvider>
 
   );
 }

@@ -46,10 +46,7 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
-      {
-        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
-      }
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

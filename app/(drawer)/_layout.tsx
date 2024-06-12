@@ -1,22 +1,60 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from 'react'
-import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaView } from 'react-native'
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, usePathname } from "expo-router";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";
+import { useAuthContext } from '../../context/AuthContext';
+import { fetchValue, deleteValue } from "../../utils/SecureStore";
 
 const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewProps & { children: React.ReactNode; } & React.RefAttributes<ScrollView>) => {
+  const { appUser, setAppUser } = useAuthContext();
+  const [isSubmitting, setSubmitting] = useState(false);
+
   const { colorScheme } = useColorScheme();
   const pathname = usePathname();
-
   useEffect(() => {
     console.log(pathname)
   })
+
+  const logout = async () => {
+    setSubmitting(true);
+
+    try {
+      // Send POST request for patient logout
+      // Use ipconfig to find ip address of your pc/emulator in the local network
+      const response = await fetch('http://10.0.2.2:44818/api/patient/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: appUser?.username,
+          sessionToken: appUser?.sessionToken
+        }),
+      });
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        // Delete username and session token from local storage in device
+        setAppUser(null)
+        await deleteValue("AppUser")
+
+        // Handle successful logout
+        router.replace('/(auth)/login')
+      }
+    } catch (error) { // Error such as Network request failed
+      console.error('Error:', error);
+      
+    } finally {
+      setSubmitting(false);
+    }
+  };
   
   return(
     <DrawerContentScrollView {...props}>
@@ -100,7 +138,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           ]}
           style={{backgroundColor: (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
           onPress={() => {
-            router.push('/(auth)/login')
+            logout();
           }}
         />
       </View>

@@ -2,15 +2,17 @@ import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
-import * as SecureStore from 'expo-secure-store';
 
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
-import { save, getValueFor } from "../../helpers/SecureStore";
+import { useAuthContext } from '../../context/AuthContext';
+import { saveValue } from "../../utils/SecureStore";
 
 const login = () => {
+  const { setAppUser } = useAuthContext();
+
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,12 +43,12 @@ const login = () => {
       const jsonResponse = await response.json();
 
       if (response.ok) {
-        // 1. Create session in the database
+        // Save username and session token into local storage in device
+        setAppUser(jsonResponse.data)
+        await saveValue("AppUser", jsonResponse.data)
 
-        // 2. Save session into local storage in device
-
-        // 3. Handle successful login
-        router.replace("/chatbot");
+        // Handle successful login
+        router.replace("/(drawer)/chatbot");
 
       } else {
         // Handle errors

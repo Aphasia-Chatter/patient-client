@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, router } from "expo-router";
 import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch, Image} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
 import { icons } from "../../constants";
+import { useAuthContext } from '../../context/AuthContext';
 
 const profile = () => {
+  const { appUser } = useAuthContext();
+  const [ username ] = useState(appUser?.username);
+
   const {colorScheme, toggleColorScheme} = useColorScheme();
 
   return (
     <View className='flex-1 flex-grow flex-shrink px-4 bg-light dark:bg-dark'>
       <ScrollView>
-        {/* IMAGE DISPLAY */}
+        {/* IMAGE DISPLAY WITH USERNAME */}
         <View className='rounded-lg mb-10 p-4 items-center justify-start'>
           <Image
             source={icons.chatbot}
             className="w-24 h-24 rounded-full border-2 mb-3 border-gray-200 dark:border-white"
             resizeMode="contain"
           />
-          <Text className='text-2xl font-sans text-black dark:text-white'>John Doe</Text>
+          <Text className='text-2xl font-sans text-black dark:text-white'>{username}</Text>
         </View>
 
         <View className='mb-10'>
