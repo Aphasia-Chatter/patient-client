@@ -3,8 +3,6 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 interface AppUser {
     username: string;
     sessionToken: string;
-    setUsername: (username: string) => void;
-    setSessionToken: (sessionToken: string) => void;
 }
   
 interface AuthContextType {
