@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useContext, useState } from 'react';
 import { Link, router } from "expo-router";
 import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch, Image} from 'react-native';
@@ -53,6 +54,7 @@ const profile = () => {
               <Pressable
                 onPress={() => {
                   // handle onPress
+                  router.push("/account/delete_account")
                 }}
                 className='flex-row items-center justify-start pr-4 h-12'>
                 <View

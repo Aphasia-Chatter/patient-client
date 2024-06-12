@@ -6,6 +6,7 @@ interface DialogModalProps {
     headerMessage: string;
     dialogMessage: string;
     modalVisible: boolean;
+    setModalVisible: (visible: boolean) => void;
     onConfirm: () => void;
     onDismiss: () => void;
 }
@@ -34,12 +35,12 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
         <View style={styles.divider}></View>
         <View style={{flexDirection:"row-reverse", margin:10}}>
             <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
-                onPress={onConfirm}>
-                <Text style={styles.actionText}>Confirm</Text>
-            </Pressable>
-            <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
                 onPress={onDismiss}>
                 <Text style={styles.actionText}>Dimiss</Text>
+            </Pressable>
+            <Pressable style={{...styles.actions,backgroundColor:"#0072B2"}} 
+                onPress={onConfirm}>
+                <Text style={styles.actionText}>Confirm</Text>
             </Pressable>
         </View>
     </View>
@@ -47,27 +48,27 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
 
     // Wrap the components to form a modal
     const modalContainer=(
-        <View style={styles.modalContainer}>
-          {modalHeader}
-          {modalBody}
-          {modalFooter}
-        </View>
-      )
+      <View style={styles.modalContainer}>
+        {modalHeader}
+        {modalBody}
+        {modalFooter}
+      </View>
+    )
 
     return (
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-          <View style={styles.modal}>
-            <View>
-              {modalContainer}
-            </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+        }}>
+        <View style={styles.modal}>
+          <View>
+            {modalContainer}
           </View>
-        </Modal>
+        </View>
+      </Modal>
     );
 }
 

@@ -5,7 +5,6 @@ import { AntDesign } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
-import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
@@ -83,8 +82,8 @@ const change_password = () => {
 
             {/* Password Requirements */}
             <View className='mt-7 p-4 items-start  rounded-lg bg-light-MID dark:bg-dark-MID'>
-              <Text className='text-base font-sans text-black dark:text-white'>
-                Password must:{"\n"}Include at least two of the following
+              <Text className='mb-2 text-base font-bold text-black dark:text-white'>
+                Password must fulfil the following.
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
@@ -123,23 +122,26 @@ const change_password = () => {
 
             <FormField
               title="Confirm New Password"
-              value={form.newPassword}
-              handleChangeText={(e) => setForm({ ...form, newPassword: e })}
+              value={form.confirmNewPassword}
+              handleChangeText={(e) => setForm({ ...form, confirmNewPassword: e })}
               placeholder="Enter your confirm password"
               otherStyles="mt-4"
-            />
-
-            {/* Update Password */}
-            <CustomButton
-              title="Update Password"
-              handlePress={submit}
-              backgroundColor="#0072B2"
-              containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
-              isLoading={isSubmitting}
             />
           </View>
         </TouchableWithoutFeedback>
       </ScrollView>
+
+      {/* Update Password */}
+      <View className="p-4 absolute bottom-0 left-0 right-0">
+        <CustomButton
+          title="Update Password"
+          handlePress={submit}
+          backgroundColor="#0072B2"
+          containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
+          isLoading={isSubmitting}
+        />
+      </View>
+
     </SafeAreaView>
   </KeyboardAvoidingView>
   )

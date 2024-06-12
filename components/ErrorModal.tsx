@@ -33,10 +33,10 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, mo
         <View style={styles.divider}></View>
         <View style={{flexDirection:"row-reverse",margin:10}}>
         <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
-            onPress={() => {
-              setModalVisible(false)
-            }}>
-            <Text style={styles.actionText}>Dimiss</Text>
+          onPress={() => {
+            setModalVisible(false)
+          }}>
+          <Text style={styles.actionText}>Dimiss</Text>
         </Pressable>
         </View>
     </View>
