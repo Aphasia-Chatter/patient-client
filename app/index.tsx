@@ -6,9 +6,15 @@ import { useColorScheme } from 'nativewind';
 
 import { images, icons } from "../constants";
 import CustomButton from "../components/CustomButton";
+import { saveValue } from '../utils/SecureStore';
 
 const Welcome = () => {
   const { colorScheme } = useColorScheme();
+  const handleWelcome = () => {
+    // First launched app
+    saveValue("isWelcome", true)
+    router.replace("/login")
+  };
 
   return (
     <SafeAreaView className="h-full bg-light dark:bg-dark">
@@ -49,7 +55,7 @@ const Welcome = () => {
             {/* Continue to login page */}
             <CustomButton
               title="Continue"
-              handlePress={() => router.push("/login")} // change to the page you want for faster debug
+              handlePress={handleWelcome}
               backgroundColor="#0072B2" 
               containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
               isLoading={false}
