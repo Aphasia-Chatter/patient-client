@@ -22,7 +22,6 @@ const register = () => {
     router.replace("/login");
   };
 
-
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -57,8 +56,6 @@ const register = () => {
         setSuccessHeaderMessage(jsonResponse.status)
         setSuccessMessage(jsonResponse.message)
         setSuccessModalVisible(true);
-
-
       } else {
         // Handle errors
         setErrorHeaderMessage(jsonResponse.status)
