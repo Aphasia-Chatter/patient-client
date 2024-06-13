@@ -11,10 +11,13 @@ import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 import { useAuthContext } from '../../context/AuthContext';
-import { fetchValue, deleteValue } from "../../utils/SecureStore";
+import { saveValue } from "../../utils/SecureStore";
 
-const delete_password = () => {
+const deleteAccount = () => {
     const { appUser, setAppUser } = useAuthContext();
+    const [ username ] = useState(appUser?.username);
+    const [ sessionToken ] = useState(appUser?.sessionToken);
+
     const [errorModalVisible, setErrorModalVisible] = useState(false);
     const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -22,6 +25,7 @@ const delete_password = () => {
     const [dialogModalVisible, setDialogModalVisible] = useState(false);
     const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
     const [dialogMessage, setDialogMessage] = useState('');
+
     const handleDialogModalOpen = () => {
       if (form.password.length > 0) {
         setDialogHeaderMessage("Delete Account")
@@ -34,10 +38,12 @@ const delete_password = () => {
         setErrorModalVisible(true);
       }
     };
+
     const handleDialogModalConfirm = () => {
         setDialogModalVisible(false);
-        submit();
+        submitAccountDeletionRequest();
     };
+    
     const handleDialogModalDismiss = () => {
         setDialogModalVisible(false);
     };
@@ -48,19 +54,21 @@ const delete_password = () => {
         password: "",
     });
 
-    const submit = async () => {
+    const submitAccountDeletionRequest = async () => {
         setSubmitting(true);
 
         try {
             // Send POST request for patient login
             // Use ipconfig to find ip address of your pc in the local network
-            const response = await fetch('http://10.0.2.2:44818/api/patient/change_password', {
+            const response = await fetch('http://10.0.2.2:44818/api/patient/delete_account', {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    currentPassword: form.password,
+                    username: username,
+                    password: form.password,
+                    sessionToken: sessionToken
                 }),
             });
 
@@ -69,7 +77,7 @@ const delete_password = () => {
             if (response.ok) {
                 // Delete username and session token from local storage in device
                 setAppUser(null)
-                await deleteValue("AppUser")
+                await saveValue("AppUser", null)
 
                 // Redirect to login page
                 router.replace("/(auth)/login");
@@ -164,4 +172,4 @@ const delete_password = () => {
   )
 }
 
-export default delete_password
+export default deleteAccount

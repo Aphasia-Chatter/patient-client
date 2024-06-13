@@ -6,32 +6,72 @@ import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, T
 import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";
+import DialogModal from "../../components/DialogModal";
+import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
+import { useAuthContext } from '../../context/AuthContext';
+import { saveValue } from "../../utils/SecureStore";
+
 const change_password = () => {
+  const { appUser, setAppUser } = useAuthContext();
+  const [ username ] = useState(appUser?.username);
+  const [ sessionToken ] = useState(appUser?.sessionToken);
+  
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [dialogModalVisible, setDialogModalVisible] = useState(false);
+  const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const handleDialogModalOpen = () => {
+    if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
+      setDialogHeaderMessage("Change Account Password")
+      setDialogMessage("Are you sure you want to update your account password?")
+      setDialogModalVisible(true);
+    }
+    else {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Passwords are missing in the request body field.")
+      setErrorModalVisible(true);
+    }
+  };
+
+  const handleDialogModalConfirm = () => {
+      setDialogModalVisible(false);
+      submitAccountUpdatePasswordRequest();
+  };
+  
+  const handleDialogModalDismiss = () => {
+      setDialogModalVisible(false);
+  };
+
   const { colorScheme } = useColorScheme();
-  const [modalVisible, setModalVisible] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    oldPassword: "",
+    currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
 
-  const submit = async () => {
+  const submitAccountUpdatePasswordRequest = async () => {
     setSubmitting(true);
 
     try {
       // Send POST request for patient login
       // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://xxx.xxx.x.xx:44818/api/patient/change_password', {
+      const response = await fetch('http://10.0.2.2:44818/api/patient/change_account_password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            oldPassword: form.oldPassword,
+            username: username,
+            sessionToken: sessionToken,
+            currentPassword: form.currentPassword,
             newPassword: form.newPassword,
             confirmNewPassword: form.confirmNewPassword,
         }),
@@ -40,19 +80,21 @@ const change_password = () => {
       const jsonResponse = await response.json();
 
       if (response.ok) {
-        // Handle successful registration
-        router.replace("/(drawer)/profile");
-      } else {
-        router.replace("/(drawer)/profile");
+        // Delete username and session token from local storage in device
+        setAppUser(null)
+        await saveValue("AppUser", null)
 
+        // Redirect to login page
+        router.replace("/(auth)/login");
+
+      } else {
         // Handle errors
-        // console.error("HTTP status ${response.status}");
-        // console.error(jsonResponse.message);
-        // setModalVisible(true);
+        console.error("HTTP status ${response.status}");
+        console.error(jsonResponse.message);
+        setErrorModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
-      router.replace("/(drawer)/profile");
-      // console.error('Error:', error);
+      console.error('Error:', error);
       
     } finally {
       setSubmitting(false);
@@ -74,10 +116,19 @@ const change_password = () => {
               // }}
           >
             <ErrorModal 
-              headerMessage="Update Password "
-              errorMessage="Incorrect old password, new password or confirm password! Please try again."
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
+              headerMessage={errorHeaderMessage}
+              errorMessage={errorMessage}
+              modalVisible={errorModalVisible}
+              setModalVisible={setErrorModalVisible}
+            />
+
+            <DialogModal 
+              headerMessage={dialogHeaderMessage}
+              dialogMessage={dialogMessage}
+              modalVisible={dialogModalVisible}
+              setModalVisible={setDialogModalVisible}
+              onConfirm={handleDialogModalConfirm}
+              onDismiss={handleDialogModalDismiss}
             />
 
             {/* Password Requirements */}
@@ -105,8 +156,8 @@ const change_password = () => {
 
             <FormField
               title="Current Password"
-              value={form.oldPassword}
-              handleChangeText={(e) => setForm({ ...form, oldPassword: e })}
+              value={form.currentPassword}
+              handleChangeText={(e) => setForm({ ...form, currentPassword: e })}
               placeholder="Enter your current password"
               otherStyles="mt-7"
               keyboardType="default"
@@ -135,7 +186,7 @@ const change_password = () => {
       <View className="p-4 absolute bottom-0 left-0 right-0">
         <CustomButton
           title="Update Password"
-          handlePress={submit}
+          handlePress={handleDialogModalOpen}
           backgroundColor="#0072B2"
           containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
           isLoading={isSubmitting}

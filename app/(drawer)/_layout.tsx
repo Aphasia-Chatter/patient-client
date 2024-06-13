@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaView } from 'react-native'
+import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaView, Platform } from 'react-native'
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,7 +9,7 @@ import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
-import { fetchValue, saveValue } from "../../utils/SecureStore";
+import { saveValue } from "../../utils/SecureStore";
 
 const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewProps & { children: React.ReactNode; } & React.RefAttributes<ScrollView>) => {
   const { appUser, setAppUser } = useAuthContext();
@@ -17,6 +17,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
 
   const { colorScheme } = useColorScheme();
   const pathname = usePathname();
+
   useEffect(() => {
     console.log(pathname)
   })
@@ -59,7 +60,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   return(
     <DrawerContentScrollView {...props}>
       {/* APP NAME WITH LOGO */}
-      <SafeAreaView className="flex-row items-center justify-center mb-6">
+      <SafeAreaView className={`flex-row items-center justify-center ${Platform.OS === 'ios' ? 'mb-6' : 'my-6'}`}>
         <Image
           source={images.logoSmall}
           className="w-10 h-10"
@@ -170,6 +171,8 @@ const DrawerLayout = () => {
   )
 }
 
+export default DrawerLayout
+
 const styles = StyleSheet.create({
   navItemLabel: {marginLeft: -8, fontSize: 16},
   drawerDark: {
@@ -179,5 +182,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9F9F9', // Light background color
   },
 })
-
-export default DrawerLayout

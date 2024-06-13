@@ -129,7 +129,7 @@ const login = () => {
 
           {/* Login */}
           <CustomButton
-            title="Sign In"
+            title="Login"
             handlePress={submit}
             backgroundColor="#0072B2"
             containerStyles={[{ width: '100%' }, { marginTop: 18 }]}

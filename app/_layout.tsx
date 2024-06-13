@@ -71,16 +71,13 @@ const RootLayout = () => {
             }}/>
           ) : !isLoggedIn ? (
             <Stack.Screen
-            name="(auth)"
-            options={{
-              headerShown: false,
-              headerTitle: "Back"
+              name="(auth)"
+              options={{
+                headerShown: false,
+                headerTitle: "Back"
             }}/>
           ) : (
-            <></>
-          )}
-          
-          <Stack.Screen
+            <Stack.Screen
             name="preference"
             options={{
               headerShown: true,
@@ -88,7 +85,8 @@ const RootLayout = () => {
               headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
               headerTitle: "Preference"
             }}/>
-
+          )}
+          
           <Stack.Screen
             name="(drawer)"
             options={{
