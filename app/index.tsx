@@ -1,20 +1,63 @@
 import { StatusBar } from "expo-status-bar";
-import React from 'react'
-import { Redirect, router } from "expo-router";
+import React, { useEffect }from 'react'
+import { router } from "expo-router";
+import * as SplashScreen from 'expo-splash-screen';
 import { View, SafeAreaView, Text, Image, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
 import { images, icons } from "../constants";
 import CustomButton from "../components/CustomButton";
-import { saveValue } from '../utils/SecureStore';
+import { useAppContext } from "../context/AppContext"
+import { useAuthContext } from "../context/AuthContext"
+import { fetchValue, saveValue } from '../utils/SecureStore';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 const Welcome = () => {
+  const { isWelcome, setIsWelcome } = useAppContext();
+  const { appUser, setAppUser } = useAuthContext();
   const { colorScheme } = useColorScheme();
+  
   const handleWelcome = () => {
     // First launched app
     saveValue("isWelcome", true)
     router.replace("/login")
   };
+
+  const redirection = async () => {
+    try {
+        const storedWelcome = await fetchValue("isWelcome")
+        const storedAppUser = await fetchValue("AppUser")
+        
+        if (storedWelcome) {
+            setIsWelcome(storedWelcome)
+        }
+
+        if (storedAppUser) {
+          setAppUser(storedAppUser)
+        }
+
+    } catch ( error ) {
+        throw error;
+    } finally {
+      setTimeout(() => SplashScreen.hideAsync(), 1000)
+
+      if (isWelcome) {
+        if (appUser) {
+          router.dismissAll();
+          router.replace("/(drawer)/chatbot");
+        } else {
+          router.dismissAll();
+          router.replace("/(auth)/login");
+        }
+      }
+    }
+  }
+
+  useEffect(() => {
+    redirection();
+  }, []);
 
   return (
     <SafeAreaView className="h-full bg-light dark:bg-dark">

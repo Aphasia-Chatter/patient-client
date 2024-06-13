@@ -19,9 +19,9 @@ SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const [ isWelcome, setIsWelcome ] = useState<boolean>(false);
-  const [ appUser, setAppUser ] = useState(null);
-
+  const [ isLoggedIn, setIsLoggedIn ] = useState<boolean>(false);
   const { colorScheme } = useColorScheme();
+
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
@@ -34,22 +34,18 @@ const RootLayout = () => {
         const storedWelcome = await fetchValue("isWelcome")
         const storedAppUser = await fetchValue("AppUser")
         
-        if (storedWelcome && storedAppUser) {
-            setIsWelcome(storedWelcome)
-            setAppUser(storedAppUser)
+        if (storedWelcome) {
+            setIsWelcome(true)
         }
+        
+        if (storedAppUser) {
+          setIsLoggedIn(true)
+        }
+
     } catch ( error ) {
         throw error;
     } finally {
       setTimeout(() => SplashScreen.hideAsync(), 1000)
-
-      if (isWelcome) {
-        if (appUser) {
-          router.replace("/(drawer)/chatbot");
-        } else {
-          router.replace("/(auth)/login");
-        }
-      }
     }
   }
 
@@ -67,19 +63,23 @@ const RootLayout = () => {
     <AppProvider>
       <AuthProvider>
         <Stack>
-          <Stack.Screen
-            name="index"
-            options={{ 
-              headerShown: false
-          }}/>
-          
-          <Stack.Screen
+          {!isWelcome ? (
+            <Stack.Screen
+              name="index"
+              options={{ 
+                headerShown: false
+            }}/>
+          ) : !isLoggedIn ? (
+            <Stack.Screen
             name="(auth)"
             options={{
               headerShown: false,
               headerTitle: "Back"
-          }}/>
-
+            }}/>
+          ) : (
+            <></>
+          )}
+          
           <Stack.Screen
             name="preference"
             options={{
@@ -87,7 +87,7 @@ const RootLayout = () => {
               headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
               headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
               headerTitle: "Preference"
-          }}/>
+            }}/>
 
           <Stack.Screen
             name="(drawer)"
