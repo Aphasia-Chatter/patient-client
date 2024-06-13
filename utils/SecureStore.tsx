@@ -7,32 +7,34 @@ import * as SecureStore from 'expo-secure-store';
 // The requireAuthentication option is not supported in Expo Go when biometric authentication is available due to a missing NSFaceIDUsageDescription key.
 // This API is not compatible with devices running Android 5 or lower.
 
-// Helper function to save value with key into the local storage on device
-export async function saveValue(key: string, value: any) {
+// Helper function to save a value with a key into the local storage on the device
+export async function saveValue(key: string, value: any): Promise<void> {
     try {
-        const jsonValue = JSON.stringify(value)
+        const jsonValue = JSON.stringify(value);
         await SecureStore.setItemAsync(key, jsonValue);
     } catch (error) {
+        console.error('Error saving value to SecureStore:', error);
         throw error;
     }
 }
 
-// Helper function to get value with key into the local storage on device
-export async function fetchValue(key: string) {
+// Helper function to get a value by key from the local storage on the device
+export async function fetchValue(key: string): Promise<any> {
     try {
         const jsonValue = await SecureStore.getItemAsync(key);
-        return jsonValue != null ? JSON.parse (jsonValue) : null;
-
-    } catch(error) {
+        return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch (error) {
+        console.error('Error fetching value from SecureStore:', error);
         throw error;
     }
 }
 
-// Helper function to get value with key into the local storage on device
-export async function deleteValue(key: string) {
+// Helper function to delete a value by key from the local storage on the device
+export async function deleteValue(key: string): Promise<void> {
     try {
-        return await SecureStore.deleteItemAsync(key);
-    } catch(error) {
+        await SecureStore.deleteItemAsync(key);
+    } catch (error) {
+        console.error('Error deleting value from SecureStore:', error);
         throw error;
     }
 }

@@ -47,8 +47,6 @@ const login = () => {
         setAppUser(jsonResponse.data)
         await saveValue("AppUser", jsonResponse.data)
 
-        console.log("Login App:", fetchValue("AppUser"))
-
         // Handle successful login
         router.replace("/(drawer)/chatbot");
 

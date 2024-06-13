@@ -42,11 +42,8 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
 
       if (response.ok) {
         // Delete username and session token from local storage in device
-        console.log("Hello App1:",fetchValue("AppUser"))
         setAppUser(null)
         await saveValue("AppUser", null)
-
-        console.log("Hello App:",fetchValue("AppUser"))
 
         // Handle successful logout
         router.replace('/(auth)/login')
