@@ -38,7 +38,6 @@ const RootLayout = () => {
             setIsWelcome(storedWelcome)
             setAppUser(storedAppUser)
         }
-
     } catch ( error ) {
         throw error;
     } finally {

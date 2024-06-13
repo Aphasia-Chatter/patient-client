@@ -93,7 +93,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             />
             {/* Chatbot Message Bubble */}
             <View className="rounded-xl p-2 flex-1 bg-gray-200 dark:bg-gray-600">
-              <Text className='text-base font-serif text-dark dark:text-light'>{item.content}</Text>
+              <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
             </View>
           </View>
         );
@@ -103,7 +103,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       return (
         // Patient Message Bubble
         <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
-          <Text className='text-base font-serif text-light'>{item.content}</Text>
+          <Text className='text-base text-light'>{item.content}</Text>
         </View>
       );
     }

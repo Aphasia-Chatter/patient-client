@@ -124,15 +124,15 @@ const delete_password = () => {
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>All personal information will be deleted.</Text>
+                <Text className='text-base text-black dark:text-white'>All personal information will be deleted.</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>All chat messages and its history will be destroyed.</Text>
+                <Text className='text-base text-black dark:text-white'>All chat messages and its history will be destroyed.</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>All results and its history will be destroyed.</Text>
+                <Text className='text-base text-black dark:text-white'>All results and its history will be destroyed.</Text>
               </View>
             </View>
 

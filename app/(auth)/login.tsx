@@ -8,7 +8,7 @@ import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { useAuthContext } from '../../context/AuthContext';
-import { saveValue } from "../../utils/SecureStore";
+import { saveValue, fetchValue } from "../../utils/SecureStore";
 
 const login = () => {
   const { setAppUser } = useAuthContext();
@@ -46,6 +46,8 @@ const login = () => {
         // Save username and session token into local storage in device
         setAppUser(jsonResponse.data)
         await saveValue("AppUser", jsonResponse.data)
+
+        console.log("Login App:", fetchValue("AppUser"))
 
         // Handle successful login
         router.replace("/(drawer)/chatbot");

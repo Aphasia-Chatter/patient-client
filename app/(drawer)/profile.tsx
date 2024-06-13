@@ -24,7 +24,7 @@ const profile = () => {
             className="w-24 h-24 rounded-full border-2 mb-3 border-gray-200 dark:border-white"
             resizeMode="contain"
           />
-          <Text className='text-2xl font-sans text-black dark:text-white'>{username}</Text>
+          <Text className='text-2xl text-black dark:text-white'>{username}</Text>
         </View>
 
         <View className='mb-10'>

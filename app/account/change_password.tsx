@@ -87,19 +87,19 @@ const change_password = () => {
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>An uppercase character</Text>
+                <Text className='text-base text-black dark:text-white'>An uppercase character</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>An lowercase character</Text>
+                <Text className='text-base text-black dark:text-white'>An lowercase character</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>An number</Text>
+                <Text className='text-base text-black dark:text-white'>An number</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base font-sans text-black dark:text-white'>An special character</Text>
+                <Text className='text-base text-black dark:text-white'>An special character</Text>
               </View>
             </View>
 

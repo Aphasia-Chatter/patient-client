@@ -9,7 +9,7 @@ import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
-import { fetchValue, deleteValue } from "../../utils/SecureStore";
+import { fetchValue, saveValue } from "../../utils/SecureStore";
 
 const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewProps & { children: React.ReactNode; } & React.RefAttributes<ScrollView>) => {
   const { appUser, setAppUser } = useAuthContext();
@@ -42,8 +42,11 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
 
       if (response.ok) {
         // Delete username and session token from local storage in device
+        console.log("Hello App1:",fetchValue("AppUser"))
         setAppUser(null)
-        await deleteValue("AppUser")
+        await saveValue("AppUser", null)
+
+        console.log("Hello App:",fetchValue("AppUser"))
 
         // Handle successful logout
         router.replace('/(auth)/login')
@@ -65,7 +68,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           className="w-10 h-10"
           resizeMode="contain"
         />
-        <Text className="font-sans text-xl ml-2 text-dark dark:text-light">AphasiaChatter</Text>
+        <Text className="text-xl ml-2 text-dark dark:text-light">AphasiaChatter</Text>
       </SafeAreaView>
 
       {/* CHATBOT DRAWER ITEM */}
