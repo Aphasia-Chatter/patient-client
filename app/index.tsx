@@ -37,7 +37,7 @@ const Welcome = () => {
         if (storedAppUser) {
           setAppUser(storedAppUser)
         }
-
+        
     } catch ( error ) {
         throw error;
     } finally {
