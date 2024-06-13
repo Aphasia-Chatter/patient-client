@@ -35,7 +35,7 @@ const RootLayout = () => {
         const storedAppUser = await fetchValue("AppUser")
         
         if (storedWelcome) {
-            setIsWelcome(true)
+          setIsWelcome(true)
         }
         
         if (storedAppUser) {
@@ -62,7 +62,7 @@ const RootLayout = () => {
   return (
     <AppProvider>
       <AuthProvider>
-        <Stack>
+        <Stack screenOptions={{headerShown: false}}>
           {!isWelcome ? (
             <Stack.Screen
               name="index"
