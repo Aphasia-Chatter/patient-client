@@ -153,8 +153,8 @@ const login = () => {
 
           {/* Redirect to Register Page */}
           <View className="flex-row justify-center mt-8">
-            <Text className="font-semibold text-dark dark:text-light">Don't have an account? </Text>
-            <Link className="font-semibold text-orange-400 dark:text-yellow-500" href="/register">Register here</Link>
+            <Text className="text-base font-semibold text-dark dark:text-light">Don't have an account? </Text>
+            <Link className="text-base font-semibold text-orange-400 dark:text-yellow-500" href="/register">Register here</Link>
           </View>
         </View>
       </TouchableWithoutFeedback>

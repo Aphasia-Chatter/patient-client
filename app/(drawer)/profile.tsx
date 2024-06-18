@@ -16,7 +16,7 @@ const profile = () => {
 
   return (
     <View className='flex-1 flex-grow flex-shrink px-4 bg-light dark:bg-dark'>
-      <ScrollView>
+      <ScrollView showsHorizontalScrollIndicator={false}>
         {/* IMAGE DISPLAY WITH USERNAME */}
         <View className='rounded-lg mb-10 p-4 items-center justify-start'>
           <Image

@@ -146,7 +146,7 @@ const change_password = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
     <SafeAreaView className="h-full bg-light dark:bg-dark">
-      <ScrollView>
+      <ScrollView showsHorizontalScrollIndicator={false}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="w-full justify-center px-4"
               // style={{

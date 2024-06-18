@@ -108,7 +108,9 @@ const register = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? -25 : 0}
     >
       <SafeAreaView className="h-full bg-light dark:bg-dark">
-        <ScrollView className={`${Platform.OS === 'ios' ? 'py-8' : 'py-28'}`}>
+        <ScrollView className={`${Platform.OS === 'ios' ? 'py-8' : 'py-28'}`}
+          showsHorizontalScrollIndicator={false}
+        >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className="w-full h-full px-4"
               // style={{
@@ -180,8 +182,8 @@ const register = () => {
 
               {/* Redirect to Login Page*/}
               <View className="flex-row justify-center mt-8">
-                <Text className="font-semibold text-dark dark:text-light">Have an account already? </Text>
-                <Link className="font-semibold text-orange-400 dark:text-yellow-500" href="/login">Login here</Link>
+                <Text className="text-base font-semibold text-dark dark:text-light">Have an account already? </Text>
+                <Link className="text-base font-semibold text-orange-400 dark:text-yellow-500" href="/login">Login here</Link>
               </View>
             </View>
           </TouchableWithoutFeedback>

@@ -14,7 +14,7 @@ interface DialogModalProps {
 const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage, modalVisible, onConfirm, onDismiss }) => {
     // Modal Header
     const modalHeader=(
-        <View className='bg-orange-500' style={styles.modalHeader}>
+        <View className='bg-orange-600' style={styles.modalHeader}>
           <View className='flex-row items-center'>
             <MaterialIcons name="warning" size={36} color='#fff'/>
             <Text style={styles.title}>{headerMessage}</Text>
@@ -34,13 +34,19 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
     <View style={styles.modalFooter}>
         <View style={styles.divider}></View>
         <View style={{flexDirection:"row-reverse", margin:10}}>
-            <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
-                onPress={onDismiss}>
-                <Text className='text-base' style={styles.actionText}>Dimiss</Text>
+            <Pressable 
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#858585"}
+              ]}
+              onPress={onDismiss}>
+              <Text className='text-base' style={styles.actionText}>Dismiss</Text>
             </Pressable>
-            <Pressable style={{...styles.actions,backgroundColor:"#0072B2"}} 
-                onPress={onConfirm}>
-                <Text className='text-base' style={styles.actionText}>Confirm</Text>
+            <Pressable
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#0072B2"}
+              ]}
+              onPress={onConfirm}>
+              <Text className='text-base' style={styles.actionText}>Confirm</Text>
             </Pressable>
         </View>
     </View>

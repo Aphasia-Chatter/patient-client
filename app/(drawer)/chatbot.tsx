@@ -55,7 +55,7 @@ const dummyMessagesTwo: Message[] = [
 ];
 
 
-const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessagesTwo }) => {
+const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
 
@@ -406,7 +406,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       )}
 
       { isTaskSelected ? (
-        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'py-5' : 'py-2'} bg-light dark:bg-dark`}>
+        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
           <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Recording..." : "Tap to start recording"}</Text>
           {isRecording ? (
             <Pressable
@@ -414,7 +414,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 pressed ? { opacity: 0.5 } : {},
               ]}
               onPress={stopRecording}>
-              <Ionicons name="pause-circle" size={96} color="#d55e00"/>
+              <Ionicons name="stop-circle-sharp" size={96} color="#F44336"/>
             </Pressable>
           ) : (
             <Pressable
@@ -422,7 +422,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 pressed ? { opacity: 0.5 } : {},
               ]}
               onPress={startRecording}>
-              <Ionicons name="radio-button-on" size={96} color="#d55e00"/>
+              <Ionicons name="radio-button-on-sharp" size={96} color="#fff"/>
             </Pressable>
           )}
 
