@@ -100,7 +100,7 @@ const login = () => {
               style={({ pressed }) => [,
                 pressed ? { opacity: 0.5 } : {},
               ]} 
-              onPress={() => router.push("account/preference")}>
+              onPress={() => router.push("/preference")}>
               <Feather name="settings" size={24} color={'#F9F9F9'}/>
             </Pressable>
           </View>

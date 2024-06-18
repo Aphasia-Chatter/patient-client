@@ -2,19 +2,16 @@ import { createContext, useContext, useState, ReactNode } from 'react';
   
 interface AppContextType {
     isWelcome: boolean;
-    isDarkMode: boolean;
     setIsWelcome: (value: boolean) => void;
-    setIsDarkMode: (value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [ isWelcome, setIsWelcome ] = useState<boolean>(false);
-    const [ isDarkMode, setIsDarkMode ] = useState<boolean>(false);
 
     return (
-        <AppContext.Provider value={{ isWelcome, setIsWelcome, isDarkMode, setIsDarkMode }}>
+        <AppContext.Provider value={{ isWelcome, setIsWelcome }}>
             {children}
         </AppContext.Provider>
     );

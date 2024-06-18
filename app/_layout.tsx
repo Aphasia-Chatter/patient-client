@@ -29,30 +29,8 @@ const RootLayout = () => {
     SpaceMonoItalic: require('../assets/fonts/SpaceMono-Bold.ttf'),
   });
 
-  const prepareApp = async () => {
-    try {
-        const storedWelcome = await fetchValue("isWelcome")
-        const storedAppUser = await fetchValue("AppUser")
-        
-        if (storedWelcome) {
-          setIsWelcome(true)
-        }
-        
-        if (storedAppUser) {
-          setIsLoggedIn(true)
-        }
-
-    } catch ( error ) {
-        throw error;
-    } finally {
-      setTimeout(() => SplashScreen.hideAsync(), 1000)
-    }
-  }
-
   useEffect(() => {
-    if (loaded) {
-      prepareApp();
-    }
+    setTimeout(() => SplashScreen.hideAsync(), 1000)
   }, [loaded]);
 
   if (!loaded) {
@@ -76,15 +54,6 @@ const RootLayout = () => {
               headerShown: false,
               headerTitle: "Back"
             }}/>
-
-          <Stack.Screen
-            name="account/preference"
-            options={{
-              headerTitle: "Preference",
-              headerShown: true,
-              headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
-              headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
-          }}/>
 
           <Stack.Screen
             name="(drawer)"

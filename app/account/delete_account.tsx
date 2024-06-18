@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from 'react'
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { AntDesign } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
@@ -67,8 +67,15 @@ const deleteAccount = () => {
   });
 
   const submitAccountDeletionRequest = async () => {
-      setSubmitting(true);
+    setSubmitting(true);
 
+    if (form.password.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please enter your password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else{
       try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
@@ -107,6 +114,7 @@ const deleteAccount = () => {
       } finally {
           setSubmitting(false);
       }
+    }
   };
 
   return (

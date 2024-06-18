@@ -41,8 +41,6 @@ const Welcome = () => {
     } catch ( error ) {
         throw error;
     } finally {
-      setTimeout(() => SplashScreen.hideAsync(), 1000)
-
       if (isWelcome) {
         if (appUser) {
           router.dismissAll();

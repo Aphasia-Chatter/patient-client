@@ -36,7 +36,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
         <View style={{flexDirection:"row-reverse", margin:10}}>
             <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
                 onPress={onDismiss}>
-                <Text style={styles.actionText}>Dimiss</Text>
+                <Text className='text-base' style={styles.actionText}>Dimiss</Text>
             </Pressable>
             <Pressable style={{...styles.actions,backgroundColor:"#0072B2"}} 
                 onPress={onConfirm}>
