@@ -2,9 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
 import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable} from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";
+import DialogModal from "../../components/DialogModal";
 import { images, icons } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
 
@@ -25,21 +27,49 @@ const dummyMessages: Message[] = [
   },
   {
     role: 'Patient',
-    content: 'Cycling'
-  }
-  
+    content: 'Riding'
+  },
+  {
+    role: 'Bot',
+    content: 'Very close! Let me give you a hint. The object is a Bicycle. Now, what is the boy doing?'
+  },
 ];
 
-const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
+const dummyMessagesTwo: Message[] = [
+  {
+    role: 'Bot',
+    content: 'Great! Let us start with the first question! What is the object shown?'
+  },
+  {
+    role: 'Bot',
+    content: 'https'
+  },
+  {
+    role: 'Patient',
+    content: 'Circle'
+  },
+  {
+    role: 'Bot',
+    content: 'Very close! Let me give you a hint. It is round, you can throw it, and kids love to play with it. Now, what is the object shown?'
+  },
+];
+
+
+const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessagesTwo }) => {
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
 
-  const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [ errorModalVisible, setErrorModalVisible ] = useState(false);
+  const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
+  const [ errorMessage, setErrorMessage ] = useState('');
+
+  const [ dialogModalVisible, setDialogModalVisible ] = useState(false);
+  const [ dialogHeaderMessage, setDialogHeaderMessage ] = useState('');
+  const [ dialogMessage, setDialogMessage ] = useState('');
 
   // Task
-  const [ taskSelected, isTaskSelected ] = useState(false);
+  const [ isTaskSelected, setIsTaskSelected ] = useState(false);
+  const [ selectedTask, setTaskSelected ] = useState('');
   const [ isSubmittingTask, setSubmittingTask ] = useState(false);
 
   const startTask = async(selectedTask: string) => {
@@ -55,7 +85,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       try {
         // Send POST request for patient login
         // Use ipconfig to find ip address of your pc/emulator in the local network
-        const response = await fetch('http://192.168.1.97:44818/api/patient/create-task', {
+        const response = await fetch('http://192.168.1.97:44818/api/patient/start-task', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -68,7 +98,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         const jsonResponse = await response.json();
 
         if (response.ok) {
-          isTaskSelected(true);
+          setTaskSelected(selectedTask);
+          setIsTaskSelected(true);
         } else {
           // Handle errors
           setErrorHeaderMessage(jsonResponse.status)
@@ -78,12 +109,67 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       } catch (error) {
         console.error('Error:', error);
         if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
           setErrorMessage("There was a problem with the network request.")
           setErrorModalVisible(true);
         }    
       } finally {
         setSubmittingTask(false);
+        
+        // TEMPORARY
+        setTaskSelected(selectedTask);
+        setIsTaskSelected(true);
+      }
+    }
+  }
+
+  const quitTask = async() => {
+    setSubmittingTask(true);
+
+    if (selectedTask.length == 0) {
+      setErrorHeaderMessage("MISSING_TASK")
+      setErrorMessage("Please select a task.")
+      setErrorModalVisible(true);
+      setSubmittingTask(false);
+    }
+    else {
+      try {
+        // Send POST request for patient login
+        // Use ipconfig to find ip address of your pc/emulator in the local network
+        const response = await fetch('http://192.168.1.97:44818/api/patient/quit-task', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: selectedTask,
+          }),
+        });
+
+        const jsonResponse = await response.json();
+
+        if (response.ok) {
+          setTaskSelected("");
+          setIsTaskSelected(false);
+        } else {
+          // Handle errors
+          setErrorHeaderMessage(jsonResponse.status)
+          setErrorMessage(jsonResponse.message)
+          setErrorModalVisible(true);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        }    
+      } finally {
+        setSubmittingTask(false);
+
+        // TEMPORARY
+        setTaskSelected("")
+        setIsTaskSelected(false);
       }
     }
   }
@@ -211,6 +297,30 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     };
   }, [recording]);
 
+  const {colorScheme, toggleColorScheme} = useColorScheme();
+
+  const handleDialogModalOpen = () => {
+    if (isTaskSelected && !isRecording) {
+      setDialogHeaderMessage("QUIT_TASK")
+      setDialogMessage("Are you sure you want to quit current task? All progress will be discarded and is irreversible!")
+      setDialogModalVisible(true);
+    }
+    else {
+      setErrorHeaderMessage("QUIT_TASK_ERROR")
+      setErrorMessage("Something went wrong. Hmmm....")
+      setErrorModalVisible(true);
+    }
+  };
+
+  const handleDialogModalConfirm = () => {
+    setDialogModalVisible(false);
+    quitTask();
+  };
+
+  const handleDialogModalDismiss = () => {
+    setDialogModalVisible(false);
+  };
+
   return (
     <View className="flex-1 bg-light dark:bg-dark">
       <ErrorModal 
@@ -220,10 +330,19 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setModalVisible={setErrorModalVisible}
       />
 
+      <DialogModal 
+        headerMessage={dialogHeaderMessage}
+        dialogMessage={dialogMessage}
+        modalVisible={dialogModalVisible}
+        setModalVisible={setDialogModalVisible}
+        onConfirm={handleDialogModalConfirm}
+        onDismiss={handleDialogModalDismiss}
+      />
+
       {messages.length > 0 ? (
         <View className="px-3 mb-6">
           {
-            !taskSelected ? (
+            !isTaskSelected ? (
               // Chatbot Task Message
               <View className="flex-row justify-start items-start mt-3">
                 <Image
@@ -239,8 +358,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                             startTask("Word Retrieval Task");
                           }
                         }>
-                      <View className="rounded-tr-xl rounded-tl-xl flex-row items-center p-3 bg-gray-200 dark:bg-blue-600">
-                        <Ionicons name="reader" size={24} color='#fff'/>
+                      <View className="rounded-tr-xl rounded-tl-xl flex-row items-center p-3 bg-gray-300 dark:bg-blue-600">
+                        <MaterialCommunityIcons name="numeric-1-circle-outline" size={24} color={colorScheme === 'dark' ? '#F9F9F9' : '#171717'}/>
                         <Text className='ml-2 text-base text-dark dark:text-light'>Word Retrieval Task</Text>
                       </View>
                     </Pressable>
@@ -249,8 +368,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                             // startTask("Sentence Completion Task");
                           }
                         }>
-                      <View className="p-3 flex-row items-center bg-gray-200 dark:bg-blue-600">
-                        <Ionicons name="reader" size={24} color='#fff'/>
+                      <View className="p-3 flex-row items-center bg-gray-300 dark:bg-blue-600">
+                        <MaterialCommunityIcons name="numeric-2-circle-outline" size={24} color={colorScheme === 'dark' ? '#F9F9F9' : '#171717'} />
                         <Text className='ml-2 text-base text-dark dark:text-light'>Sentence Completion Task</Text>
                       </View>
                     </Pressable>
@@ -259,8 +378,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                             // startTask("Article Reading Task");
                           }
                         }>
-                      <View className="rounded-br-xl rounded-bl-xl flex-row items-center p-3 bg-gray-200 dark:bg-blue-600">
-                        <Ionicons name="reader" size={24} color='#fff'/>
+                      <View className="rounded-br-xl rounded-bl-xl flex-row items-center p-3 bg-gray-300 dark:bg-blue-600">
+                        <MaterialCommunityIcons name="numeric-3-circle-outline" size={24} color={colorScheme === 'dark' ? '#F9F9F9' : '#171717'}/>
                         <Text className='ml-2 text-base text-dark dark:text-light'>Article Reading Task</Text>
                       </View>
                     </Pressable>
@@ -286,34 +405,54 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         <View className='flex-1'></View>
       )}
 
-      { taskSelected ? (
-        // Recording Button
+      { isTaskSelected ? (
         <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'py-5' : 'py-2'} bg-light dark:bg-dark`}>
-        <Text className='text-base text-light'>{isRecording ? "Recording..." : "Tap to start recording"}</Text>
-          {
-            isRecording ? (
+          <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Recording..." : "Tap to start recording"}</Text>
+          {isRecording ? (
+            <Pressable
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.5 } : {},
+              ]}
+              onPress={stopRecording}>
+              <Ionicons name="pause-circle" size={96} color="#d55e00"/>
+            </Pressable>
+          ) : (
+            <Pressable
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.5 } : {},
+              ]}
+              onPress={startRecording}>
+              <Ionicons name="radio-button-on" size={96} color="#d55e00"/>
+            </Pressable>
+          )}
+
+          {!isRecording ? ( // Quit Task Button
+            <View className='absolute right-10'>
               <Pressable
-                style={({ pressed }) => [,
+                style={({ pressed }) => [
                   pressed ? { opacity: 0.5 } : {},
-                ]} 
-                onPress={
-                  stopRecording
-                }>
-                <Ionicons name="pause-circle" size={96} color="#d55e00"/>
+                ]}
+                onPress={handleDialogModalOpen}>
+                <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
+                  <Text className='text-base font-semibold text-light dark:text-light'> Quit </Text>
+                </View>  
               </Pressable>
-            ) : (
+            </View>
+          ) : ( // Clear Recording Button
+            <View className='absolute right-10'>
               <Pressable
-                style={({ pressed }) => [,
+                style={({ pressed }) => [
                   pressed ? { opacity: 0.5 } : {},
-                ]} 
-                onPress={ 
-                  startRecording
-                }>
-                <Ionicons name="radio-button-on" size={96} color="#d55e00"/>
+                ]}
+                onPress={stopRecording}>
+                <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
+                  <Text className='text-base font-semibold text-light dark:text-light'> Clear </Text>
+                </View>  
               </Pressable>
-            )
-          }
-      </View>
+            </View>
+          )}
+
+        </View>
       ) : (
         <View className='flex-1'></View>
       )}

@@ -14,6 +14,7 @@ const register = () => {
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
   const handleSuccessModalDismiss = () => {
     // Redirect to home page
     setSuccessModalVisible(false);
