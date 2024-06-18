@@ -41,7 +41,7 @@ const login = () => {
       try {
         // Send POST request for patient login
         // Use ipconfig to find ip address of your pc/emulator in the local network
-        const response = await fetch('http://192.168.1.97:44818/api/patient/login', {
+        const response = await fetch('http://10.0.2.2:44818/api/patient/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -153,8 +153,8 @@ const login = () => {
 
           {/* Redirect to Register Page */}
           <View className="flex-row justify-center mt-8">
-            <Text className="text-base font-semibold text-dark dark:text-light">Don't have an account? </Text>
-            <Link className="text-base font-semibold text-orange-400 dark:text-yellow-500" href="/register">Register here</Link>
+            <Text className={`${Platform.OS === 'ios' ? 'text-sm' : 'text-base'} font-semibold text-dark dark:text-light`}>Don't have an account? </Text>
+            <Link className={`${Platform.OS === 'ios' ? 'text-sm' : 'text-base'} font-semibold text-orange-400 dark:text-yellow-500`} href="/register" >Register here</Link>
           </View>
         </View>
       </TouchableWithoutFeedback>

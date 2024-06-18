@@ -60,7 +60,7 @@ const register = () => {
       try {
         // Send POST request for patient registration
         // Use ipconfig to find ip address of your pc in the local network
-        const response = await fetch('http://192.168.1.97:44818/api/patient/register', {
+        const response = await fetch('http://10.0.2.2:44818/api/patient/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -182,8 +182,8 @@ const register = () => {
 
               {/* Redirect to Login Page*/}
               <View className="flex-row justify-center mt-8">
-                <Text className="text-base font-semibold text-dark dark:text-light">Have an account already? </Text>
-                <Link className="text-base font-semibold text-orange-400 dark:text-yellow-500" href="/login">Login here</Link>
+                <Text className={`${Platform.OS === 'ios' ? 'text-sm' : 'text-base'} font-semibold text-dark dark:text-light`}>Have an account already? </Text>
+                <Link className={`${Platform.OS === 'ios' ? 'text-sm' : 'text-base'} font-semibold text-orange-400 dark:text-yellow-500`} href="/login">Login here</Link>
               </View>
             </View>
           </TouchableWithoutFeedback>

@@ -32,7 +32,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
     try {
       // Send POST request for patient logout
       // Use ipconfig to find ip address of your pc/emulator in the local network
-      const response = await fetch('http://10.0.2.2:44818/api/patient/logout', {
+      const response = await fetch('http://192.168.1.97:44818/api/patient/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
