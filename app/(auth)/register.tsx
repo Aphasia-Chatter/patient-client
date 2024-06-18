@@ -86,12 +86,12 @@ const register = () => {
           setErrorModalVisible(true);
         }
       } catch (error) {
+        console.error('Error:', error);
         if (error instanceof TypeError) { // Error such as Network request failed
           setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
           setErrorMessage("There was a problem with the network request.")
           setErrorModalVisible(true);
         }
-        console.error('Error:', error);
         setSubmitting(false);
         
       } finally {

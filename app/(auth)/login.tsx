@@ -7,7 +7,7 @@ import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { useAuthContext } from '../../context/AuthContext';
-import { saveValue, fetchValue } from "../../utils/SecureStore";
+import { saveValue } from "../../utils/SecureStore";
 
 const login = () => {
   const { setAppUser } = useAuthContext();
