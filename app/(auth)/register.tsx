@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router } from "expo-router";
-import { View, SafeAreaView, Text, Image, ScrollView, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import ErrorModal from "../../components/ErrorModal";
 import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
@@ -75,7 +75,7 @@ const register = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? -25 : 0}
     >
       <SafeAreaView className="h-full bg-light dark:bg-dark">
-        <ScrollView className={`${Platform.OS === 'ios' ? 'py-8' : 'py-28'}` }>
+        <ScrollView className={`${Platform.OS === 'ios' ? 'py-8' : 'py-28'}`}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className="w-full h-full px-4"
               // style={{
@@ -147,10 +147,8 @@ const register = () => {
 
               {/* Redirect to Login Page*/}
               <View className="flex-row justify-center mt-8">
-                <Text className="font-semibold text-dark dark:text-light">Have an account already?</Text>
-                <Pressable onPress={() => router.push("/login")}>
-                  <Text className="font-semibold text-orange-400 dark:text-yellow-500"> Login here</Text>
-                </Pressable>
+                <Text className="font-semibold text-dark dark:text-light">Have an account already? </Text>
+                <Link className="font-semibold text-orange-400 dark:text-yellow-500" href="/login">Login here</Link>
               </View>
             </View>
           </TouchableWithoutFeedback>

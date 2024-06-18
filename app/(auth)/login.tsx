@@ -78,7 +78,11 @@ const login = () => {
         >
           {/* Preference Logo */}
           <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
-            <Pressable onPress={() => router.push("account/preference")}>
+            <Pressable
+              style={({ pressed }) => [,
+                pressed ? { opacity: 0.5 } : {},
+              ]} 
+              onPress={() => router.push("account/preference")}>
               <Feather name="settings" size={24} color={'#F9F9F9'}/>
             </Pressable>
           </View>
@@ -131,10 +135,8 @@ const login = () => {
 
           {/* Redirect to Register Page */}
           <View className="flex-row justify-center mt-8">
-            <Text className="font-semibold text-dark dark:text-light">Don't have an account?</Text>
-            <Pressable onPress={() => router.push("/register")}>
-              <Text className="font-semibold text-orange-400 dark:text-yellow-500"> Register here</Text>
-            </Pressable>
+            <Text className="font-semibold text-dark dark:text-light">Don't have an account? </Text>
+            <Link className="font-semibold text-orange-400 dark:text-yellow-500" href="/register">Register here</Link>
           </View>
         </View>
       </TouchableWithoutFeedback>
