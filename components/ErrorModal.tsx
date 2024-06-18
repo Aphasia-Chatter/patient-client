@@ -12,18 +12,18 @@ interface ErrorModalProps {
 const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, modalVisible, setModalVisible }) => {
     // Modal Header
     const modalHeader=(
-        <View className='bg-red-500' style={styles.modalHeader}>
-          <View className='flex-row items-center'>
-            <MaterialIcons name="error" size={36} color='#fff'/>
-            <Text style={styles.title}>{headerMessage}</Text>
-          </View>
+      <View className='bg-red-500' style={styles.modalHeader}>
+        <View className='flex-row items-center'>
+          <MaterialIcons name="error" size={36} color='#fff'/>
+          <Text style={styles.title}>{headerMessage}</Text>
         </View>
+      </View>
     )
 
     // Modal Body
     const modalBody=(
         <View style={styles.modalBody}>
-          <Text>{errorMessage}</Text>
+          <Text className='text-base'>{errorMessage}</Text>
         </View>
       )
 
@@ -36,7 +36,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, mo
           onPress={() => {
             setModalVisible(false)
           }}>
-          <Text style={styles.actionText}>Dimiss</Text>
+          <Text className='text-base' style={styles.actionText}>Dimiss</Text>
         </Pressable>
         </View>
     </View>
@@ -89,13 +89,15 @@ const styles = StyleSheet.create({
       borderRadius:5
     },
     modalHeader:{
-      paddingStart: 12
+      paddingStart: 16,
+      padding: 10
     },
     title:{
       fontWeight:"bold",
       fontSize:20,
       padding:15,
-      color:"#fff"
+      color:"#fff",
+      flexShrink: 1
     },
     divider:{
       width:"100%",

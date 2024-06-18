@@ -71,45 +71,65 @@ const change_password = () => {
   const submitAccountUpdatePasswordRequest = async () => {
     setSubmitting(true);
 
-    try {
-      // Send POST request for patient login
-      // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://10.0.2.2:44818/api/patient/change-account-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            username: username,
-            sessionToken: sessionToken,
-            currentPassword: form.currentPassword,
-            newPassword: form.newPassword,
-            confirmNewPassword: form.confirmNewPassword,
-        }),
-      });
-
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        // Delete username and session token from local storage in device
-        setAppUser(null);
-        await saveValue("AppUser", null);
-
-        // Show success modal
-        setSuccessHeaderMessage(jsonResponse.status);
-        setSuccessMessage(jsonResponse.message);
-        setSuccessModalVisible(true);
-      } else {
-        // Show error message
-        setErrorHeaderMessage(jsonResponse.status);
-        setErrorMessage(jsonResponse.message);
-        setErrorModalVisible(true);
-      }
-    } catch (error) { // Error such as Network request failed
-      console.error('Error:', error);
-      
-    } finally {
+    if (form.currentPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please enter your current password.")
+      setErrorModalVisible(true);
       setSubmitting(false);
+    }
+    else if (form.newPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_NEW_PASSWORD")
+      setErrorMessage("Please enter your new password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.confirmNewPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_CONFIRM_NEW_PASSWORD")
+      setErrorMessage("Please re-confirm your new password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else {
+      try {
+        // Send POST request for patient login
+        // Use ipconfig to find ip address of your pc in the local network
+        const response = await fetch('http://10.0.2.2:44818/api/patient/change-account-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              username: username,
+              sessionToken: sessionToken,
+              currentPassword: form.currentPassword,
+              newPassword: form.newPassword,
+              confirmNewPassword: form.confirmNewPassword,
+          }),
+        });
+
+        const jsonResponse = await response.json();
+
+        if (response.ok) {
+          // Delete username and session token from local storage in device
+          setAppUser(null);
+          await saveValue("AppUser", null);
+
+          // Show success modal
+          setSuccessHeaderMessage(jsonResponse.status);
+          setSuccessMessage(jsonResponse.message);
+          setSuccessModalVisible(true);
+        } else {
+          // Show error message
+          setErrorHeaderMessage(jsonResponse.status);
+          setErrorMessage(jsonResponse.message);
+          setErrorModalVisible(true);
+        }
+      } catch (error) { // Error such as Network request failed
+        console.error('Error:', error);
+        
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 

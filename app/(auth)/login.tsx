@@ -25,41 +25,59 @@ const login = () => {
   const submit = async () => {
     setSubmitting(true);
 
-    try {
-      // Send POST request for patient login
-      // Use ipconfig to find ip address of your pc/emulator in the local network
-      const response = await fetch('http://10.0.2.2:44818/api/patient/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-        }),
-      });
-
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        // Save username and session token into local storage in device
-        setAppUser(jsonResponse.data)
-        await saveValue("AppUser", jsonResponse.data)
-
-        // Handle successful login
-        router.replace("/(drawer)/chatbot");
-
-      } else {
-        // Handle errors
-        setErrorHeaderMessage(jsonResponse.status)
-        setErrorMessage(jsonResponse.message)
-        setErrorModalVisible(true);
-      }
-    } catch (error) { // Error such as Network request failed
-      console.error('Error:', error);
-      
-    } finally {
+    if (form.username.length == 0) {
+      setErrorHeaderMessage("MISSING_USERNAME")
+      setErrorMessage("Please enter your username.")
+      setErrorModalVisible(true);
       setSubmitting(false);
+    }
+    else if (form.password.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please enter your password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else {
+      try {
+        // Send POST request for patient login
+        // Use ipconfig to find ip address of your pc/emulator in the local network
+        const response = await fetch('http://192.168.1.97:44818/api/patient/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: form.username,
+            password: form.password,
+          }),
+        });
+
+        const jsonResponse = await response.json();
+
+        if (response.ok) {
+          // Save username and session token into local storage in device
+          setAppUser(jsonResponse.data)
+          await saveValue("AppUser", jsonResponse.data)
+
+          // Handle successful login
+          router.replace("/(drawer)/chatbot");
+
+        } else {
+          // Handle errors
+          setErrorHeaderMessage(jsonResponse.status)
+          setErrorMessage(jsonResponse.message)
+          setErrorModalVisible(true);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        }    
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 

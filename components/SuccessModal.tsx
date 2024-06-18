@@ -23,7 +23,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ headerMessage, successMessa
     // Modal Body
     const modalBody=(
         <View style={styles.modalBody}>
-          <Text>{successMessage}</Text>
+          <Text className='text-base'>{successMessage}</Text>
         </View>
       )
 
@@ -34,7 +34,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ headerMessage, successMessa
         <View style={{flexDirection:"row-reverse", margin:10}}>
         <Pressable style={{...styles.actions,backgroundColor:"#949494"}} 
             onPress={onDismiss}>
-            <Text style={styles.actionText}>Dimiss</Text>
+            <Text className='text-base' style={styles.actionText}>Dismiss</Text>
         </Pressable>
         </View>
     </View>
@@ -87,13 +87,15 @@ const styles = StyleSheet.create({
       borderRadius:5
     },
     modalHeader:{
-      paddingStart: 12
+      paddingStart: 16,
+      padding: 10
     },
     title:{
       fontWeight:"bold",
       fontSize:20,
       padding:15,
-      color:"#fff"
+      color:"#fff",
+      flexShrink: 1
     },
     divider:{
       width:"100%",

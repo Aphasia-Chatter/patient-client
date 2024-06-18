@@ -59,43 +59,33 @@ const RootLayout = () => {
     return null;
   }
 
-  if (isLoggedIn) {
-    return (
-      <AppProvider>
-        <AuthProvider>
-          <Stack>
-            <Stack.Screen
-              name="index"
-              options={{
-                headerShown: false,
-                headerTitle: "Back"
-            }}/>
-
-            <Stack.Screen
-              name="(auth)"
-              options={{
-                headerShown: false,
-                headerTitle: "Back"
-            }}/>
-
-            <Stack.Screen
-              name="account/preference"
-              options={{
-                headerTitle: "Preference",
-                headerShown: true,
-                headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
-                headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
-            }}/>
-          </Stack>
-
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        </AuthProvider>
-      </AppProvider>    
-    )
-  } else {
+  return (
     <AppProvider>
       <AuthProvider>
         <Stack>
+          <Stack.Screen
+            name="index"
+            options={{
+              headerShown: false,
+              headerTitle: "Back"
+          }}/>
+
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+              headerTitle: "Back"
+            }}/>
+
+          <Stack.Screen
+            name="account/preference"
+            options={{
+              headerTitle: "Preference",
+              headerShown: true,
+              headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
+              headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
+          }}/>
+
           <Stack.Screen
             name="(drawer)"
             options={{
@@ -120,12 +110,11 @@ const RootLayout = () => {
               headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
               headerTitle: "Delete Account"
           }}/>
-        </Stack>
-
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      </AuthProvider>
-    </AppProvider>    
-  }
+      </Stack>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    </AuthProvider>
+  </AppProvider>  
+  )  
 }
 
 const styles = StyleSheet.create({

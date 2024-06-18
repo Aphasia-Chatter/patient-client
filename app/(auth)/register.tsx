@@ -31,40 +31,72 @@ const register = () => {
   const submit = async () => {
     setSubmitting(true);
 
-    try {
-      // Send POST request for patient registration
-      // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://10.0.2.2:44818/api/patient/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-          confirmPassword: form.confirmPassword,
-          enrolmentCode: form.enrolmentCode,
-        }),
-      });
-
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        // Handle successful login
-        setSuccessHeaderMessage(jsonResponse.status)
-        setSuccessMessage(jsonResponse.message)
-        setSuccessModalVisible(true);
-      } else {
-        // Handle errors
-        setErrorHeaderMessage(jsonResponse.status)
-        setErrorMessage(jsonResponse.message)
-        setErrorModalVisible(true);
-      }
-    } catch (error) { // Error such as Network request failed
-      console.error('Error:', error);
-      
-    } finally {
+    if (form.username.length == 0) {
+      setErrorHeaderMessage("MISSING_USERNAME")
+      setErrorMessage("Please enter your username.")
+      setErrorModalVisible(true);
       setSubmitting(false);
+    }
+    else if (form.password.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please enter your password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.confirmPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please re-confirm your password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.enrolmentCode.length == 0){
+      setErrorHeaderMessage("MISSING_ENROLMENT")
+      setErrorMessage("Please enter the enrolment code given.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else {
+      try {
+        // Send POST request for patient registration
+        // Use ipconfig to find ip address of your pc in the local network
+        const response = await fetch('http://192.168.1.97:44818/api/patient/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: form.username,
+            password: form.password,
+            confirmPassword: form.confirmPassword,
+            enrolmentCode: form.enrolmentCode,
+          }),
+        });
+  
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          // Handle successful login
+          setSuccessHeaderMessage(jsonResponse.status)
+          setSuccessMessage(jsonResponse.message)
+          setSuccessModalVisible(true);
+        } else {
+          // Handle errors
+          setErrorHeaderMessage(jsonResponse.status)
+          setErrorMessage(jsonResponse.message)
+          setErrorModalVisible(true);
+        }
+      } catch (error) {
+        if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        }
+        console.error('Error:', error);
+        setSubmitting(false);
+        
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 

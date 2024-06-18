@@ -31,27 +31,30 @@ const profile = () => {
           <Text className='my-2 mx-3 text-sm font-normal uppercase tracking-widest text-dark dark:text-light'>Account</Text>
           <SafeAreaView className="rounded-lg bg-light-MID dark:bg-dark-MID">
             {/* Change password */}
-            <View>
-              <Pressable
-                onPress={() => {
-                  // handle onPress
-                  router.push("/account/change_password")
-                }}
-                style={({pressed}) => [ { opacity: pressed ? 0.2 : 1} ]}
-                className='flex-row items-center justify-start pr-4 h-12'>
-                <View
-                  className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-gray-500'>
-                  <Feather color="#fff" name="lock" size={20} />
-                </View>
-                <Text className="font-normal text-lg text-dark dark:text-light">Change password</Text>
-                <View className='flex-grow flex-shrink' />
-                <Feather color="#C6C6C6" name="chevron-right" size={24} />
-              </Pressable>
-            </View>
+            <Pressable 
+              style={({ pressed }) => [,
+                pressed ? { backgroundColor: '#646464' } : {},
+              ]} 
+              onPress={() => {
+                // handle onPress
+                router.push("/account/change_password")
+              }}
+              className='flex-row items-center justify-start pr-4 h-12'>
+              <View
+                className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-gray-500'>
+                <Feather color="#fff" name="lock" size={20} />
+              </View>
+              <Text className="font-normal text-lg text-dark dark:text-light">Change password</Text>
+              <View className='flex-grow flex-shrink' />
+              <Feather color="#C6C6C6" name="chevron-right" size={24} />
+            </Pressable>
 
             {/* Delete account */}
             <View className='border-t-2 border-t-neutral-200 dark:border-t-neutral-700'>
               <Pressable
+                style={({ pressed }) => [,
+                  pressed ? { backgroundColor: '#646464' } : {},
+                ]} 
                 onPress={() => {
                   // handle onPress
                   router.push("/account/delete_account")

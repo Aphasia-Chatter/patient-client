@@ -25,7 +25,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
     // Modal Body
     const modalBody=(
         <View style={styles.modalBody}>
-          <Text>{dialogMessage}</Text>
+          <Text className='text-base'>{dialogMessage}</Text>
         </View>
       )
 
@@ -40,7 +40,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage,
             </Pressable>
             <Pressable style={{...styles.actions,backgroundColor:"#0072B2"}} 
                 onPress={onConfirm}>
-                <Text style={styles.actionText}>Confirm</Text>
+                <Text className='text-base' style={styles.actionText}>Confirm</Text>
             </Pressable>
         </View>
     </View>
@@ -93,13 +93,15 @@ const styles = StyleSheet.create({
       borderRadius:5
     },
     modalHeader:{
-      paddingStart: 12
+      paddingStart: 16,
+      padding: 10
     },
     title:{
       fontWeight:"bold",
       fontSize:20,
       padding:15,
-      color:"#fff"
+      color:"#fff",
+      flexShrink: 1
     },
     divider:{
       width:"100%",
