@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
+import { saveValue } from "../../utils/SecureStore";
 
 const preference = () => {
   const {colorScheme, toggleColorScheme} = useColorScheme();

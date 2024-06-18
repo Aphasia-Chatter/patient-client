@@ -6,6 +6,7 @@ import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, T
 import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";
+import SuccessModal from "../../components/SuccessModal";
 import DialogModal from "../../components/DialogModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
@@ -14,85 +15,98 @@ import { useAuthContext } from '../../context/AuthContext';
 import { saveValue } from "../../utils/SecureStore";
 
 const deleteAccount = () => {
-    const { appUser, setAppUser } = useAuthContext();
-    const [ username ] = useState(appUser?.username);
-    const [ sessionToken ] = useState(appUser?.sessionToken);
+  const { appUser, setAppUser } = useAuthContext();
+  const [ username ] = useState(appUser?.username);
+  const [ sessionToken ] = useState(appUser?.sessionToken);
 
-    const [errorModalVisible, setErrorModalVisible] = useState(false);
-    const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-    const [dialogModalVisible, setDialogModalVisible] = useState(false);
-    const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
-    const [dialogMessage, setDialogMessage] = useState('');
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-    const handleDialogModalOpen = () => {
-      if (form.password.length > 0) {
-        setDialogHeaderMessage("Delete Account")
-        setDialogMessage("Are you sure you want to delete this account? The action cannot be reverted.")
-        setDialogModalVisible(true);
+  const [dialogModalVisible, setDialogModalVisible] = useState(false);
+  const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const handleSuccessModalDismiss = () => {
+    setSuccessModalVisible(false);
+
+    // Redirect to login page
+    router.replace("/(auth)/login");
+  };
+
+  const handleDialogModalOpen = () => {
+    if (form.password.length > 0) {
+      setDialogHeaderMessage("Delete Account")
+      setDialogMessage("Are you sure you want to delete this account? The action cannot be reverted.")
+      setDialogModalVisible(true);
+    }
+    else {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("password is missing in the request body field.")
+      setErrorModalVisible(true);
+    }
+  };
+
+  const handleDialogModalConfirm = () => {
+      setDialogModalVisible(false);
+      submitAccountDeletionRequest();
+  };
+  
+  const handleDialogModalDismiss = () => {
+      setDialogModalVisible(false);
+  };
+
+  const { colorScheme } = useColorScheme();
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+      password: "",
+  });
+
+  const submitAccountDeletionRequest = async () => {
+      setSubmitting(true);
+
+      try {
+          // Send POST request for patient login
+          // Use ipconfig to find ip address of your pc in the local network
+          const response = await fetch('http://10.0.2.2:44818/api/patient/delete-account', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  username: username,
+                  sessionToken: sessionToken,
+                  password: form.password,
+              }),
+          });
+
+          const jsonResponse = await response.json();
+
+          if (response.ok) {
+            // Delete username and session token from local storage in device
+            setAppUser(null);
+            await saveValue("AppUser", null);
+
+            // Show success modal
+            setSuccessHeaderMessage(jsonResponse.status);
+            setSuccessMessage(jsonResponse.message);
+            setSuccessModalVisible(true);
+
+          } else {
+            // Handle errors
+            setErrorHeaderMessage(jsonResponse.status)
+            setErrorMessage(jsonResponse.message)
+            setErrorModalVisible(true);
+          }
+      } catch (error) { // Error such as Network request failed
+          console.error('Error:', error);
+      } finally {
+          setSubmitting(false);
       }
-      else {
-        setErrorHeaderMessage("MISSING_PASSWORD")
-        setErrorMessage("password is missing in the request body field.")
-        setErrorModalVisible(true);
-      }
-    };
-
-    const handleDialogModalConfirm = () => {
-        setDialogModalVisible(false);
-        submitAccountDeletionRequest();
-    };
-    
-    const handleDialogModalDismiss = () => {
-        setDialogModalVisible(false);
-    };
-
-    const { colorScheme } = useColorScheme();
-    const [isSubmitting, setSubmitting] = useState(false);
-    const [form, setForm] = useState({
-        password: "",
-    });
-
-    const submitAccountDeletionRequest = async () => {
-        setSubmitting(true);
-
-        try {
-            // Send POST request for patient login
-            // Use ipconfig to find ip address of your pc in the local network
-            const response = await fetch('http://10.0.2.2:44818/api/patient/delete_account', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: form.password,
-                    sessionToken: sessionToken
-                }),
-            });
-
-            const jsonResponse = await response.json();
-
-            if (response.ok) {
-                // Delete username and session token from local storage in device
-                setAppUser(null)
-                await saveValue("AppUser", null)
-
-                // Redirect to login page
-                router.replace("/(auth)/login");
-
-            } else {
-                // Handle errors
-                setErrorHeaderMessage(jsonResponse.status)
-                setErrorMessage(jsonResponse.message)
-                setErrorModalVisible(true);
-            }
-        } catch (error) { // Error such as Network request failed
-            console.error('Error:', error);
-        } finally {
-            setSubmitting(false);
-        }
   };
 
   return (
@@ -102,7 +116,7 @@ const deleteAccount = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
     <SafeAreaView className="h-full bg-light dark:bg-dark">
-      <ScrollView>
+      <ScrollView className="h-full">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="w-full justify-center px-4"
               // style={{
@@ -114,6 +128,13 @@ const deleteAccount = () => {
               errorMessage={errorMessage}
               modalVisible={errorModalVisible}
               setModalVisible={setErrorModalVisible}
+            />
+
+            <SuccessModal 
+              headerMessage={successHeaderMessage}
+              successMessage={successMessage}
+              modalVisible={successModalVisible}
+              onDismiss={handleSuccessModalDismiss}
             />
 
             <DialogModal 
@@ -154,19 +175,18 @@ const deleteAccount = () => {
             />
           </View>
         </TouchableWithoutFeedback>
-      </ScrollView>
 
-      {/* Delete Account */}
-      <View className="p-4 absolute bottom-0 left-0 right-0">
-        <CustomButton
-          title="Delete Account Permanently"
-          handlePress={handleDialogModalOpen}
-          backgroundColor="#0072B2"
-          containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
-          isLoading={isSubmitting}
-        />
-      </View>
-      
+        {/* Delete Account */}
+        <View className={`p-4 ${Platform.OS === 'ios' ? 'pb-10' : 'pb-5'}`}>
+          <CustomButton
+            title="Delete Account Permanently"
+            handlePress={handleDialogModalOpen}
+            backgroundColor="#0072B2"
+            containerStyles={[{ width: '100%' }]}
+            isLoading={isSubmitting}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   </KeyboardAvoidingView>
   )

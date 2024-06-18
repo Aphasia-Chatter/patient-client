@@ -4,7 +4,7 @@ import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaVie
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { router, usePathname } from "expo-router";
+import { router, Redirect, usePathname } from "expo-router";
 import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";
@@ -13,7 +13,7 @@ import { saveValue } from "../../utils/SecureStore";
 
 const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewProps & { children: React.ReactNode; } & React.RefAttributes<ScrollView>) => {
   const { appUser, setAppUser } = useAuthContext();
-  const [isSubmitting, setSubmitting] = useState(false);
+  const [ isSubmitting, setSubmitting] = useState(false);
 
   const { colorScheme } = useColorScheme();
   const pathname = usePathname();
@@ -21,6 +21,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   useEffect(() => {
     console.log(pathname)
   })
+
+  if (!appUser) {
+    return <Redirect href="(auth)/login"></Redirect>
+  }
 
   const logout = async () => {
     setSubmitting(true);
@@ -60,7 +64,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   return(
     <DrawerContentScrollView {...props}>
       {/* APP NAME WITH LOGO */}
-      <SafeAreaView className={`flex-row items-center justify-center ${Platform.OS === 'ios' ? 'mb-6' : 'my-6'}`}>
+      <SafeAreaView className='flex-row items-center justify-center my-8'>
         <Image
           source={images.logoSmall}
           className="w-10 h-10"

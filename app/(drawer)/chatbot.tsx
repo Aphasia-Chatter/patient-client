@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, Text, View, FlatList, ListRenderItem, StyleSheet } from "react-native";
+import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import { images, icons } from "../../constants";
@@ -128,7 +128,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       )}
 
       {/* Recording Button */}
-      <View className='absolute bottom-0 left-0 right-0 justify-center items-center pt-1 pb-10 bg-light dark:bg-dark'>
+      <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-10' : 'pb-5'} bg-light dark:bg-dark`}>
         <CustomButton
           title={isRecording ? "Recording..." : "Tap to start recording"}
           handlePress={toggleRecording}

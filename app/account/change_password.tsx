@@ -6,8 +6,8 @@ import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, T
 import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";
-import DialogModal from "../../components/DialogModal";
 import SuccessModal from "../../components/SuccessModal";
+import DialogModal from "../../components/DialogModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
@@ -23,9 +23,20 @@ const change_password = () => {
   const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [dialogModalVisible, setDialogModalVisible] = useState(false);
   const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
+
+  const handleSuccessModalDismiss = () => {
+    setSuccessModalVisible(false);
+
+    // Redirect to login page
+    router.replace("/(auth)/login");
+  };
 
   const handleDialogModalOpen = () => {
     if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
@@ -41,10 +52,10 @@ const change_password = () => {
   };
 
   const handleDialogModalConfirm = () => {
-      setDialogModalVisible(false);
-      submitAccountUpdatePasswordRequest();
+    setDialogModalVisible(false);
+    submitAccountUpdatePasswordRequest();
   };
-  
+
   const handleDialogModalDismiss = () => {
       setDialogModalVisible(false);
   };
@@ -63,7 +74,7 @@ const change_password = () => {
     try {
       // Send POST request for patient login
       // Use ipconfig to find ip address of your pc in the local network
-      const response = await fetch('http://10.0.2.2:44818/api/patient/change_account_password', {
+      const response = await fetch('http://10.0.2.2:44818/api/patient/change-account-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,16 +92,17 @@ const change_password = () => {
 
       if (response.ok) {
         // Delete username and session token from local storage in device
-        setAppUser(null)
-        await saveValue("AppUser", null)
+        setAppUser(null);
+        await saveValue("AppUser", null);
 
-        // Redirect to login page
-        router.replace("/(auth)/login");
-
+        // Show success modal
+        setSuccessHeaderMessage(jsonResponse.status);
+        setSuccessMessage(jsonResponse.message);
+        setSuccessModalVisible(true);
       } else {
-        // Handle errors
-        console.error("HTTP status ${response.status}");
-        console.error(jsonResponse.message);
+        // Show error message
+        setErrorHeaderMessage(jsonResponse.status);
+        setErrorMessage(jsonResponse.message);
         setErrorModalVisible(true);
       }
     } catch (error) { // Error such as Network request failed
@@ -122,6 +134,13 @@ const change_password = () => {
               setModalVisible={setErrorModalVisible}
             />
 
+            <SuccessModal 
+              headerMessage={successHeaderMessage}
+              successMessage={successMessage}
+              modalVisible={successModalVisible}
+              onDismiss={handleSuccessModalDismiss}
+            />
+
             <DialogModal 
               headerMessage={dialogHeaderMessage}
               dialogMessage={dialogMessage}
@@ -134,23 +153,23 @@ const change_password = () => {
             {/* Password Requirements */}
             <View className='mt-7 p-4 items-start  rounded-lg bg-light-MID dark:bg-dark-MID'>
               <Text className='mb-2 text-base font-bold text-black dark:text-white'>
-                Password must fulfil the following.
+              Password must contain at least three of the following:
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base text-black dark:text-white'>An uppercase character</Text>
+                <Text className='text-base text-black dark:text-white'>A uppercase character</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base text-black dark:text-white'>An lowercase character</Text>
+                <Text className='text-base text-black dark:text-white'>A lowercase character</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base text-black dark:text-white'>An number</Text>
+                <Text className='text-base text-black dark:text-white'>A digit</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name="closecircle" size={16} color={colorScheme === "dark" ? "#ffd966" : "#e69138"} style={{ marginRight: 8 }} />
-                <Text className='text-base text-black dark:text-white'>An special character</Text>
+                <Text className='text-base text-black dark:text-white'>A special character</Text>
               </View>
             </View>
 
@@ -180,19 +199,18 @@ const change_password = () => {
             />
           </View>
         </TouchableWithoutFeedback>
+
+        {/* Update Password */}
+        <View className={`p-4 ${Platform.OS === 'ios' ? 'pb-10' : 'pb-5'} `}>
+          <CustomButton
+            title="Update Password"
+            handlePress={handleDialogModalOpen}
+            backgroundColor="#0072B2"
+            containerStyles={[{ width: '100%' }]}
+            isLoading={isSubmitting}
+          />
+        </View>
       </ScrollView>
-
-      {/* Update Password */}
-      <View className="p-4 absolute bottom-0 left-0 right-0">
-        <CustomButton
-          title="Update Password"
-          handlePress={handleDialogModalOpen}
-          backgroundColor="#0072B2"
-          containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
-          isLoading={isSubmitting}
-        />
-      </View>
-
     </SafeAreaView>
   </KeyboardAvoidingView>
   )

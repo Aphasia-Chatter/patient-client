@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
 import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
-
 import { images } from "../../constants";
 import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
@@ -79,7 +78,7 @@ const login = () => {
         >
           {/* Preference Logo */}
           <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
-            <Pressable onPress={() => router.push("/preference")}>
+            <Pressable onPress={() => router.push("account/preference")}>
               <Feather name="settings" size={24} color={'#F9F9F9'}/>
             </Pressable>
           </View>
@@ -102,12 +101,6 @@ const login = () => {
               Log in with your{"\n"}
               <Text className="text-primary">Account</Text>{" "}
             </Text>
-
-            <Image
-              source={images.path}
-              className="w-[136px] h-[15px] absolute -bottom-3 -right-0"
-              resizeMode="contain"
-            />
           </View>
 
           <FormField
