@@ -28,7 +28,10 @@
             "NSIncludesSubdomains": true,
             "NSExceptionAllowsInsecureHTTPLoads": true
           }
-        }
+        },
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {

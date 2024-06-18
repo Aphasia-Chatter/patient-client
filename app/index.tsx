@@ -22,7 +22,7 @@ const Welcome = () => {
   const handleWelcome = () => {
     // First launched app
     saveValue("isWelcome", true)
-    router.replace("/login")
+    router.replace("/chatbot")
   };
 
   const redirection = async () => {
