@@ -22,21 +22,21 @@ const Welcome = () => {
   const handleWelcome = () => {
     // First launched app
     saveValue("isWelcome", true)
-    router.replace("/login")
+    router.replace("/tasks")
   };
 
   const redirection = async () => {
     try {
-        const storedWelcome = await fetchValue("isWelcome")
-        const storedAppUser = await fetchValue("AppUser")
-        
-        if (storedWelcome) {
-            setIsWelcome(storedWelcome)
-        }
+      const storedWelcome = await fetchValue("isWelcome")
+      const storedAppUser = await fetchValue("AppUser")
+      
+      if (storedWelcome) {
+          setIsWelcome(storedWelcome)
+      }
 
-        if (storedAppUser) {
-          setAppUser(storedAppUser)
-        }
+      if (storedAppUser) {
+        setAppUser(storedAppUser)
+      }
         
     } catch ( error ) {
         throw error;
@@ -44,7 +44,7 @@ const Welcome = () => {
       if (isWelcome) {
         if (appUser) {
           router.dismissAll();
-          router.replace("/(drawer)/chatbot");
+          router.replace("/(drawer)/tasks");
         } else {
           router.dismissAll();
           router.replace("/(auth)/login");
@@ -67,7 +67,7 @@ const Welcome = () => {
         >
           <View className="w-full flex justify-center items-center h-full px-4">
             <View className="relative mt-5 items-center">
-              {/* Chatbot Icon */}
+              {/* Tasks Icon */}
               <Image
                 source={icons.chatbot}
                 className="rounded-2xl mb-5"

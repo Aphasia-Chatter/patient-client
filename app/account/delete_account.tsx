@@ -79,7 +79,7 @@ const deleteAccount = () => {
       try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
-          const response = await fetch('http://10.0.2.2:44818/api/patient/delete-account', {
+          const response = await fetch('http://192.168.1.97:44818/api/patient/delete-account', {
               method: 'POST',
               headers: {
               'Content-Type': 'application/json',
@@ -133,9 +133,9 @@ const deleteAccount = () => {
       <ScrollView showsHorizontalScrollIndicator={false}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="w-full justify-center px-4"
-              // style={{
-              //   minHeight: Dimensions.get("window").height - 100,
-              // }}
+            // style={{
+            //   minHeight: Dimensions.get("window").height - 100,
+            // }}
           >
             <ErrorModal 
               headerMessage={errorHeaderMessage}

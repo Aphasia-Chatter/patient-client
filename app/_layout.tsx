@@ -79,6 +79,15 @@ const RootLayout = () => {
               headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
               headerTitle: "Delete Account"
           }}/>
+
+          <Stack.Screen
+            name="chatbot/chatbot"
+            options={{
+              headerShown: true,
+              headerTintColor: colorScheme === 'dark' ? '#fff' : '#333',
+              headerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight,
+              headerTitle: "Task"
+          }}/>
       </Stack>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </AuthProvider>

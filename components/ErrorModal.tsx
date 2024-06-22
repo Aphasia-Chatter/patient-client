@@ -39,7 +39,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, mo
           onPress={() => {
             setModalVisible(false)
           }}>
-          <Text className='text-base' style={styles.actionText}>Dimiss</Text>
+          <Text className='text-base' style={styles.actionText}>Dismiss</Text>
         </Pressable>
         </View>
     </View>
@@ -55,19 +55,19 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, mo
       )
 
     return (
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-          <View style={styles.modal}>
-            <View>
-              {modalContainer}
-            </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+        }}>
+        <View style={styles.modal}>
+          <View>
+            {modalContainer}
           </View>
-        </Modal>
+        </View>
+      </Modal>
     );
 }
 

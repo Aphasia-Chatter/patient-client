@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaView, Platform } from 'react-native'
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router, Redirect, usePathname } from "expo-router";
 import { useColorScheme } from 'nativewind';
 
@@ -22,9 +22,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
     console.log(pathname)
   })
 
-  if (!appUser) {
-    return <Redirect href="(auth)/login"></Redirect>
-  }
+  // Comment out this to disable auto-logout when session not found
+  // if (!appUser) {
+  //   return <Redirect href="(auth)/login"></Redirect>
+  // }
 
   const logout = async () => {
     setSubmitting(true);
@@ -73,22 +74,22 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
         <Text className="text-xl ml-2 text-dark dark:text-light">AphasiaChatter</Text>
       </SafeAreaView>
 
-      {/* CHATBOT DRAWER ITEM */}
+      {/* TASKS DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
           <View
           className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-red-500'>
-            <MaterialCommunityIcons name="robot-happy-outline" size={24} color='#fff'/>
+            <FontAwesome5 name="tasks" size={24} color='#fff'/>
           </View>
         )}
-        label={'Chatbot'}
+        label={'Tasks'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == '/chatbot' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
+          { color: pathname == '/tasks' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
         ]}
-        style={{backgroundColor: pathname == '/chatbot' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
+        style={{backgroundColor: pathname == '/tasks' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
         onPress={() => {
-          router.push('/(drawer)/chatbot')
+          router.push('/(drawer)/tasks')
         }}
       />
 
@@ -165,7 +166,7 @@ const DrawerLayout = () => {
           drawerStyle: colorScheme === 'dark' ? styles.drawerDark : styles.drawerLight
         }}
       >
-        <Drawer.Screen name="chatbot" options={{headerShown: true, headerTitle: "Chatbot"}} />
+        <Drawer.Screen name="tasks" options={{headerShown: true, headerTitle: "Tasks"}} />
         <Drawer.Screen name="result" options={{headerShown: true, headerTitle: "Results"}} />
         <Drawer.Screen name="profile" options={{headerShown: true, headerTitle: "Profile"}} />
       </Drawer>
