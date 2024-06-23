@@ -22,7 +22,7 @@ const Welcome = () => {
   const handleWelcome = () => {
     // First launched app
     saveValue("isWelcome", true)
-    router.replace("/tasks")
+    router.replace("/(auth)/login")
   };
 
   const redirection = async () => {

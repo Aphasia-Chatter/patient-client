@@ -60,7 +60,7 @@ const login = () => {
           await saveValue("AppUser", jsonResponse.data)
 
           // Handle successful login
-          router.replace("/(drawer)/chatbot");
+          router.replace("/(drawer)/tasks");
 
         } else {
           // Handle errors
