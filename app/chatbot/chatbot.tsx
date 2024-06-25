@@ -150,7 +150,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       });
 
       console.log('Starting recording..');
-      const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY );
       setRecording(recording);
 
       console.log('Recording started');
@@ -169,12 +169,12 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           allowsRecordingIOS: false,
         });
 
-        const uri = recording.getURI();
-        console.log('Recording stopped and stored at', uri);
-        setIsRecording(false)
+        const recordingUri = recording.getURI();
+        console.log('Recording stopped and stored at', recordingUri);
 
-        // Send recording to backend
-        sendRecording(uri);
+        sendRecording(recordingUri);
+        
+        setIsRecording(false)
 
       } else {
         console.log('No recording to stop');
@@ -199,44 +199,39 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   }
 
   const sendRecording = async (recordingUri: string | null) => {
-    setSubmitting(true);
+    if (recordingUri != null) {
+      // Encode recording content as a Base64 string
+      const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, { 
+        encoding: FileSystem.EncodingType.Base64, 
+      });
 
-    if (recordingUri == null) {
-      setErrorHeaderMessage("NULL_URI")
-      setErrorMessage("URI not found.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else {
+      // Attach the Base64 string to the key 'audioFile'
+      const formData = new FormData();
+      formData.append('audioFile', recordingBase64);
+
       try {
-        // Send PATCH request for patient login
-        // Use ipconfig to find ip address of your pc/emulator in the local network
-        const response = await FileSystem.uploadAsync('http://192.168.1.97:44818/api/asr/transcribe', recordingUri, {
-          fieldName: 'file',
-          httpMethod: 'PATCH',
-          uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+        const response = await fetch('http://192.168.1.97:44818/api/asr/transcribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
+          },
+          body: formData,
         });
+    
+        const result = await response.json();
 
-        console.log(JSON.stringify(response, null, 4));
-
-        const jsonResponse = await response.status;
-
-        if (response.status) {
+        if (response.status === 200) {
           // Get chatbot response from the backend
-          fetchResponse();
+          console.log("success")
+          console.log("text:", result.transcription)
         }
+
       } catch (error) {
-        console.error('Error:', error);
-        if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        }    
-      } finally {
-        setSubmitting(false);
+        // Get chatbot response from the backend
+        console.log("not success")
       }
-    }
-  };
+    };
+  }
 
   const fetchResponse = async () => {
   }
