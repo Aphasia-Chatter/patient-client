@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
 import { router } from "expo-router";
-import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, ScrollView } from "react-native";
-import { FontAwesome5, FontAwesome6, Octicons, Fontisto, MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
+import { Text, View, FlatList, ListRenderItem, StyleSheet, Pressable, } from "react-native";
+import { FontAwesome5, FontAwesome6, Fontisto, MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";
@@ -191,8 +191,8 @@ const Tasks: React.FC<TaskData> = () => {
 
   const renderWordRetrievalTaskItem: ListRenderItem<TaskData> = ({ item, index }) => {
     return (
-      <View key={index} className="flex-row mt-3">
-        <View className="rounded-lg pl-1 pr-2 flex-1 bg-gray-200 dark:bg-gray-600 flex-row items-center">
+      <View key={index} className="flex-row mb-4">
+        <View className="pl-1 pr-2 flex-1 bg-gray-200 dark:bg-gray-600 flex-row items-center">
           <View className="h-full w-2 bg-gray-400 mx-3"></View>
           <View className="ml-2 flex-1 py-3">
             <Text className='text-xl font-bold mb-2 text-dark dark:text-light'>{item.task.name}</Text>
@@ -204,7 +204,6 @@ const Tasks: React.FC<TaskData> = () => {
               <Fontisto name="doctor" size={18} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 10 }} />
               <Text className='text-sm mb-3 text-dark dark:text-light'>{item.task_editor.staffID}</Text>
             </View>
-            
             <View className='absolute bottom-3 right-0'>
               {
                 item.task.description === 'Completed' ? (
@@ -280,7 +279,7 @@ const Tasks: React.FC<TaskData> = () => {
         onConfirm={(categoryOfTask) => fetchAllTasks({ categoryOfTask })}
         onDismiss={() => setTaskFilterModalVisible(false)}
       />
-      <View className='flex-row justify-center'>
+      <View className='flex-row justify-center mb-6'>
         <Pressable
           style={({ pressed }) => [
             pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
@@ -296,10 +295,6 @@ const Tasks: React.FC<TaskData> = () => {
         <Text className='font-bold text-center text-2xl text-dark dark:text-light'>{selectedTaskCategoryName}</Text>
       </View>
 
-      <ScrollView
-        className='flex-grow'
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}>
       {
         tasks.length == 0 ? (
           <View className='flex-1 justify-center align-bottom items-center'>
@@ -323,7 +318,6 @@ const Tasks: React.FC<TaskData> = () => {
             data={tasks}
             renderItem={renderWordRetrievalTaskItem}
             keyExtractor={(item, index) => index.toString()}
-            // onEndReached={loadMoreMessages} // Load more messages when end is reached
             onEndReachedThreshold={0.1} // Load more when 10% from the bottom
             showsVerticalScrollIndicator={false}
             ref={flatListRef}
@@ -339,7 +333,6 @@ const Tasks: React.FC<TaskData> = () => {
           <></>
         )
       }
-      </ScrollView>
     </View>
   );
 };

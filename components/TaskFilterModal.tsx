@@ -44,6 +44,20 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
             <Picker.Item label="Sentence Retrieval Task" value="2" />
             <Picker.Item label="Article Reading Task" value="3" />
           </Picker>
+          {/* Task Status */}
+          <Picker
+            style={styles.picker}
+            selectedValue={categoryOfTask}
+            onValueChange={(itemValue, itemIndex) => {
+              if (itemIndex !== 0) {
+                setCategoryOfTask(itemValue);
+              }
+            }}>
+            <Picker.Item label="--Select Task Status--" value="" color="grey"/>
+            <Picker.Item label="Not started" value="1" />
+            <Picker.Item label="In Progress" value="2" />
+            <Picker.Item label="Completed" value="3" />
+          </Picker>
         </View>
       </View>
     )
