@@ -59,16 +59,15 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
+  const { colorScheme, toggleColorScheme } = useColorScheme();
 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
 
-  const { colorScheme, toggleColorScheme } = useColorScheme();
-
   // Message History
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
-  const [loading, setLoading] = useState(false);
+  const [ loading, setLoading ] = useState(false);
   const maxMessages = 200; // Maximum number of messages to keep in memory
   const flatListRef = useRef<FlatList<Message>>(null);
 
@@ -223,7 +222,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         if (response.status === 200) {
           // Get chatbot response from the backend
           console.log("success")
-          console.log("text:", result.transcription)
+          console.log("transcription from backend:", result.transcription)
         }
 
       } catch (error) {

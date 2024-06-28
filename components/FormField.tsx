@@ -13,7 +13,7 @@ interface FormFieldProps extends TextInputProps {
 
 const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handleChangeText, otherStyles, ...props }) => {
   const { colorScheme } = useColorScheme();
-  const [showPassword, setShowPassword] = useState(false);
+  const [ showPassword, setShowPassword ] = useState(false);
   
   return (
     <View className={`space-y-2 ${otherStyles}`}>
