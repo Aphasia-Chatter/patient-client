@@ -15,6 +15,12 @@ type TaskFilterType = {
 };
 
 type TaskData = {
+  word_retrieval_task: {
+    taskID: string;
+    imagePath: string;
+    answer: string;
+    inputRestriction: string
+  };
   task_editor: {
     taskID: string;
     staffID: string;
@@ -27,12 +33,12 @@ type TaskData = {
     taskVisibility: string;
     createdAt: string;
   };
-  word_retrieval_task: {
-    taskID: string;
-    imagePath: string;
-    answer: string;
-    inputRestriction: string
+  staff: {
+    id: string;
+    username: string;
+    hashedPassword: string;
   };
+  status: string;
 }
 
 const Tasks: React.FC<TaskData> = () => {
@@ -202,11 +208,11 @@ const Tasks: React.FC<TaskData> = () => {
               </View>
             <View className='flex-row'>
               <Fontisto name="doctor" size={18} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 10 }} />
-              <Text className='text-sm mb-3 text-dark dark:text-light'>{item.task_editor.staffID}</Text>
+              <Text className='text-sm mb-3 text-dark dark:text-light'>{item.staff.username}</Text>
             </View>
             <View className='absolute bottom-3 right-0'>
               {
-                item.task.description === 'Completed' ? (
+                item.status === 'Completed' ? (
                   <Pressable
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#008000", flexDirection: "row", alignItems: "center", padding: 10 }
@@ -216,10 +222,10 @@ const Tasks: React.FC<TaskData> = () => {
                       router.push("/chatbot/chatbot")
                     }}>
                     <FontAwesome6 name="check-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
-                    <Text className='text-base' style={styles.actionText}>{item.task.description}</Text>
+                    <Text className='text-base' style={styles.actionText}>{item.status}</Text>
                   </Pressable>
                   
-                ) : item.task.description === 'In progress' ? (
+                ) : item.status === 'In Progress' ? (
                   <Pressable
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#F3960F", flexDirection: "row", alignItems: "center", padding: 10 }
@@ -229,23 +235,25 @@ const Tasks: React.FC<TaskData> = () => {
                       router.push("/chatbot/chatbot")
                     }}>
                     <FontAwesome6 name="pause-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
-                    <Text className='text-base' style={styles.actionText}>{item.task.description}</Text>
+                    <Text className='text-base' style={styles.actionText}>{item.status}</Text>
                   </Pressable>
 
-                ) : item.task.description === 'Not started' ? (
+                ) : item.status === 'Not Started' ? (
                   <Pressable
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#858585", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
                     onPress={() => {
                       // handle onPress
-                      router.push("/chatbot/chatbot")
+                      setDialogHeaderMessage("Start Task")
+                      setDialogMessage(`Are you sure you want to begin the following task '${item.task.name}'?`)
+                      setDialogModalVisible(true)
                     }}>
                     <FontAwesome6 name="xmark-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
-                    <Text className='text-base' style={styles.actionText}>{item.task.description}</Text>
+                    <Text className='text-base' style={styles.actionText}>{item.status}</Text>
                   </Pressable>
                 ) : (
-                  <View className='flex-1'></View>
+                  <></>
                 )
               }
             </View>
