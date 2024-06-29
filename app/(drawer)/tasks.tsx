@@ -47,8 +47,8 @@ const Tasks: React.FC<TaskData> = () => {
   const [ sessionToken ] = useState(appUser?.sessionToken);
   const { colorScheme, toggleColorScheme } = useColorScheme();
 
-  const [ isSubmitting, setSubmitting] = useState(false);
-  const [ dataStatusMessage, setDataStatusMessage] = useState('')
+  const [ isSubmitting, setSubmitting ] = useState(false);
+  const [ dataStatusMessage, setDataStatusMessage ] = useState('')
 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
@@ -59,8 +59,9 @@ const Tasks: React.FC<TaskData> = () => {
   const [ dialogMessage, setDialogMessage ] = useState('');
 
   const [ tasks, setTasks ] = useState<TaskData[]>([]);
-  const [ selectedTaskCategory, setSelectedTaskCategory] = useState(1); // Default set to word retrieval
-  const [ selectedTaskCategoryName, setSelectedTaskCategoryName] = useState('Word Retrieval'); //
+  const [ selectedTaskCategory, setSelectedTaskCategory ] = useState(1); // Default set to word retrieval
+  const [ selectedTaskCategoryName, setSelectedTaskCategoryName ] = useState('Word Retrieval'); //
+  const [ selectedTaskId, setSelectedTaskId ] = useState('');
 
   const [ taskFilterModalVisible, setTaskFilterModalVisible ] = useState(false);
   const [ taskFilterHeaderMessage, setTaskFilterHeaderMessage ] = useState('');
@@ -191,8 +192,68 @@ const Tasks: React.FC<TaskData> = () => {
     }
   }
 
-  const createSession = async (...args: any[]) => {
-    // TODO 
+  const createTaskSession = async (...args: any[]) => {
+    setDialogModalVisible(false);
+    setSubmitting(true);
+
+    if (selectedTaskCategory == null) {
+      setErrorHeaderMessage("MISSING_INPUT")
+      setErrorMessage("Please select a task category")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else {
+      if (selectedTaskCategory === 1) {
+        try {
+          // Send POST request for patient login
+          // Use ipconfig to find ip address of your pc in the local network
+          const response = await fetch('http://192.168.1.97:44818/api/patient/create-word-retrieval-task-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: username,
+              sessionToken: sessionToken,
+              taskID: selectedTaskId,
+            }),
+          });
+    
+          const jsonResponse = await response.json();
+          console.log('Confirmed with jsonResponse:', jsonResponse);
+    
+          if (response.ok) {
+            // Redirect to chatbot page
+            router.push("/chatbot/chatbot")
+  
+          } else {
+            // Show error message
+            setErrorHeaderMessage(jsonResponse.status);
+            setErrorMessage(jsonResponse.message);
+            setErrorModalVisible(true);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          if (error instanceof TypeError) { // Error such as Network request failed
+            setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+            setErrorMessage("There was a problem with the network request.")
+            setErrorModalVisible(true);
+          }        
+        } finally {
+          setSubmitting(false);
+        }
+        
+      } else if (selectedTaskCategory === 2) {
+
+      } else if (selectedTaskCategory === 3) {
+
+      } else {
+        setErrorHeaderMessage("INVALID_INPUT")
+        setErrorMessage("Please select a valid category of task.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+    }
   }
 
   const renderWordRetrievalTaskItem: ListRenderItem<TaskData> = ({ item, index }) => {
@@ -245,9 +306,10 @@ const Tasks: React.FC<TaskData> = () => {
                     ]}
                     onPress={() => {
                       // handle onPress
-                      setDialogHeaderMessage("Start Task")
-                      setDialogMessage(`Are you sure you want to begin the following task '${item.task.name}'?`)
-                      setDialogModalVisible(true)
+                      setSelectedTaskId(item.task.id);
+                      setDialogHeaderMessage("Start Task");
+                      setDialogMessage(`Are you sure you want to begin the following task '${item.task.name}'? Do note that the time starts upon confirmation.`);
+                      setDialogModalVisible(true);
                     }}>
                     <FontAwesome6 name="xmark-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
                     <Text className='text-base' style={styles.actionText}>{item.status}</Text>
@@ -276,7 +338,7 @@ const Tasks: React.FC<TaskData> = () => {
         dialogMessage={dialogMessage}
         modalVisible={dialogModalVisible}
         setModalVisible={setDialogModalVisible}
-        onConfirm={createSession}
+        onConfirm={createTaskSession}
         onDismiss={() => setDialogModalVisible(false)}
       />
       <TaskFilterModal 
@@ -332,7 +394,6 @@ const Tasks: React.FC<TaskData> = () => {
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
             contentContainerStyle={styles.flatListContent}
           />
-
         ) : tasks.length > 0 && selectedTaskCategory == 2 ? (
           <></>
         ) : tasks.length > 0 && selectedTaskCategory == 3 ? (
