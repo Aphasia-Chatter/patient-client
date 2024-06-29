@@ -12,6 +12,7 @@ import { useAuthContext } from '../../context/AuthContext';
 
 type TaskFilterType = {
   categoryOfTask?: number;
+  taskStatus?: number;
 };
 
 type TaskData = {
@@ -81,11 +82,9 @@ const Tasks: React.FC<TaskData> = () => {
       const params = new URLSearchParams();
       if (appUser?.username) {
         params.append('username', appUser.username);
-        console.log(appUser.username)
       }
       if (appUser?.sessionToken) {
         params.append('sessionToken', appUser.sessionToken);
-        console.log(appUser.sessionToken)
       }
 
       let response: Response;
@@ -95,7 +94,6 @@ const Tasks: React.FC<TaskData> = () => {
       // Use ipconfig to find ip address of your pc in the local network
       // Determine the endpoint based on the presence of the wordRetrievalTask key
       if (additionalParams.categoryOfTask == 1) {
-        console.log('Cat 1');
         setSelectedTaskCategory(1);
         setSelectedTaskCategoryName('Word Retrieval')
         setTaskFilterModalVisible(false);
@@ -106,18 +104,16 @@ const Tasks: React.FC<TaskData> = () => {
             'Content-Type': 'application/json',
           },
         });
+
         jsonResponse = await response.json();
-        console.log('Cat 1');
   
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
-          console.log('Word Retrieval Tasks:', jsonResponse.data.wordRetrievalTasks);
         } else {
           setDataStatusMessage("No word retrieval tasks found.");
         }
       } 
       else if (additionalParams.categoryOfTask == 2) {
-        console.log('Cat 2');
         setSelectedTaskCategory(2);
         setSelectedTaskCategoryName('Sentence Retrieval')
         setTaskFilterModalVisible(false);
@@ -133,13 +129,11 @@ const Tasks: React.FC<TaskData> = () => {
         
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
-          console.log('Sentence Retrieval Tasks:', jsonResponse.data.tasks);
         } else {
           setDataStatusMessage("No sentence retrieval tasks found.");
         }
       } 
       else if (additionalParams.categoryOfTask == 3) {
-        console.log('Cat 3');
         setSelectedTaskCategory(3);
         setSelectedTaskCategoryName('Article Reading')
         setTaskFilterModalVisible(false);
@@ -155,13 +149,11 @@ const Tasks: React.FC<TaskData> = () => {
   
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
-          console.log('Article Reading Tasks:', jsonResponse.data.tasks);
         } else {
           setDataStatusMessage("No article reading tasks found.");
         }
-      } 
+      }
       else { // Default gets word retrieval task
-        console.log('Default Route');
         response = await fetch(`http://192.168.1.97:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
@@ -173,7 +165,6 @@ const Tasks: React.FC<TaskData> = () => {
   
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
-          console.log('Tasks:', jsonResponse.data.tasks);
         } else {
           setDataStatusMessage("No word retrieval tasks found.");
         }
@@ -192,7 +183,7 @@ const Tasks: React.FC<TaskData> = () => {
     }
   }
 
-  const createTaskSession = async (...args: any[]) => {
+  const createTaskSession = async () => {
     setDialogModalVisible(false);
     setSubmitting(true);
 
@@ -223,9 +214,12 @@ const Tasks: React.FC<TaskData> = () => {
           console.log('Confirmed with jsonResponse:', jsonResponse);
     
           if (response.ok) {
+            // Clear data
+            fetchAllTasks();
+
             // Redirect to chatbot page
             router.push("/chatbot/chatbot")
-  
+
           } else {
             // Show error message
             setErrorHeaderMessage(jsonResponse.status);
@@ -280,7 +274,7 @@ const Tasks: React.FC<TaskData> = () => {
                     ]}
                     onPress={() => {
                       // handle onPress
-                      router.push("/chatbot/chatbot")
+                      router.push("/chatbot/chatbot");
                     }}>
                     <FontAwesome6 name="check-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
                     <Text className='text-base' style={styles.actionText}>{item.status}</Text>
@@ -293,7 +287,7 @@ const Tasks: React.FC<TaskData> = () => {
                     ]}
                     onPress={() => {
                       // handle onPress
-                      router.push("/chatbot/chatbot")
+                      router.push("/chatbot/chatbot");
                     }}>
                     <FontAwesome6 name="pause-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
                     <Text className='text-base' style={styles.actionText}>{item.status}</Text>
@@ -346,7 +340,7 @@ const Tasks: React.FC<TaskData> = () => {
         taskFilterMessage={taskFilterMessage}
         modalVisible={taskFilterModalVisible}
         setModalVisible={setTaskFilterModalVisible}
-        onConfirm={(categoryOfTask) => fetchAllTasks({ categoryOfTask })}
+        onConfirm={(categoryOfTask) => fetchAllTasks({categoryOfTask})}
         onDismiss={() => setTaskFilterModalVisible(false)}
       />
       <View className='flex-row justify-center mb-6'>
