@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl } from "react-native";
+import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import * as FileSystem from 'expo-file-system';
@@ -96,33 +96,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     });
   }, []);
 
-  const renderMessage: ListRenderItem<Message> = ({ item, index }) => {
-    if (item.role === "Bot") {
-      // Chatbot Response
-      return (
-        <View key={index} className="flex-row justify-start items-start mt-3">
-          {/* Chatbot Icon */}
-          <Image
-            className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
-            source={icons.chatbot}
-          />
-          {/* Chatbot Message Bubble */}
-          <View className="rounded-xl p-2 flex-1 bg-gray-200 dark:bg-gray-600">
-            <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
-          </View>
-        </View>
-      );
-    } else {
-      // Patient Input
-      return (
-        // Patient Message Bubble
-        <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
-          <Text className='text-base text-light'>{item.content}</Text>
-        </View>
-      );
-    }
-  };
-
   const fetchWordRetrievalTaskImage = async (imagePath: string) => {
     try {
       const params = new URLSearchParams();
@@ -161,6 +134,33 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       }      
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const renderMessage: ListRenderItem<Message> = ({ item, index }) => {
+    if (item.role === "Bot") {
+      // Chatbot Response
+      return (
+        <View key={index} className="flex-row justify-start items-start mt-3">
+          {/* Chatbot Icon */}
+          <Image
+            className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
+            source={icons.chatbot}
+          />
+          {/* Chatbot Message Bubble */}
+          <View className="rounded-xl p-2 flex-1 bg-gray-200 dark:bg-gray-600">
+            <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
+          </View>
+        </View>
+      );
+    } else {
+      // Patient Input
+      return (
+        // Patient Message Bubble
+        <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
+          <Text className='text-base text-light'>{item.content}</Text>
+        </View>
+      );
     }
   };
 
@@ -293,11 +293,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               />
               {/* Chatbot Image Message Bubble */}
               <View className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
-                <Image
-                  source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
-                  className="rounded-xl h-64 w-64"
-                  resizeMode="contain"
-                />
+                <ImageBackground className='rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4'>
+                  <Image
+                    source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
+                    className="flex-1 w-full h-full aspect-square"
+                    resizeMode="contain"
+                  />
+                </ImageBackground>
               </View>
             </View>
             <FlatList
@@ -318,7 +320,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 }
             />
             <View>
-              <Text>
+              <Text className='text-justify text-dark dark:text-light'>
                 Recording
               </Text>
               <Button onPress={playRecording} title="Play"></Button>
@@ -344,7 +346,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 pressed ? { opacity: 0.5 } : {},
             ]}
             onPress={startRecording}>
-            <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#fff' : '#000')}/>
+            <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
         )}
 
