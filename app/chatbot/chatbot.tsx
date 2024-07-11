@@ -1,14 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button} from "react-native";
+import { Image, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import * as FileSystem from 'expo-file-system';
 
 import { useLocalSearchParams } from 'expo-router'
 
-import RefreshFeedbackModal from "../../components/RefreshFeedbackModal";
 import ErrorModal from "../../components/ErrorModal";
 import { images, icons } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
@@ -43,17 +42,17 @@ const dummyMessages: Message[] = [
 
   // Suggested Bot response content structure
   // Content (initial): Observe the above image. Please give a 1-word response. {taskName}}
-  // Content (did not answer correctly): {Bot response's feedback}. {Hint}. {taskName}}
-  // Content (Answer correctly): {Bot response's feedback}.}
+  // Content (1-word response incorrect): {Bot response's feedback}. {Hint}. {taskName}}
+  // Content (1-word response correct): {Bot response's feedback}.}
 ];
 
 const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
   const { taskCategory, taskId, filePath } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
-  const [ username ] = useState(appUser?.username);
-  const [ sessionToken ] = useState(appUser?.sessionToken);
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
+
+  const [ refreshing, setRefreshing ] = useState(false);
 
   const [ wordRetrievalImageData, setWordRetrievalImageData ] = useState<PatientWordRetrievalTaskImageData | null>(null);
 
@@ -75,7 +74,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
 
-        // TODO: Get word retrieval chat history
+        // TODO: Get word retrieval chat history at launch
+        // fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
       console.error('Invalid task category, task id or filePath ');
@@ -85,6 +85,15 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
+  }, []);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(async () => {
+      // TODO: Refresh word retrieval chat history
+      // await fetchAllWordRetrievalSessionChatHistory();
+      setRefreshing(false);
+    });
   }, []);
 
   const renderMessage: ListRenderItem<Message> = ({ item, index }) => {
@@ -301,6 +310,12 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 ref={flatListRef}
                 onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                 contentContainerStyle={styles.flatListContent}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                  />
+                }
             />
             <View>
               <Text>

@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
 import { router } from "expo-router";
-import { Text, View, FlatList, ListRenderItem, StyleSheet, Pressable, } from "react-native";
+import { Text, View, FlatList, ListRenderItem, StyleSheet, Pressable, RefreshControl } from "react-native";
 import { FontAwesome5, FontAwesome6, Fontisto, MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
@@ -49,7 +49,9 @@ const Tasks: React.FC<TaskData> = () => {
   const { colorScheme } = useColorScheme();
 
   const [ isRetrieving, setRetrieving ] = useState(false);
+  const [ isSubmitting, setSubmitting ] = useState(false);
   const [ dataStatusMessage, setDataStatusMessage ] = useState('')
+  const [ refreshing, setRefreshing ] = useState(false);
 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
@@ -73,6 +75,14 @@ const Tasks: React.FC<TaskData> = () => {
 
   useEffect(() => {
     fetchAllTasks();
+  }, []);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(async () => {
+      await fetchAllTasks();
+      setRefreshing(false);
+    });
   }, []);
 
   const fetchAllTasks = async (additionalParams: TaskFilterType = {}) => {
@@ -176,7 +186,7 @@ const Tasks: React.FC<TaskData> = () => {
       if (error instanceof TypeError) { // Error such as Network request failed
         setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
         setErrorMessage("There was a problem with the network request.")
-        setErrorModalVisible(false); // TODO Remember to set back to true
+        setErrorModalVisible(true);
 
         setDataStatusMessage("Network Error.\nPlease check your internet connection.");
       }      
@@ -359,19 +369,24 @@ const Tasks: React.FC<TaskData> = () => {
         onConfirm={(categoryOfTask) => fetchAllTasks({categoryOfTask})}
         onDismiss={() => setTaskFilterModalVisible(false)}
       />
+      
       <View className='flex-row justify-center mb-6'>
-        <Pressable
-          style={({ pressed }) => [
-            pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
-          ]}
-          onPress={() => {
-            // Filter Function
-            setTaskFilterHeaderMessage("Filter Task")
-            setTaskFilterMessage("Please filter the task to your liking.")
-            setTaskFilterModalVisible(true);
-          }}>
-          <MaterialCommunityIcons name="filter-variant" size={24} color='#fff'/>
-        </Pressable>
+        {
+          isRetrieving == false && (
+            <Pressable
+            style={({ pressed }) => [
+              pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
+            ]}
+            onPress={() => {
+              // Filter Function
+              setTaskFilterHeaderMessage("Filter Task")
+              setTaskFilterMessage("Please filter the task to your liking.")
+              setTaskFilterModalVisible(true);
+            }}>
+            <MaterialCommunityIcons name="filter-variant" size={24} color='#fff'/>
+          </Pressable>
+          )
+        }
         <Text className='font-bold text-center text-2xl text-dark dark:text-light'>{selectedTaskCategoryName}</Text>
       </View>
 
@@ -407,6 +422,12 @@ const Tasks: React.FC<TaskData> = () => {
             ref={flatListRef}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
             contentContainerStyle={styles.flatListContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
           />
         ) : tasks.length > 0 && selectedTaskCategory == 2 ? (
           <></>

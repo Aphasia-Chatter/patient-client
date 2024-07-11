@@ -13,7 +13,8 @@ interface TaskFilterModalProps {
 }
 
 const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, modalVisible, onConfirm, onDismiss }) => {
-    const [categoryOfTask, setCategoryOfTask] = useState(1); // Set default to word retrieval
+    const [ categoryOfTask, setCategoryOfTask ] = useState(1); // Set default to word retrieval
+    const [ statusOfTask, setStatusOfTask ] = useState(0);
 
     // Modal Header
     const modalHeader=(
@@ -47,10 +48,10 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
           {/* Task Status */}
           <Picker
             style={styles.picker}
-            selectedValue={categoryOfTask}
+            selectedValue={statusOfTask}
             onValueChange={(itemValue, itemIndex) => {
               if (itemIndex !== 0) {
-                setCategoryOfTask(itemValue);
+                setStatusOfTask(itemValue);
               }
             }}>
             <Picker.Item label="--Select Task Status--" value="" color="grey"/>
