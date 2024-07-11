@@ -46,9 +46,9 @@ const Tasks: React.FC<TaskData> = () => {
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
-  const [ isSubmitting, setSubmitting ] = useState(false);
+  const [ isRetrieving, setRetrieving ] = useState(false);
   const [ dataStatusMessage, setDataStatusMessage ] = useState('')
 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
@@ -76,6 +76,8 @@ const Tasks: React.FC<TaskData> = () => {
   }, []);
 
   const fetchAllTasks = async (additionalParams: TaskFilterType = {}) => {
+    setRetrieving(true);
+
     try {
       setDataStatusMessage("Loading task data...")
 
@@ -179,7 +181,7 @@ const Tasks: React.FC<TaskData> = () => {
         setDataStatusMessage("Network Error.\nPlease check your internet connection.");
       }      
     } finally {
-      setSubmitting(false);
+      setRetrieving(false);
     }
   }
 
@@ -273,8 +275,15 @@ const Tasks: React.FC<TaskData> = () => {
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#008000", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
                     onPress={() => {
-                      // handle onPress
-                      router.push("/chatbot/chatbot");
+                      // Pass taskId to the chatbot page
+                      router.push({
+                        pathname: "/chatbot/chatbot/",
+                        params: {
+                          taskCategory: 1,
+                          taskId: item.word_retrieval_task.taskID,
+                          filePath: item.word_retrieval_task.imagePath
+                         }
+                      });
                     }}>
                     <FontAwesome6 name="check-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
                     <Text className='text-base' style={styles.actionText}>{item.status}</Text>
@@ -286,8 +295,15 @@ const Tasks: React.FC<TaskData> = () => {
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#F3960F", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
                     onPress={() => {
-                      // handle onPress
-                      router.push("/chatbot/chatbot");
+                      // Pass taskId to the chatbot page
+                      router.push({
+                        pathname: "/chatbot/chatbot/",
+                        params: {
+                          taskCategory: 1,
+                          taskId: item.word_retrieval_task.taskID,
+                          filePath: item.word_retrieval_task.imagePath
+                         }
+                      });
                     }}>
                     <FontAwesome6 name="pause-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
                     <Text className='text-base' style={styles.actionText}>{item.status}</Text>
@@ -302,7 +318,7 @@ const Tasks: React.FC<TaskData> = () => {
                       // handle onPress
                       setSelectedTaskId(item.task.id);
                       setDialogHeaderMessage("Start Task");
-                      setDialogMessage(`Are you sure you want to begin the following task '${item.task.name}'? Do note that the time starts upon confirmation.`);
+                      setDialogMessage(`Are you sure you want to begin '${item.task.name}' task? Note that the time starts upon confirmation.`);
                       setDialogModalVisible(true);
                     }}>
                     <FontAwesome6 name="xmark-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
@@ -363,19 +379,23 @@ const Tasks: React.FC<TaskData> = () => {
         tasks.length == 0 ? (
           <View className='flex-1 justify-center align-bottom items-center'>
             <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
-            <Pressable
-              style={({ pressed }) => [
-                pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
-              ]}
-              onPress={() => {
-                // Refresh Button
-                fetchAllTasks();
-              }}>
-              <View className='flex-row p-1'>
-                <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
-                <Text className='text-lg' style={styles.actionText}>Refresh</Text>
-              </View>
-            </Pressable>
+            {
+              isRetrieving == false && (
+                <Pressable
+                  style={({ pressed }) => [
+                    pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
+                  ]}
+                  onPress={() => {
+                    // Refresh Button
+                    fetchAllTasks();
+                  }}>
+                  <View className='flex-row p-1'>
+                    <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
+                    <Text className='text-lg' style={styles.actionText}>Refresh</Text>
+                  </View>
+                </Pressable>
+              )
+            }
           </View>
         ) : tasks.length > 0 && selectedTaskCategory == 1 ? (
           <FlatList
