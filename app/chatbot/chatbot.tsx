@@ -24,18 +24,7 @@ type Message = {
 };
 
 const dummyMessages: Message[] = [
-  {
-    role: 'Bot',
-    content: 'Observe the above image. Please give a 1-word response. What is the boy doing?'
-  },
-  {
-    role: 'Patient',
-    content: 'Riding'
-  },
-  {
-    role: 'Bot',
-    content: 'Very close! Let me give you a hint. The object is a Bicycle. Now, what is the boy doing?'
-  },
+  
 
   // Suggested Patient response's content structure
   // Content : {transcribed word}}
@@ -47,7 +36,7 @@ const dummyMessages: Message[] = [
 ];
 
 const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
-  const { taskCategory, taskId, filePath } = useLocalSearchParams()
+  const { taskCategory, taskId = '', filePath } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
   const { colorScheme } = useColorScheme();
@@ -71,11 +60,15 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
     if (typeof taskCategory === 'string' && typeof taskId === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
+
+        // Get word retrieval task
+        fetchWordRetrievalTask();
+
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
 
         // TODO: Get word retrieval chat history at launch
-        // fetchAllWordRetrievalSessionChatHistory();
+        fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
       console.error('Invalid task category, task id or filePath ');
@@ -96,6 +89,68 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     });
   }, []);
 
+  const fetchAllWordRetrievalSessionChatHistory = async () => {
+    try {
+      const response = await fetch(`http://192.168.50.248:44818/api/patient/chat-histories/`, {
+        body: JSON.stringify({
+          "username": appUser?.username,
+          "sessionToken": appUser?.sessionToken,
+          "taskSessionID": taskId,
+          "taskCategory": taskCategory,
+        }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const jsonResponse = await response.json();
+
+      if (response.ok) {
+        // Set chat history messages
+        console.log(`Messages: ${jsonResponse['messages']}`);
+        setMessages(jsonResponse['messages']);
+      } else {
+        setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
+        setErrorMessage(jsonResponse['message'])
+        setErrorModalVisible(false);
+      }
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const fetchWordRetrievalTask = async () => {
+     try {
+        const params = new URLSearchParams();
+        params.append('taskID', taskId.toString());
+        const response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
+           method: 'GET',
+           headers: {
+              'Content-Type': 'application/json',
+           }
+          });
+        
+        const jsonResponse = await response.json();
+        if (response.ok) {
+          const data = jsonResponse.data;
+          const name = data.task.name;
+          const description = data.task.description;
+          const tempMessage: Message[] = [{
+            role: 'Bot',
+            content: `${name}`
+          }, {
+            role: 'Bot',
+            content: `${description}`
+          }]
+          setMessages(tempMessage);
+        }
+     } catch(error) {
+        console.error('Error:', error);
+     }
+  }
+
   const fetchWordRetrievalTaskImage = async (imagePath: string) => {
     try {
       const params = new URLSearchParams();
@@ -109,7 +164,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
       params.append('filePath', imagePath);
 
-      const response = await fetch(`http://192.168.1.97:44818/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
+      const response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -240,9 +295,12 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       // Attach the Base64 string to the key 'audioFile'
       const formData = new FormData();
       formData.append('audioFile', recordingBase64);
+      formData.append('username', appUser?.username || '');
+      formData.append('sessionToken', appUser?.sessionToken || '');
+      formData.append('taskSessionID', taskId.toString());
 
       try {
-        const response = await fetch('http://192.168.1.97:44818/api/asr/transcribe', {
+        const response = await fetch('http://192.168.1.97:44818/api/patient/chat-session-audio', {
           method: 'POST',
           headers: {
             'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
@@ -256,8 +314,18 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           // Get chatbot response from the backend
           console.log("success")
           console.log("transcription from backend:", result.transcription)
+          
+          // Update chat history
+          const newMessages = [...messages];
+          newMessages.push({
+            role: 'Patient',
+            content: result.data.transcription
+          }, {
+            role: 'Bot',
+            content: result.data.message
+          });
+          setMessages(newMessages);
         }
-
       } catch (error) {
         // Get chatbot response from the backend
         console.log("not success")
@@ -283,7 +351,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setModalVisible={setErrorModalVisible}
       />
       {
-        messages.length > 0 ? (
+        messages.length >= 0 ? (
           <View className="px-3 mb-6">
             <View className="flex-row justify-start items-start mt-3">
               {/* Chatbot Icon */}

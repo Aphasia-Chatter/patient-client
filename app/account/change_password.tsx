@@ -93,7 +93,7 @@ const change_password = () => {
       try {
         // Send POST request for patient login
         // Use ipconfig to find ip address of your pc in the local network
-        const response = await fetch('http://192.168.1.97:44818/api/patient/change-account-password', {
+        const response = await fetch('http://192.168.50.248:44818/api/patient/change-account-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

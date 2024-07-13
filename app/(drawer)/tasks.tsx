@@ -90,7 +90,7 @@ const Tasks: React.FC<TaskData> = () => {
 
     try {
       setDataStatusMessage("Loading task data...")
-
+      console.log(appUser?.sessionToken);
       const params = new URLSearchParams();
       if (appUser?.username) {
         params.append('username', appUser.username);
@@ -109,8 +109,9 @@ const Tasks: React.FC<TaskData> = () => {
         setSelectedTaskCategory(1);
         setSelectedTaskCategoryName('Word Retrieval')
         setTaskFilterModalVisible(false);
+        console.log(params.toString())
 
-        response = await fetch(`http://192.168.1.97:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
+        response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ const Tasks: React.FC<TaskData> = () => {
         setSelectedTaskCategoryName('Sentence Retrieval')
         setTaskFilterModalVisible(false);
 
-        response = await fetch(`http://192.168.1.97:44818/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
+        response = await fetch(`http://192.168.50.248:44818/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ const Tasks: React.FC<TaskData> = () => {
         setSelectedTaskCategoryName('Article Reading')
         setTaskFilterModalVisible(false);
 
-        response = await fetch(`http://192.168.1.97:44818/api/patient/get-article-reading-task?${params.toString()}`, {
+        response = await fetch(`http://192.168.50.248:44818/api/patient/get-article-reading-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -166,7 +167,7 @@ const Tasks: React.FC<TaskData> = () => {
         }
       }
       else { // Default gets word retrieval task
-        response = await fetch(`http://192.168.1.97:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
+        response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -210,7 +211,7 @@ const Tasks: React.FC<TaskData> = () => {
         try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
-          const response = await fetch('http://192.168.1.97:44818/api/patient/create-word-retrieval-task-session', {
+          const response = await fetch('http://192.168.50.248:44818/api/patient/create-word-retrieval-task-session', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
