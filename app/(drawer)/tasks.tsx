@@ -40,6 +40,11 @@ type TaskData = {
     hashedPassword: string;
   };
   status: string;
+  session: {
+    taskSessionID: string;
+    startedAt: Date;
+    completedAt: Date | null;
+  }
 }
 
 const Tasks: React.FC<TaskData> = () => {
@@ -119,6 +124,8 @@ const Tasks: React.FC<TaskData> = () => {
         });
 
         jsonResponse = await response.json();
+
+        console.log("tasks: ");
   
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
@@ -231,7 +238,7 @@ const Tasks: React.FC<TaskData> = () => {
             fetchAllTasks();
 
             // Redirect to chatbot page
-            router.push("/chatbot/chatbot")
+            router.push(`/chatbot/chatbot/sessionID:${jsonResponse.data.taskSessionID}`);
 
           } else {
             // Show error message
@@ -308,11 +315,12 @@ const Tasks: React.FC<TaskData> = () => {
                     onPress={() => {
                       // Pass taskId to the chatbot page
                       router.push({
-                        pathname: "/chatbot/chatbot/",
+                        pathname: "/chatbot/chatbot",
                         params: {
                           taskCategory: 1,
-                          taskId: item.word_retrieval_task.taskID,
-                          filePath: item.word_retrieval_task.imagePath
+                          filePath: item.word_retrieval_task.imagePath,
+                          taskSessionID: item.session.taskSessionID,
+                          taskID: item.task.id
                          }
                       });
                     }}>

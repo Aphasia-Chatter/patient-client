@@ -36,7 +36,7 @@ const dummyMessages: Message[] = [
 ];
 
 const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
-  const { taskCategory, taskId = '', filePath } = useLocalSearchParams()
+  const { taskCategory, filePath, taskSessionID, taskID } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
   const { colorScheme } = useColorScheme();
@@ -56,24 +56,25 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const flatListRef = useRef<FlatList<Message>>(null);
 
   useEffect(() => {
-    console.log("Params", {taskCategory, taskId, filePath})
-
-    if (typeof taskCategory === 'string' && typeof taskId === 'string' && typeof filePath === 'string') {
+    console.log("Params", { taskCategory, taskID, filePath, taskSessionID });
+  
+    if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
-
         // Get word retrieval task
         fetchWordRetrievalTask();
-
+  
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
 
+        console.log(filePath);
+  
         // TODO: Get word retrieval chat history at launch
         fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
-      console.error('Invalid task category, task id or filePath ');
+      console.error('Invalid task category, task id or filePath');
     }
-
+  
     // Scroll to the bottom when messages change
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -95,7 +96,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         body: JSON.stringify({
           "username": appUser?.username,
           "sessionToken": appUser?.sessionToken,
-          "taskSessionID": taskId,
+          "taskSessionID": taskSessionID,
           "taskCategory": taskCategory,
         }),
         method: 'POST',
@@ -104,12 +105,16 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         },
       })
 
+      console.log(appUser);
+
       const jsonResponse = await response.json();
+
+      console.log(jsonResponse);
 
       if (response.ok) {
         // Set chat history messages
-        console.log(`Messages: ${jsonResponse['messages']}`);
-        setMessages(jsonResponse['messages']);
+        console.log(`Messages: ${jsonResponse.data.messages}`);
+        setMessages(jsonResponse.data.messages);
       } else {
         setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
         setErrorMessage(jsonResponse['message'])
@@ -124,7 +129,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const fetchWordRetrievalTask = async () => {
      try {
         const params = new URLSearchParams();
-        params.append('taskID', taskId.toString());
+        params.append('taskID', taskID?.toString() ?? '');
         const response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
            method: 'GET',
            headers: {
@@ -220,118 +225,126 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   };
 
   // Recording
-  const [ isRecording, setIsRecording ] = useState(false);
-  const [ recording, setRecording ] = useState<Audio.Recording>();
-  const [ permissionResponse, requestPermission ] = Audio.usePermissions();
-  const [ isSubmitting, setSubmitting ] = useState(false);
+const [isRecording, setIsRecording] = useState(false);
+const [recording, setRecording] = useState<Audio.Recording>();
+const [permissionResponse, requestPermission] = Audio.usePermissions();
+const [isSubmitting, setSubmitting] = useState(false);
 
-  const startRecording = async () => {
-    try {
-      if (!permissionResponse || permissionResponse.status !== 'granted') {
-        console.log('Requesting permission..');
-        await requestPermission();
-      }
+const startRecording = async () => {
+  try {
+    if (!permissionResponse || permissionResponse.status !== 'granted') {
+      console.log('Requesting permission..');
+      await requestPermission();
+    }
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    console.log('Starting recording..');
+    const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+    setRecording(recording);
+
+    console.log('Recording started');
+    setIsRecording(true);
+  } catch (err) {
+    console.error('Failed to start recording', err);
+  }
+};
+
+const stopRecording = async () => {
+  try {
+    if (recording) {
+      console.log('Stopping recording..');
+      await recording.stopAndUnloadAsync();
       await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+        allowsRecordingIOS: false,
       });
 
-      console.log('Starting recording..');
-      const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY );
-      setRecording(recording);
+      const recordingUri = recording.getURI();
+      console.log('Recording stopped and stored at', recordingUri);
 
-      console.log('Recording started');
-      setIsRecording(true)
-    } catch (err) {
-      console.error('Failed to start recording', err);
+      sendRecording(recordingUri);
+
+      setIsRecording(false);
+    } else {
+      console.log('No recording to stop');
     }
-  };
+  } catch (err) {
+    console.error('Failed to stop recording', err);
+  }
+};
 
-  const stopRecording = async () => {
-    try {
-      if (recording) {
-        console.log('Stopping recording..');
-        await recording.stopAndUnloadAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-        });
+const playRecording = async () => {
+  if (recording != null) {
+    const uri = recording.getURI();
 
-        const recordingUri = recording.getURI();
-        console.log('Recording stopped and stored at', recordingUri);
+    if (uri != null) {
+      console.log('Loading Sound');
+      const { sound } = await Audio.Sound.createAsync({ uri });
 
-        sendRecording(recordingUri);
-        
-        setIsRecording(false)
-
-      } else {
-        console.log('No recording to stop');
-      }
-    } catch (err) {
-      console.error('Failed to stop recording', err);
+      console.log('Playing Sound');
+      await sound.playAsync();
     }
   }
+};
 
-  const playRecording = async () => {
-    if (recording != null) {
-      const uri = recording.getURI();
+const sendRecording = async (recordingUri: string | null) => {
+  if (recordingUri != null) {
+    // Encode recording content as a Base64 string
+    const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
 
-      if (uri != null) {
-        console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync( {uri} );
+    const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    })
 
-        console.log('Playing Sound');
-        await sound.playAsync();
-      }
-    }
-  }
+    // Attach the Base64 string to the key 'audioFile'
+    const formData = new FormData();
+    formData.append('audioFileData', recordingBlob);
+    formData.append('audioFilePath', recordingUri);
+    formData.append('username', appUser?.username || '');
+    formData.append('sessionToken', appUser?.sessionToken || '');
+    formData.append('taskSessionID', taskSessionID?.toString() || '');
 
-  const sendRecording = async (recordingUri: string | null) => {
-    if (recordingUri != null) {
-      // Encode recording content as a Base64 string
-      const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, { 
-        encoding: FileSystem.EncodingType.Base64, 
-      });
-
-      // Attach the Base64 string to the key 'audioFile'
-      const formData = new FormData();
-      formData.append('audioFile', recordingBase64);
-      formData.append('username', appUser?.username || '');
-      formData.append('sessionToken', appUser?.sessionToken || '');
-      formData.append('taskSessionID', taskId.toString());
-
-      try {
-        const response = await fetch('http://192.168.1.97:44818/api/patient/chat-session-audio', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
-          },
-          body: formData,
-        });
+    console.log(formData)
     
-        const result = await response.json();
+    try {
+      const response = await fetch('http://192.168.50.248:44818/api/patient/chat-session-audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Indicate request body contains form data that includes files (due to large blocks of data)
+        },
+        body: formData,
+      });
 
-        if (response.status === 200) {
-          // Get chatbot response from the backend
-          console.log("success")
-          console.log("transcription from backend:", result.transcription)
-          
-          // Update chat history
-          const newMessages = [...messages];
-          newMessages.push({
-            role: 'Patient',
-            content: result.data.transcription
-          }, {
-            role: 'Bot',
-            content: result.data.message
-          });
-          setMessages(newMessages);
-        }
-      } catch (error) {
+      const result = await response.json();
+
+      console.log(result);
+
+      if (response.status === 200) {
         // Get chatbot response from the backend
-        console.log("not success")
+        console.log("success");
+        console.log("transcription from backend:", result.transcription);
+
+        // Update chat history
+        const newMessages = [...messages];
+        newMessages.push({
+          role: 'Patient',
+          content: result.data.transcription,
+        }, {
+          role: 'Bot',
+          content: result.data.message,
+        });
+        setMessages(newMessages);
       }
-    };
+    } catch (error) {
+      console.log(error);
+      console.log("not success");
+    }
   }
+};
 
   useEffect(() => {
     return recording
@@ -341,6 +354,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         }
       : undefined;
   }, [recording]);
+
+  useEffect(() => {
+    // Scroll to the bottom when messages change
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
   return (
     <View className="flex-1 bg-light dark:bg-dark">
