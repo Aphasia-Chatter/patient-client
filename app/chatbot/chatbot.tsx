@@ -19,7 +19,7 @@ type PatientWordRetrievalTaskImageData = {
 
 // Define types for messages
 type Message = {
-  role: 'Bot' | 'Patient';
+  author: 'bot' | 'user';
   content: string;
 };
 
@@ -48,6 +48,10 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
+
+  // name and title
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
   // Message History
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
@@ -113,7 +117,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
       if (response.ok) {
         // Set chat history messages
-        console.log(`Messages: ${jsonResponse.data.messages}`);
+        console.log(`Messages: ${jsonResponse.data.messages[0]}`);
         setMessages(jsonResponse.data.messages);
       } else {
         setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
@@ -142,14 +146,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           const data = jsonResponse.data;
           const name = data.task.name;
           const description = data.task.description;
-          const tempMessage: Message[] = [{
-            role: 'Bot',
-            content: `${name}`
-          }, {
-            role: 'Bot',
-            content: `${description}`
-          }]
-          setMessages(tempMessage);
+          setName(name);
+          setDescription(description);
         }
      } catch(error) {
         console.error('Error:', error);
@@ -198,7 +196,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   };
 
   const renderMessage: ListRenderItem<Message> = ({ item, index }) => {
-    if (item.role === "Bot") {
+    if (item.author === "bot") {
       // Chatbot Response
       return (
         <View key={index} className="flex-row justify-start items-start mt-3">
@@ -326,15 +324,15 @@ const sendRecording = async (recordingUri: string | null) => {
       if (response.status === 200) {
         // Get chatbot response from the backend
         console.log("success");
-        console.log("transcription from backend:", result.transcription);
+        console.log("transcription from backend:", result.data.transcription);
 
         // Update chat history
         const newMessages = [...messages];
         newMessages.push({
-          role: 'Patient',
+          author: 'user',
           content: result.data.transcription,
         }, {
-          role: 'Bot',
+          author: 'bot',
           content: result.data.message,
         });
         setMessages(newMessages);
@@ -373,15 +371,14 @@ const sendRecording = async (recordingUri: string | null) => {
       {
         messages.length >= 0 ? (
           <View className="px-3 mb-6">
-            <View className="flex-row justify-start items-start mt-3">
-              {/* Chatbot Icon */}
-              <Image
-                className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
-                source={icons.chatbot}
-              />
+            {/* Centered Container */}
+            <View className="flex justify-center items-center w-full mt-3">
+              <Text className='text-xl text-dark dark:text-light' style={{ fontWeight: 'bold' }}>{description}</Text>
+            </View>
+            <View className="flex justify-center items-center w-full mt-3">
               {/* Chatbot Image Message Bubble */}
               <View className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
-                <ImageBackground className='rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4'>
+                <ImageBackground className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4">
                   <Image
                     source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
                     className="flex-1 w-full h-full aspect-square"
@@ -391,21 +388,21 @@ const sendRecording = async (recordingUri: string | null) => {
               </View>
             </View>
             <FlatList
-                data={messages}
-                renderItem={renderMessage}
-                keyExtractor={(item, index) => index.toString()}
-                // onEndReached={loadMoreMessages} // Load more messages when end is reached
-                onEndReachedThreshold={0.1} // Load more when 10% from the bottom
-                showsVerticalScrollIndicator={false}
-                ref={flatListRef}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-                contentContainerStyle={styles.flatListContent}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                  />
-                }
+              data={messages}
+              renderItem={renderMessage}
+              keyExtractor={(item, index) => index.toString()}
+              // onEndReached={loadMoreMessages} // Load more messages when end is reached
+              onEndReachedThreshold={0.1} // Load more when 10% from the bottom
+              showsVerticalScrollIndicator={false}
+              ref={flatListRef}
+              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+              contentContainerStyle={[styles.flatListContent, { paddingBottom: 500 }]} // Increased padding to the bottom
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }
             />
             <View>
               <Text className='text-justify text-dark dark:text-light'>
