@@ -36,7 +36,7 @@ const dummyMessages: Message[] = [
 ];
 
 const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
-  const { taskCategory, filePath, taskSessionID, taskID } = useLocalSearchParams()
+  const { taskCategory, filePath, taskSessionID, taskID, completedAt } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
   const { colorScheme } = useColorScheme();
@@ -59,11 +59,15 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const maxMessages = 200; // Maximum number of messages to keep in memory
   const flatListRef = useRef<FlatList<Message>>(null);
 
+  // Completed
+  const [completed, setCompleted] = useState(completedAt);
+
   useEffect(() => {
-    console.log("Params", { taskCategory, taskID, filePath, taskSessionID });
+    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt});
   
     if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
+        console.log(completed)
         // Get word retrieval task
         fetchWordRetrievalTask();
   
@@ -336,6 +340,10 @@ const sendRecording = async (recordingUri: string | null) => {
           content: result.data.message,
         });
         setMessages(newMessages);
+
+        if (result.data.completed) {
+          setCompleted("true");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -415,42 +423,48 @@ const sendRecording = async (recordingUri: string | null) => {
         <View className='flex-1'></View>
       )}
 
-      <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
-        <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Tap again to send recording" : "Tap to start recording"}</Text>
-        {isRecording ? (
-            <Pressable
-            style={({ pressed }) => [
-                pressed ? { opacity: 0.5 } : {},
-            ]}
-            onPress={stopRecording}>
-            <Ionicons name="stop-circle-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
-            </Pressable>
-        ) : (
-            <Pressable
-            style={({ pressed }) => [
-                pressed ? { opacity: 0.5 } : {},
-            ]}
-            onPress={startRecording}>
-            <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
-            </Pressable>
-        )}
-
-        {isRecording ? ( // Clear Recording Button
-            <View className='absolute right-10'>
+      {completed === "null" ? (
+        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
+          <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
+          {isRecording ? (
             <Pressable
               style={({ pressed }) => [
-              pressed ? { opacity: 0.5 } : {},
+                pressed ? { opacity: 0.5 } : {},
               ]}
               onPress={stopRecording}>
-              <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
-              <Text className='text-base font-semibold text-light dark:text-light'> Clear </Text>
-              </View>  
+              <Ionicons name="stop-circle-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
+          ) : (
+            <Pressable
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.5 } : {},
+              ]}
+              onPress={startRecording}>
+              <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
+            </Pressable>
+          )}
+      
+          {isRecording ? ( // Clear Recording Button
+            <View className='absolute right-10'>
+              <Pressable
+                style={({ pressed }) => [
+                  pressed ? { opacity: 0.5 } : {},
+                ]}
+                onPress={stopRecording}>
+                <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
+                  <Text className='text-base font-semibold text-light dark:text-light'> Clear </Text>
+                </View>  
+              </Pressable>
             </View>
-        ) : ( 
-          <View className='flex-1'></View>
-        )}
-      </View>
+          ) : ( 
+            <View className='flex-1'></View>
+          )}
+        </View>
+      ) : (
+        <View className='absolute bottom-0 left-0 right-0 justify-center items-center pt-1 pb-10 bg-light dark:bg-dark'>
+          <Text className='text-xl font-medium text-dark dark:text-light'>Word Retrieval Task Completed!</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -460,6 +474,6 @@ export default Chatbot;
 const styles = StyleSheet.create({
   flatListContent: {
     paddingHorizontal: 4,
-    paddingBottom: 128, // Ensure some space at the bottom for the overlay button
+    paddingBottom: 148, // Ensure some space at the bottom for the overlay button
   },
 });

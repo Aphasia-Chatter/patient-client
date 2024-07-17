@@ -11,6 +11,10 @@ import { useAppContext } from "../context/AppContext"
 import { useAuthContext } from "../context/AuthContext"
 import { fetchValue, saveValue } from '../utils/SecureStore';
 
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs(); // Ignore all log notifications
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 

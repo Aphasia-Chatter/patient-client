@@ -246,7 +246,8 @@ const Tasks: React.FC<TaskData> = () => {
                 taskCategory: 1,
                 filePath: tasks.find(task => task.task.id === selectedTaskId)?.word_retrieval_task.imagePath,
                 taskSessionID: jsonResponse.data.taskSessionID,
-                taskID: jsonResponse.data.taskID
+                taskID: jsonResponse.data.taskID,
+                completedAt: "null"
                }
             });
 
@@ -310,8 +311,9 @@ const Tasks: React.FC<TaskData> = () => {
                           taskCategory: 1,
                           filePath: item.word_retrieval_task.imagePath,
                           taskSessionID: item.session.taskSessionID,
-                          taskID: item.task.id
-                         }
+                          taskID: item.task.id,
+                          completedAt: "true"
+                        }
                       });
                     }}>
                     <FontAwesome6 name="check-circle" size={18} color='#fff' style={{ marginRight: 8 }} />
@@ -331,7 +333,8 @@ const Tasks: React.FC<TaskData> = () => {
                           taskCategory: 1,
                           filePath: item.word_retrieval_task.imagePath,
                           taskSessionID: item.session.taskSessionID,
-                          taskID: item.task.id
+                          taskID: item.task.id,
+                          completedAt: "null"
                          }
                       });
                     }}>
