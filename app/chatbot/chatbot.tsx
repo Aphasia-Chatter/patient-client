@@ -23,17 +23,7 @@ type Message = {
   content: string;
 };
 
-const dummyMessages: Message[] = [
-  
-
-  // Suggested Patient response's content structure
-  // Content : {transcribed word}}
-
-  // Suggested Bot response content structure
-  // Content (initial): Observe the above image. Please give a 1-word response. {taskName}}
-  // Content (1-word response incorrect): {Bot response's feedback}. {Hint}. {taskName}}
-  // Content (1-word response correct): {Bot response's feedback}.}
-];
+const dummyMessages: Message[] = [];
 
 const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
   const { taskCategory, filePath, taskSessionID, taskID, completedAt } = useLocalSearchParams()
@@ -277,19 +267,19 @@ const stopRecording = async () => {
   }
 };
 
-const playRecording = async () => {
-  if (recording != null) {
-    const uri = recording.getURI();
+// const playRecording = async () => {
+//   if (recording != null) {
+//     const uri = recording.getURI();
 
-    if (uri != null) {
-      console.log('Loading Sound');
-      const { sound } = await Audio.Sound.createAsync({ uri });
+//     if (uri != null) {
+//       console.log('Loading Sound');
+//       const { sound } = await Audio.Sound.createAsync({ uri });
 
-      console.log('Playing Sound');
-      await sound.playAsync();
-    }
-  }
-};
+//       console.log('Playing Sound');
+//       await sound.playAsync();
+//     }
+//   }
+// };
 
 const sendRecording = async (recordingUri: string | null) => {
   if (recordingUri != null) {
@@ -383,13 +373,16 @@ const sendRecording = async (recordingUri: string | null) => {
             <View className="flex justify-center items-center w-full mt-3">
               <Text className='text-xl text-dark dark:text-light' style={{ fontWeight: 'bold' }}>{description}</Text>
             </View>
-            <View className="flex justify-center items-center w-full mt-3">
+            <View className="flex justify-center items-center w-full my-3">
               {/* Chatbot Image Message Bubble */}
               <View className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
-                <ImageBackground className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4">
+                <ImageBackground 
+                  className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4"
+                  resizeMode="cover"
+                >
                   <Image
                     source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
-                    className="flex-1 w-full h-full aspect-square"
+                    className="w-full h-full"
                     resizeMode="contain"
                   />
                 </ImageBackground>
@@ -412,12 +405,12 @@ const sendRecording = async (recordingUri: string | null) => {
                 />
               }
             />
-            <View>
+            {/* <View>
               <Text className='text-justify text-dark dark:text-light'>
                 Recording
               </Text>
               <Button onPress={playRecording} title="Play"></Button>
-            </View>
+            </View> */}
           </View>
       ) : (
         <View className='flex-1'></View>
