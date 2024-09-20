@@ -28,6 +28,13 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
   // }
 
   const logout = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setSubmitting(true);
 
     try {
@@ -42,18 +49,29 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
           username: appUser?.username,
           sessionToken: appUser?.sessionToken
         }),
+        signal: signal
       });
 
-      const jsonResponse = await response.json();
+      // Clear the timeout if the request is successful
+      clearTimeout(timeoutId);
+
+      await response.json();
 
       if (response.ok) {
         // Delete username and session token from local storage in device
         setAppUser(null)
         await saveValue("AppUser", null)
+
+        // TODO: Clear session in database
+
+      } else {
+        // Delete username and session token from local storage in device
+        setAppUser(null)
+        await saveValue("AppUser", null)
       }
-    } catch (error) { // Error such as Network request failed
+    } catch (error) {
       console.error('Error:', error);
-      
+
     } finally {
       setSubmitting(false);
       router.replace('/(auth)/login')
