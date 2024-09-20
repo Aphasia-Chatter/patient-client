@@ -88,7 +88,7 @@ const deleteAccount = () => {
       try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
-          const response = await fetch('http://192.168.50.248:44818/api/patient/delete-account', {
+          const response = await fetch('https://aphasia.mooo.com/api/patient/delete-account', {
               method: 'POST',
               headers: {
               'Content-Type': 'application/json',

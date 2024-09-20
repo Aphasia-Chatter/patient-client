@@ -97,7 +97,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }, timeout);
 
     try {
-      const response = await fetch(`http://192.168.50.248:44818/api/patient/chat-histories/`, {
+      const response = await fetch(`https://aphasia.mooo.com/api/patient/chat-histories/`, {
         body: JSON.stringify({
           "username": appUser?.username,
           "sessionToken": appUser?.sessionToken,
@@ -152,7 +152,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
      try {
         const params = new URLSearchParams();
         params.append('taskID', taskID?.toString() ?? '');
-        const response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
            method: 'GET',
            headers: {
               'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
       params.append('filePath', imagePath);
 
-      const response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
+      const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ const sendRecording = async (recordingUri: string | null) => {
     }, timeout);
     
     try {
-      const response = await fetch('http://192.168.50.248:44818/api/patient/chat-session-audio', {
+      const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Indicate request body contains form data that includes files (due to large blocks of data)

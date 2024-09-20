@@ -123,7 +123,7 @@ const Tasks: React.FC<TaskData> = () => {
         setTaskFilterModalVisible(false);
         console.log(params.toString())
 
-        response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
+        response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ const Tasks: React.FC<TaskData> = () => {
         setSelectedTaskCategoryName('Sentence Retrieval')
         setTaskFilterModalVisible(false);
 
-        response = await fetch(`http://192.168.50.248:44818/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
+        response = await fetch(`https://aphasia.mooo.com/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ const Tasks: React.FC<TaskData> = () => {
         setSelectedTaskCategoryName('Article Reading')
         setTaskFilterModalVisible(false);
 
-        response = await fetch(`http://192.168.50.248:44818/api/patient/get-article-reading-task?${params.toString()}`, {
+        response = await fetch(`https://aphasia.mooo.com/api/patient/get-article-reading-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -191,7 +191,7 @@ const Tasks: React.FC<TaskData> = () => {
         }
       }
       else { // Default gets word retrieval task
-        response = await fetch(`http://192.168.50.248:44818/api/patient/get-word-retrieval-task?${params.toString()}`, {
+        response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -249,7 +249,7 @@ const Tasks: React.FC<TaskData> = () => {
         try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
-          const response = await fetch('http://192.168.50.248:44818/api/patient/create-word-retrieval-task-session', {
+          const response = await fetch('https://aphasia.mooo.com/api/patient/create-word-retrieval-task-session', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

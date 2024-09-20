@@ -48,7 +48,7 @@ const login = () => {
       try {
         // Send POST request for patient login
         // Use ipconfig to find ip address of your pc/emulator in the local network
-        const response = await fetch('http://192.168.50.248:44818/api/patient/login', {
+        const response = await fetch('https://aphasia.mooo.com/api/patient/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
