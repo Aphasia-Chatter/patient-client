@@ -34,8 +34,10 @@ const deleteAccount = () => {
   const handleSuccessModalDismiss = () => {
     setSuccessModalVisible(false);
 
-    // Redirect to login page
-    router.replace("/(auth)/login");
+    // Add a small delay to allow modal to finish dismissing
+    setTimeout(() => {
+      router.replace("/(auth)/login");
+    }, 100);
   };
 
   const handleDialogModalOpen = () => {

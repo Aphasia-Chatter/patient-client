@@ -16,9 +16,12 @@ const register = () => {
   const [successMessage, setSuccessMessage] = useState('');
   
   const handleSuccessModalDismiss = () => {
-    // Redirect to home page
     setSuccessModalVisible(false);
-    router.replace("/login");
+
+    // Add a small delay to allow modal to finish dismissing
+    setTimeout(() => {
+      router.replace("/login");
+    }, 100);
   };
 
   const [isSubmitting, setSubmitting] = useState(false);
