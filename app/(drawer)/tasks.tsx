@@ -56,7 +56,7 @@ const Tasks: React.FC<TaskData> = () => {
   const [ isRetrieving, setRetrieving ] = useState(false);
   const [ isSubmitting, setSubmitting ] = useState(false);
   const [ dataStatusMessage, setDataStatusMessage ] = useState('')
-  const [ refreshing, setRefreshing ] = useState(false);
+  const [ isRefreshing, setRefreshing ] = useState(false);
 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
@@ -103,115 +103,134 @@ const Tasks: React.FC<TaskData> = () => {
     try {
       setDataStatusMessage("Loading task data...")
       console.log("Session:", appUser?.sessionToken);
-      const params = new URLSearchParams();
-      if (appUser?.username) {
-        params.append('username', appUser.username);
+
+      if (appUser?.sessionToken == undefined) {
+        // Introduce a 5-second delay before setting the error message to make user believe that fetching from api occurs
+        setTimeout(() => {
+          // Display error model
+          setErrorHeaderMessage("SESSION DATA ERROR")
+          setErrorMessage("There was a problem with the session data.")
+          setErrorModalVisible(true);
+
+          // Set error message
+          setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
+          setRetrieving(false);
+
+        }, timeout);
       }
-      if (appUser?.sessionToken) {
-        params.append('sessionToken', appUser.sessionToken);
-      }
+      else {
+        const params = new URLSearchParams();
 
-      let response: Response;
-      let jsonResponse: any;
-
-      // Send GET request
-      // Use ipconfig to find ip address of your pc in the local network
-      // Determine the endpoint based on the presence of the wordRetrievalTask key
-      if (additionalParams.categoryOfTask == 1) {
-        setSelectedTaskCategory(1);
-        setSelectedTaskCategoryName('Word Retrieval')
-        setTaskFilterModalVisible(false);
-        console.log(params.toString())
-
-        response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
-        
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-
-        jsonResponse = await response.json();
-  
-        if (response.ok) {
-          setTasks(jsonResponse.data.tasks);
-        } else {
-          setDataStatusMessage("No word retrieval tasks found.");
+        if (appUser?.username) {
+          params.append('username', appUser.username);
         }
-      } 
-      else if (additionalParams.categoryOfTask == 2) {
-        setSelectedTaskCategory(2);
-        setSelectedTaskCategoryName('Sentence Retrieval')
-        setTaskFilterModalVisible(false);
-
-        response = await fetch(`https://aphasia.mooo.com/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
-
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-
-        jsonResponse = await response.json();
-        
-        if (response.ok) {
-          setTasks(jsonResponse.data.tasks);
-        } else {
-          setDataStatusMessage("No sentence retrieval tasks found.");
+        if (appUser?.sessionToken) {
+          params.append('sessionToken', appUser.sessionToken);
         }
-      } 
-      else if (additionalParams.categoryOfTask == 3) {
-        setSelectedTaskCategory(3);
-        setSelectedTaskCategoryName('Article Reading')
-        setTaskFilterModalVisible(false);
 
-        response = await fetch(`https://aphasia.mooo.com/api/patient/get-article-reading-task?${params.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
+        let response: Response;
+        let jsonResponse: any;
 
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
+        // Send GET request
+        // Use ipconfig to find ip address of your pc in the local network
+        // Determine the endpoint based on the presence of the wordRetrievalTask key
+        if (additionalParams.categoryOfTask == 1) {
+          setSelectedTaskCategory(1);
+          setSelectedTaskCategoryName('Word Retrieval')
+          setTaskFilterModalVisible(false);
+          console.log(params.toString())
 
-        jsonResponse = await response.json();
-  
-        if (response.ok) {
-          setTasks(jsonResponse.data.tasks);
-        } else {
-          setDataStatusMessage("No article reading tasks found.");
+          response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
+          
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
+
+          jsonResponse = await response.json();
+    
+          if (response.ok) {
+            setTasks(jsonResponse.data.tasks);
+          } else {
+            setDataStatusMessage("No word retrieval tasks found.");
+          }
+        } 
+        else if (additionalParams.categoryOfTask == 2) {
+          setSelectedTaskCategory(2);
+          setSelectedTaskCategoryName('Sentence Retrieval')
+          setTaskFilterModalVisible(false);
+
+          response = await fetch(`https://aphasia.mooo.com/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
+
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
+
+          jsonResponse = await response.json();
+          
+          if (response.ok) {
+            setTasks(jsonResponse.data.tasks);
+          } else {
+            setDataStatusMessage("No sentence retrieval tasks found.");
+          }
+        } 
+        else if (additionalParams.categoryOfTask == 3) {
+          setSelectedTaskCategory(3);
+          setSelectedTaskCategoryName('Article Reading')
+          setTaskFilterModalVisible(false);
+
+          response = await fetch(`https://aphasia.mooo.com/api/patient/get-article-reading-task?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
+
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
+
+          jsonResponse = await response.json();
+    
+          if (response.ok) {
+            setTasks(jsonResponse.data.tasks);
+          } else {
+            setDataStatusMessage("No article reading tasks found.");
+          }
         }
-      }
-      else { // Default gets word retrieval task
-        response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
+        else { // Default gets word retrieval task
+          response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
 
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
 
-        jsonResponse = await response.json();
-  
-        if (response.ok) {
-          setTasks(jsonResponse.data.tasks);
-        } else {
-          setDataStatusMessage("No word retrieval tasks found.");
+          jsonResponse = await response.json();
+    
+          if (response.ok) {
+            setTasks(jsonResponse.data.tasks);
+          } else {
+            setDataStatusMessage("No word retrieval tasks found.");
+          }
         }
       }
     } catch (error) {
       console.error('Error:', error);
+      setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
       if (signal.aborted) {
         setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
         setErrorMessage("The request has been aborted due to timeout.")
@@ -467,6 +486,9 @@ const Tasks: React.FC<TaskData> = () => {
                   onPress={() => {
                     // Refresh Button
                     fetchAllTasks();
+
+                    // Set retrieving true
+                    setRetrieving(true);
                   }}>
                   <View className='flex-row p-1'>
                     <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
@@ -488,7 +510,7 @@ const Tasks: React.FC<TaskData> = () => {
             contentContainerStyle={styles.flatListContent}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
+                refreshing={isRefreshing}
                 onRefresh={onRefresh}
               />
             }
