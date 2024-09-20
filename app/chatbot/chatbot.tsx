@@ -89,6 +89,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   }, []);
 
   const fetchAllWordRetrievalSessionChatHistory = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     try {
       const response = await fetch(`http://192.168.50.248:44818/api/patient/chat-histories/`, {
         body: JSON.stringify({
@@ -101,13 +108,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: signal
       })
 
-      console.log(appUser);
+      // Clear the timeout if the request is successful
+      clearTimeout(timeoutId);
 
       const jsonResponse = await response.json();
-
-      console.log(jsonResponse);
 
       if (response.ok) {
         // Set chat history messages
@@ -121,10 +128,27 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
     catch (error) {
       console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }   
     }
   };
 
   const fetchWordRetrievalTask = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
      try {
         const params = new URLSearchParams();
         params.append('taskID', taskID?.toString() ?? '');
@@ -132,10 +156,15 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
            method: 'GET',
            headers: {
               'Content-Type': 'application/json',
-           }
+           },
+           signal: signal
           });
         
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+        
         const jsonResponse = await response.json();
+
         if (response.ok) {
           const data = jsonResponse.data;
           const name = data.task.name;
@@ -145,10 +174,27 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         }
      } catch(error) {
         console.error('Error:', error);
+        if (signal.aborted) {
+          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("The request has been aborted due to timeout.")
+          setErrorModalVisible(true);
+        }
+        else if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST ERROR")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        }   
      }
   }
 
   const fetchWordRetrievalTaskImage = async (imagePath: string) => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     try {
       const params = new URLSearchParams();
 
@@ -166,7 +212,11 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: signal
       });
+
+      // Clear the timeout if the request is successful
+      clearTimeout(timeoutId);
 
       const jsonResponse = await response.json();
 
@@ -179,8 +229,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       }
     } catch (error) {
       console.error('Error:', error);
-      if (error instanceof TypeError) { // Error such as Network request failed
-        setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
         setErrorMessage("There was a problem with the network request.")
         setErrorModalVisible(true);
       }      
@@ -301,6 +356,13 @@ const sendRecording = async (recordingUri: string | null) => {
     formData.append('taskSessionID', taskSessionID?.toString() || '');
 
     console.log(formData)
+
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
     
     try {
       const response = await fetch('http://192.168.50.248:44818/api/patient/chat-session-audio', {
@@ -309,13 +371,15 @@ const sendRecording = async (recordingUri: string | null) => {
           'Content-Type': 'application/json', // Indicate request body contains form data that includes files (due to large blocks of data)
         },
         body: formData,
+        signal: signal
       });
+
+      // Clear the timeout if the request is successful
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
-      console.log(result);
-
-      if (response.status === 200) {
+      if (response.ok) {
         // Get chatbot response from the backend
         console.log("success");
         console.log("transcription from backend:", result.data.transcription);
@@ -336,8 +400,17 @@ const sendRecording = async (recordingUri: string | null) => {
         }
       }
     } catch (error) {
-      console.log(error);
-      console.log("not success");
+      console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      } 
     }
   }
 };
