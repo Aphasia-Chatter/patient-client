@@ -3,6 +3,10 @@ import { Stack } from "expo-router";
 import { StyleSheet } from 'react-native';
 import { useColorScheme } from 'nativewind';
 
+// headerTitle of the previous page is shown beside the back button on iOS devices,
+// together with headerTitle of current page.
+// Only headerTitle of the current page is shown on Android devices
+
 const AuthLayout = () => {
   const { colorScheme } = useColorScheme();
 
@@ -12,12 +16,14 @@ const AuthLayout = () => {
         <Stack.Screen
           name="login"
           options={{
+            headerTitle: "Login",
             headerShown: false,
           }}
         />
         <Stack.Screen
           name="register"
           options={{
+            headerTitle: "Register",
             headerShown: false,
           }}
         />
