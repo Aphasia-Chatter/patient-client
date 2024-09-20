@@ -69,6 +69,13 @@ const deleteAccount = () => {
   });
 
   const submitAccountDeletionRequest = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setSubmitting(true);
 
     if (form.password.length == 0) {
@@ -91,7 +98,11 @@ const deleteAccount = () => {
                   sessionToken: sessionToken,
                   password: form.password,
               }),
+              signal: signal
           });
+
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
 
           const jsonResponse = await response.json();
 
@@ -113,12 +124,16 @@ const deleteAccount = () => {
           }
       } catch (error) {
         console.error('Error:', error);
-        if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+        if (signal.aborted) {
+          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("The request has been aborted due to timeout.")
+          setErrorModalVisible(true);
+        }
+        else if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST ERROR")
           setErrorMessage("There was a problem with the network request.")
           setErrorModalVisible(true);
-        }  
-        console.error('Error:', error);
+        }   
       } finally {
           setSubmitting(false);
       }

@@ -33,6 +33,13 @@ const register = () => {
   });
 
   const submit = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setSubmitting(true);
 
     if (form.username.length == 0) {
@@ -74,8 +81,12 @@ const register = () => {
             confirmPassword: form.confirmPassword,
             enrolmentCode: form.enrolmentCode,
           }),
+          signal: signal
         });
   
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+
         const jsonResponse = await response.json();
   
         if (response.ok) {
@@ -91,13 +102,16 @@ const register = () => {
         }
       } catch (error) {
         console.error('Error:', error);
-        if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
-          setErrorMessage("There was a problem with the network request.")
+        if (signal.aborted) {
+          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("The request has been aborted due to timeout.")
           setErrorModalVisible(true);
         }
-        setSubmitting(false);
-        
+        else if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST ERROR")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        }        
       } finally {
         setSubmitting(false);
       }

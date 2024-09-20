@@ -91,6 +91,13 @@ const Tasks: React.FC<TaskData> = () => {
   }, []);
 
   const fetchAllTasks = async (additionalParams: TaskFilterType = {}) => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setRetrieving(true);
 
     try {
@@ -121,11 +128,13 @@ const Tasks: React.FC<TaskData> = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: signal
         });
+        
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
         jsonResponse = await response.json();
-
-        console.log("tasks: ");
   
         if (response.ok) {
           setTasks(jsonResponse.data.tasks);
@@ -143,7 +152,11 @@ const Tasks: React.FC<TaskData> = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: signal
         });
+
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
         jsonResponse = await response.json();
         
@@ -163,7 +176,11 @@ const Tasks: React.FC<TaskData> = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: signal
         });
+
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
         jsonResponse = await response.json();
   
@@ -179,7 +196,11 @@ const Tasks: React.FC<TaskData> = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: signal
         });
+
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
         jsonResponse = await response.json();
   
@@ -191,12 +212,15 @@ const Tasks: React.FC<TaskData> = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      if (error instanceof TypeError) { // Error such as Network request failed
-        setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
         setErrorMessage("There was a problem with the network request.")
         setErrorModalVisible(true);
-
-        setDataStatusMessage("Network Error.\nPlease check your internet connection.");
       }      
     } finally {
       setRetrieving(false);
@@ -204,6 +228,13 @@ const Tasks: React.FC<TaskData> = () => {
   }
 
   const createTaskSession = async () => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setDialogModalVisible(false);
     setSubmitting(true);
 
@@ -228,10 +259,15 @@ const Tasks: React.FC<TaskData> = () => {
               sessionToken: sessionToken,
               taskID: selectedTaskId,
             }),
+            signal: signal
           });
     
+          // Clear the timeout if the request is successful
+          clearTimeout(timeoutId);
+
           const jsonResponse = await response.json();
-          console.log('Confirmed with jsonResponse:', jsonResponse);
+          
+          // console.log('Confirmed with jsonResponse:', jsonResponse);
     
           if (response.ok) {
             // Clear data
@@ -259,8 +295,13 @@ const Tasks: React.FC<TaskData> = () => {
           }
         } catch (error) {
           console.error('Error:', error);
-          if (error instanceof TypeError) { // Error such as Network request failed
-            setErrorHeaderMessage("NETWORK_REQUEST_TIMED_OUT")
+          if (signal.aborted) {
+            setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+            setErrorMessage("The request has been aborted due to timeout.")
+            setErrorModalVisible(true);
+          }
+          else if (error instanceof TypeError) { // Error such as Network request failed
+            setErrorHeaderMessage("NETWORK REQUEST ERROR")
             setErrorMessage("There was a problem with the network request.")
             setErrorModalVisible(true);
           }        

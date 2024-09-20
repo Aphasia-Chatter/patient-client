@@ -22,7 +22,14 @@ const login = () => {
     password: "",
   });
 
-  const submit = async () => {
+  const submit = async (options = {}) => {
+    const controller = new AbortController();
+    const timeout = 5000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
     setSubmitting(true);
 
     if (form.username.length == 0) {
@@ -50,7 +57,11 @@ const login = () => {
             username: form.username,
             password: form.password,
           }),
+          signal: signal
         });
+
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
         const jsonResponse = await response.json();
 
@@ -70,8 +81,13 @@ const login = () => {
         }
       } catch (error) {
         console.error('Error:', error);
-        if (error instanceof TypeError) { // Error such as Network request failed
+        if (signal.aborted) {
           setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("The request has been aborted due to timeout.")
+          setErrorModalVisible(true);
+        }
+        else if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST ERROR")
           setErrorMessage("There was a problem with the network request.")
           setErrorModalVisible(true);
         }    
