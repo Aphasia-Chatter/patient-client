@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {Alert, Modal, StyleSheet, Text, Pressable, View, TextInput, Button, Image} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker';
+
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface TaskFilterModalProps {
@@ -8,19 +9,52 @@ interface TaskFilterModalProps {
   taskFilterMessage: string;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  onConfirm: (categoryOfTask: number) => void;  
+  onConfirm: (categoryOfTask: number | null) => void;  
   onDismiss: () => void;
 }
 
 const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, modalVisible, onConfirm, onDismiss }) => {
-    const [ categoryOfTask, setCategoryOfTask ] = useState(1); // Set default to word retrieval
-    const [ statusOfTask, setStatusOfTask ] = useState(0);
+    const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false)
+    const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState('');
+
+    const [ isTaskStatusOpen, setIsTaskStatusOpen ] = useState(false)
+    const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState('');
+
+    const taskCategoryItems = [
+      {label: "Word Retrieval Task", value: "1"},
+      {label: "Sentence Retrieval Task", value: "2"},
+      {label: "Article Reading Task", value: "3"}
+    ]
+
+    const taskStatusItems = [
+      {label: "Not started", value: "1"},
+      {label: "In Progress", value: "2"},
+      {label: "Completed", value: "3"}
+    ]
+
+    const convertStringToNumber = (inputString: string): number | null => {
+      try {
+        // Attempt to convert string to number
+        const numberValue = Number(inputString); 
+        if (isNaN(numberValue)) {
+          // Throw an error if the result is NaN
+          throw new Error("Invalid number");
+        }
+        return numberValue;
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error converting string to number:", error.message);
+        }
+        return null;
+      }
+    };
+
 
     // Modal Header
     const modalHeader=(
       <View className='bg-blue-500' style={styles.modalHeader}>
         <View className='flex-row items-center'>
-          <MaterialIcons name="assessment" size={32} color='#fff'/>
+          <MaterialIcons name="filter-list" size={32} color='#fff'/>
           <Text style={styles.title}>{headerMessage}</Text>
         </View>
       </View>
@@ -28,37 +62,59 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
 
     // Modal Body
     const modalBody=(
-      <View style={styles.modalBody}>
-        <Text className='text-lg mb-2'>{taskFilterMessage}</Text>
+      <View style={[styles.modalBody, (isTaskCategoryOpen || isTaskStatusOpen) && styles.openModalBody]}>
+        <Text className='text-lg mb-4'>{taskFilterMessage}</Text>
         <View style={styles.column}>
           {/* Task Type */}
-          <Picker
-            style={styles.picker}
-            selectedValue={categoryOfTask}
-            onValueChange={(itemValue, itemIndex) => {
-              if (itemIndex !== 0) {
-                setCategoryOfTask(itemValue);
+          <View className='pb-3'>
+            <DropDownPicker
+              items={taskCategoryItems}
+              open={isTaskCategoryOpen}
+              setOpen={() => {
+                  setIsTaskCategoryOpen(!isTaskCategoryOpen)
+                  setIsTaskStatusOpen(false)
+                }
               }
-            }}>
-            <Picker.Item label="--Select Category of Task--" value="" color="grey"/>
-            <Picker.Item label="Word Retrieval Task" value="1" />
-            <Picker.Item label="Sentence Retrieval Task" value="2" />
-            <Picker.Item label="Article Reading Task" value="3" />
-          </Picker>
+              value={currentTaskCategoryValue}
+              setValue={setCurrentTaskCategoryValue}
+              placeholder='--Select Category of Task--'
+              placeholderStyle={{color: 'grey', fontWeight: '500', fontSize: 14}}
+              showArrowIcon={true}
+              dropDownDirection='BOTTOM'
+              disableBorderRadius={true}
+              theme='LIGHT'
+              maxHeight={200}
+              autoScroll>
+            </DropDownPicker>
+          </View>
+
           {/* Task Status */}
-          <Picker
-            style={styles.picker}
-            selectedValue={statusOfTask}
-            onValueChange={(itemValue, itemIndex) => {
-              if (itemIndex !== 0) {
-                setStatusOfTask(itemValue);
-              }
-            }}>
-            <Picker.Item label="--Select Task Status--" value="" color="grey"/>
-            <Picker.Item label="Not started" value="1" />
-            <Picker.Item label="In Progress" value="2" />
-            <Picker.Item label="Completed" value="3" />
-          </Picker>
+          {/* - Hide this when the task category above is open  */}
+          {
+            !isTaskCategoryOpen && (
+              <View className='pb-3'>
+                <DropDownPicker
+                  items={taskStatusItems}
+                  open={isTaskStatusOpen}
+                  setOpen={() => {
+                      setIsTaskStatusOpen(!isTaskStatusOpen)
+                      setIsTaskCategoryOpen(false)
+                    }
+                  }
+                  value={currentTaskStatusValue}
+                  setValue={setCurrentTaskStatusValue}
+                  placeholder='--Select Status of Task--'
+                  placeholderStyle={{color: 'grey', fontWeight: '500', fontSize: 14}}
+                  showArrowIcon={true}
+                  dropDownDirection='BOTTOM'
+                  disableBorderRadius={true}
+                  theme='LIGHT'
+                  maxHeight={200}
+                  autoScroll>
+                </DropDownPicker>
+              </View>
+            )
+          }
         </View>
       </View>
     )
@@ -82,7 +138,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
               pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#0072B2"}
             ]}
             onPress={() => {
-              onConfirm(categoryOfTask);
+              onConfirm(convertStringToNumber(currentTaskCategoryValue));
             }}>
             <Text className='text-base' style={styles.actionText}>Confirm</Text>
           </Pressable>
@@ -156,6 +212,12 @@ const styles = StyleSheet.create({
       backgroundColor:"#fff",
       paddingTop:20,
       paddingHorizontal:15
+    },
+    openModalBody:{
+      backgroundColor:"#fff",
+      paddingTop:20,
+      paddingHorizontal:15,
+      paddingBottom:120
     },
     column: {
       paddingBottom: 15

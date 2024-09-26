@@ -449,7 +449,13 @@ const Tasks: React.FC<TaskData> = () => {
         taskFilterMessage={taskFilterMessage}
         modalVisible={taskFilterModalVisible}
         setModalVisible={setTaskFilterModalVisible}
-        onConfirm={(categoryOfTask) => fetchAllTasks({categoryOfTask})}
+        onConfirm={(categoryOfTask) => {
+          if (categoryOfTask !== null) {
+            fetchAllTasks({ categoryOfTask });
+          } else {
+            console.warn("categoryOfTask is null. Fetching tasks skipped.");
+          }
+        }}
         onDismiss={() => setTaskFilterModalVisible(false)}
       />
       
