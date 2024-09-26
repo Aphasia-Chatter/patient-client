@@ -17,7 +17,6 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.3",
     "@react-native-async-storage/async-storage": "^1.23.1",
-    "@react-native-picker/picker": "2.7.5",
     "@react-navigation/drawer": "^6.6.15",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.31",
@@ -41,6 +40,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.75.0",
     "react-native-context-menu-view": "^1.16.0",
+    "react-native-dropdown-picker": "^5.4.6",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-hold-menu": "^0.1.6",
     "react-native-reanimated": "~3.10.1",
