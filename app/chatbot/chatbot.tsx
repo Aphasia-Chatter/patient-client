@@ -53,7 +53,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [completed, setCompleted] = useState(completedAt);
 
   useEffect(() => {
-    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt});
+    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, completed });
   
     if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
@@ -83,7 +83,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     setRefreshing(true);
     setTimeout(async () => {
       // TODO: Refresh word retrieval chat history
-      // await fetchAllWordRetrievalSessionChatHistory();
+      await fetchAllWordRetrievalSessionChatHistory();
       setRefreshing(false);
     });
   }, []);
@@ -285,11 +285,18 @@ const startRecording = async () => {
     }
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
+      interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
       playsInSilentModeIOS: true,
+      playThroughEarpieceAndroid: true,
+      interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+      shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
     });
 
     console.log('Starting recording..');
-    const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+    const { recording } = await Audio.Recording.createAsync(
+      Audio.RecordingOptionsPresets.HIGH_QUALITY
+    );
+
     setRecording(recording);
 
     console.log('Recording started');
@@ -439,56 +446,6 @@ const sendRecording = async (recordingUri: string | null) => {
         modalVisible={errorModalVisible}
         setModalVisible={setErrorModalVisible}
       />
-      {
-        messages.length >= 0 ? (
-          <View className="px-3 mb-6">
-            {/* Centered Container */}
-            <View className="flex justify-center items-center w-full mt-3">
-              <Text className='text-xl text-dark dark:text-light' style={{ fontWeight: 'bold' }}>{description}</Text>
-            </View>
-            <View className="flex justify-center items-center w-full my-3">
-              {/* Chatbot Image Message Bubble */}
-              <View className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
-                <ImageBackground 
-                  className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4"
-                  resizeMode="cover"
-                >
-                  <Image
-                    source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
-                    className="w-full h-full"
-                    resizeMode="contain"
-                  />
-                </ImageBackground>
-              </View>
-            </View>
-            <FlatList
-              data={messages}
-              renderItem={renderMessage}
-              keyExtractor={(item, index) => index.toString()}
-              // onEndReached={loadMoreMessages} // Load more messages when end is reached
-              onEndReachedThreshold={0.1} // Load more when 10% from the bottom
-              showsVerticalScrollIndicator={false}
-              ref={flatListRef}
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-              contentContainerStyle={[styles.flatListContent, { paddingBottom: 500 }]} // Increased padding to the bottom
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                />
-              }
-            />
-            {/* <View>
-              <Text className='text-justify text-dark dark:text-light'>
-                Recording
-              </Text>
-              <Button onPress={playRecording} title="Play"></Button>
-            </View> */}
-          </View>
-      ) : (
-        <View className='flex-1'></View>
-      )}
-
       {completed === "null" ? (
         <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
           <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
@@ -526,7 +483,7 @@ const sendRecording = async (recordingUri: string | null) => {
             <View className='flex-1'></View>
           )}
         </View>
-      ) : (
+      ) : completed !== undefined && (
         <View className='absolute bottom-0 left-0 right-0 justify-center items-center pt-1 pb-10 bg-light dark:bg-dark'>
           <Text className='text-xl font-medium text-dark dark:text-light'>Word Retrieval Task Completed!</Text>
         </View>
