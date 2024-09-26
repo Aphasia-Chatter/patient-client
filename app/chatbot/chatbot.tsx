@@ -375,7 +375,7 @@ const sendRecording = async (recordingUri: string | null) => {
       const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // Indicate request body contains form data that includes files (due to large blocks of data)
+          'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
         },
         body: formData,
         signal: signal
