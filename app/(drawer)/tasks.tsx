@@ -5,6 +5,7 @@ import { Text, View, FlatList, ListRenderItem, StyleSheet, Pressable, RefreshCon
 import { FontAwesome5, FontAwesome6, Fontisto, MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
+import LoadingFeedbackModal from "../../components/LoadingFeedbackModal";
 import ErrorModal from "../../components/ErrorModal";
 import DialogModal from '../../components/DialogModal';
 import TaskFilterModal from "../../components/TaskFilterModal";
@@ -58,6 +59,8 @@ const Tasks: React.FC<TaskData> = () => {
   const [ dataStatusMessage, setDataStatusMessage ] = useState('')
   const [ isRefreshing, setRefreshing ] = useState(false);
 
+  const [ loadingFeedbackModalVisible, setLoadingFeedbackModalVisible ] = useState(false);
+
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
@@ -86,10 +89,15 @@ const Tasks: React.FC<TaskData> = () => {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(async () => {
-      await fetchAllTasks();
+      const categoryOfTask = currentTaskCategory;
+      const statusOfTask = currentTaskStatus;
+
+      // Refresh Button
+      await fetchAllTasks({ categoryOfTask, statusOfTask });
+
       setRefreshing(false);
     });
-  }, []);
+  }, [currentTaskCategory, currentTaskStatus]); // Ensure that onRefresh always uses the latest values of these variables
 
   const fetchAllTasks = async (additionalParams: TaskFilterType = {}) => {
     const controller = new AbortController();
@@ -166,21 +174,25 @@ const Tasks: React.FC<TaskData> = () => {
               tasks = tasks.filter((task: TaskData) => task.status === "Completed");
             }
 
-            // Sort the tasks by createdAt before setting them
-            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
-              const dateA = new Date(a.task.createdAt);
-              const dateB = new Date(b.task.createdAt);
-            
-              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                // Handle invalid dates, e.g., put them at the end
-                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
-              }
-            
-              // Sort by latest first
-              return dateB.getTime() - dateA.getTime();
-            });
+            if (tasks.length == 0) {
+              setDataStatusMessage("No tasks are found.");
+            } else {
+              // Sort the tasks by createdAt before setting them
+              const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
+                const dateA = new Date(a.task.createdAt);
+                const dateB = new Date(b.task.createdAt);
+              
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                  // Handle invalid dates, e.g., put them at the end
+                  return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+                }
+              
+                // Sort by latest first
+                return dateB.getTime() - dateA.getTime();
+              });
 
-            setTasks(sortedTasks);
+              setTasks(sortedTasks);
+            }
           } else {
             console.log("No word retrieval tasks found.");
             setDataStatusMessage("No word retrieval tasks found.");
@@ -207,34 +219,43 @@ const Tasks: React.FC<TaskData> = () => {
           if (response.ok) {
             let tasks = jsonResponse.data.tasks;
 
-            if (additionalParams.statusOfTask == 2) {
-              // Keep only tasks with status "Not Started"
-              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
-              
-            } else if (additionalParams.statusOfTask == 3) {
-              // Keep only tasks with status "In Progress"
-              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
-
-            } else if (additionalParams.statusOfTask == 4) {
-              // Keep only tasks with status "Completed"
-              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
+            if (tasks.length == 0) {
+              setDataStatusMessage("No sentence retrieval tasks found.");
             }
-
-            // Sort the tasks by createdAt before setting them
-            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
-              const dateA = new Date(a.task.createdAt);
-              const dateB = new Date(b.task.createdAt);
-            
-              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                // Handle invalid dates, e.g., put them at the end
-                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+            else {
+              if (additionalParams.statusOfTask == 2) {
+                // Keep only tasks with status "Not Started"
+                tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
+                
+              } else if (additionalParams.statusOfTask == 3) {
+                // Keep only tasks with status "In Progress"
+                tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
+  
+              } else if (additionalParams.statusOfTask == 4) {
+                // Keep only tasks with status "Completed"
+                tasks = tasks.filter((task: TaskData) => task.status === "Completed");
               }
-            
-              // Sort by latest first
-              return dateB.getTime() - dateA.getTime();
-            });
-
-            setTasks(sortedTasks);
+  
+              if (tasks.length == 0) {
+                setDataStatusMessage("No tasks are found.");
+              } else {
+                // Sort the tasks by createdAt before setting them
+                const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
+                  const dateA = new Date(a.task.createdAt);
+                  const dateB = new Date(b.task.createdAt);
+                
+                  if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    // Handle invalid dates, e.g., put them at the end
+                    return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+                  }
+                
+                  // Sort by latest first
+                  return dateB.getTime() - dateA.getTime();
+                });
+  
+                setTasks(sortedTasks);
+              }
+            }
           } else {
             console.log("No sentence retrieval tasks found.");
             setDataStatusMessage("No sentence retrieval tasks found.");
@@ -274,21 +295,25 @@ const Tasks: React.FC<TaskData> = () => {
               tasks = tasks.filter((task: TaskData) => task.status === "Completed");
             }
 
-            // Sort the tasks by createdAt before setting them
-            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
-              const dateA = new Date(a.task.createdAt);
-              const dateB = new Date(b.task.createdAt);
-            
-              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                // Handle invalid dates, e.g., put them at the end
-                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
-              }
-            
-              // Sort by latest first
-              return dateB.getTime() - dateA.getTime();
-            });
+            if (tasks.length == 0) {
+              setDataStatusMessage("No tasks are found.");
+            } else {
+              // Sort the tasks by createdAt before setting them
+              const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
+                const dateA = new Date(a.task.createdAt);
+                const dateB = new Date(b.task.createdAt);
+              
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                  // Handle invalid dates, e.g., put them at the end
+                  return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+                }
+              
+                // Sort by latest first
+                return dateB.getTime() - dateA.getTime();
+              });
 
-            setTasks(sortedTasks);
+              setTasks(sortedTasks);
+            }
           } else {
             console.log("No sentence retrieval tasks found.");
             setDataStatusMessage("No article reading tasks found.");
@@ -309,21 +334,25 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
-            // Sort the tasks by createdAt before setting them
-            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
-              const dateA = new Date(a.task.createdAt);
-              const dateB = new Date(b.task.createdAt);
-            
-              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                // Handle invalid dates, e.g., put them at the end
-                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
-              }
-            
-              // Sort by latest first
-              return dateB.getTime() - dateA.getTime();
-            });
+            if (tasks.length == 0) {
+              setDataStatusMessage("No tasks are found.");
+            } else {
+              // Sort the tasks by createdAt before setting them
+              const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
+                const dateA = new Date(a.task.createdAt);
+                const dateB = new Date(b.task.createdAt);
+              
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                  // Handle invalid dates, e.g., put them at the end
+                  return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+                }
+              
+                // Sort by latest first
+                return dateB.getTime() - dateA.getTime();
+              });
 
-            setTasks(sortedTasks);
+              setTasks(sortedTasks);
+            }
           } else {
             setDataStatusMessage("No word retrieval tasks found.");
           }
@@ -349,6 +378,7 @@ const Tasks: React.FC<TaskData> = () => {
       }    
     } finally {
       setRetrieving(false);
+      setLoadingFeedbackModalVisible(false);
     }
   }
 
@@ -533,6 +563,10 @@ const Tasks: React.FC<TaskData> = () => {
 
   return (
     <View className="flex-1 flex-grow flex-shrink px-4 pt-6 bg-light dark:bg-dark">
+      <LoadingFeedbackModal
+        modalVisible={loadingFeedbackModalVisible}
+        setModalVisible={setLoadingFeedbackModalVisible}
+      />
       <ErrorModal 
         headerMessage={errorHeaderMessage}
         errorMessage={errorMessage}
@@ -556,10 +590,11 @@ const Tasks: React.FC<TaskData> = () => {
         setModalVisible={setTaskFilterModalVisible}
         onConfirm={(categoryOfTask, statusOfTask) => {
           if (categoryOfTask !== null && statusOfTask !== null) {
-            setTasks([]);
             setCurrentTaskCategory(categoryOfTask);
             setCurrentTaskStatus(statusOfTask);
+            setTasks([]);
 
+            setLoadingFeedbackModalVisible(true);
             fetchAllTasks({ categoryOfTask, statusOfTask });
           } else {
             console.warn("categoryOfTask is null. Fetching tasks skipped.");
@@ -599,8 +634,11 @@ const Tasks: React.FC<TaskData> = () => {
                         pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
                       ]}
                       onPress={() => {
+                        const categoryOfTask = currentTaskCategory;
+                        const statusOfTask = currentTaskStatus;
+
                         // Refresh Button
-                        fetchAllTasks();
+                        fetchAllTasks({ categoryOfTask, statusOfTask });
 
                         // Set retrieving true
                         setRetrieving(true);
