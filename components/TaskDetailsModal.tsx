@@ -10,7 +10,6 @@ interface TaskDetailsModalProps {
   status: string;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  onDismiss: () => void;
 }
 
 const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
@@ -19,7 +18,6 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   name,
   description,
   status,
-  onDismiss,
 }) => {
   const [nameOfTask, setNameOfTask] = useState(name);
   const [descriptionOfTask, setDescriptionOfTask] = useState(description);
@@ -89,7 +87,6 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             { ...styles.actions, backgroundColor: "#858585" },
           ]}
           onPress={() => {
-            onDismiss();
             setNameOfTask("");
             setDescriptionOfTask("");
           }}

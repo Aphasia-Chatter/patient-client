@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
 import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl, Alert } from "react-native";
-import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
@@ -12,6 +12,7 @@ import { useLocalSearchParams } from 'expo-router'
 import ErrorModal from "../../components/ErrorModal";
 import { images, icons } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
+import TaskDetailsModal from '@/components/TaskDetailsModal';
 
 type PatientWordRetrievalTaskImageData = {
   path: string;
@@ -39,18 +40,18 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
 
-  // Task Name and description
+  // Task Name, Description, Completion Status
   const [ taskName, setTaskName ] = useState('');
   const [ taskDescription, setTaskDescription ] = useState('');
+  const [ isTaskCompleted, setIsTaskCompleted ] = useState(completedAt);
 
   // Message History
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
   const flatListRef = useRef<FlatList<Message>>(null);
+  const previousMessageCount = useRef(messages.length);
 
+  // TTS Status
   const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);
-
-  // Completed
-  const [ isTaskCompleted, setIsTaskCompleted ] = useState(completedAt);
 
   useEffect(() => {
     console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
@@ -300,7 +301,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       // Chatbot Response
       return (
         <>
-          <View key={index} className="flex-row justify-start items-start mt-3">
+          <View key={index} className="flex-row justify-start items-start mt-3 mr-5">
             {/* Chatbot Icon */}
             <Image
               className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
@@ -317,16 +318,18 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 style={({ pressed }) => [
                   pressed ? { opacity: 0.7 } : {}, 
                   { 
-                    ...styles.actions, 
+                    ...styles.actions,
+                    marginTop: 12,
+                    margin: 4,
                     backgroundColor: item.isTTSPlaying ? "red" : "green" // Change color based on TTS state
                   }
                 ]}
                 onPress={toggleTTS}>
                 {
                   item.isTTSPlaying ? (
-                    <MaterialCommunityIcons name="text-to-speech-off" size={36} color='#fff'/>
+                    <MaterialCommunityIcons name="text-to-speech-off" size={24} color='#fff'/>
                   ) : (
-                    <MaterialCommunityIcons name="text-to-speech" size={36} color='#fff'/>
+                    <MaterialCommunityIcons name="text-to-speech" size={24} color='#fff'/>
                   )
                 }
               </Pressable>
@@ -507,9 +510,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   }, [recording]);
 
   useEffect(() => {
-    // Scroll to the bottom when new messages are added
-    if (flatListRef.current) {
+    if (flatListRef.current && messages.length !== previousMessageCount.current) {
       flatListRef.current.scrollToEnd({ animated: true });
+      previousMessageCount.current = messages.length; // Update the previous count
     }
   }, [messages]);
 
@@ -518,6 +521,14 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       <ErrorModal 
         headerMessage={errorHeaderMessage}
         errorMessage={errorMessage}
+        modalVisible={errorModalVisible}
+        setModalVisible={setErrorModalVisible}
+      />
+      <TaskDetailsModal 
+        headerMessage={errorHeaderMessage}
+        name={errorHeaderMessage}
+        description={errorHeaderMessage}
+        status={errorHeaderMessage}
         modalVisible={errorModalVisible}
         setModalVisible={setErrorModalVisible}
       />
@@ -535,7 +546,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                   resizeMode="cover"
                 >
                   <Image
-                    source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
+                    source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}`}}
                     className="w-full h-full"
                     resizeMode="contain"
                   />
@@ -621,10 +632,10 @@ const styles = StyleSheet.create({
   },
   actions:{
     borderRadius: '100%',
+    paddingVertical: 4,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%'
   },
   actionText:{
     color:"#fff",
