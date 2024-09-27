@@ -102,7 +102,6 @@ const Tasks: React.FC<TaskData> = () => {
 
     try {
       setDataStatusMessage("Loading task data...")
-      console.log("Session:", appUser?.sessionToken);
 
       if (appUser?.sessionToken == undefined) {
         // Introduce a 5-second delay before setting the error message to make user believe that fetching from api occurs
@@ -138,7 +137,6 @@ const Tasks: React.FC<TaskData> = () => {
           setSelectedTaskCategory(1);
           setSelectedTaskCategoryName('Word Retrieval')
           setTaskFilterModalVisible(false);
-          console.log(params.toString())
 
           response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
             method: 'GET',
@@ -344,15 +342,14 @@ const Tasks: React.FC<TaskData> = () => {
   const renderWordRetrievalTaskItem: ListRenderItem<TaskData> = ({ item, index }) => {
     return (
       <View key={index} className="flex-row mb-4">
-        <View className="pl-1 pr-2 flex-1 bg-gray-200 dark:bg-gray-600 flex-row items-center">
-          <View className="h-full w-2 bg-gray-400 mx-3"></View>
+        <View className="px-2 flex-1 rounded-2xl bg-gray-200 dark:bg-gray-600 flex-row items-center">
           <View className="ml-2 flex-1 py-3">
-            <Text className='text-xl font-bold mb-2 text-dark dark:text-light'>{item.task.name}</Text>
-              <View className='flex-row flex-1'>
-                <FontAwesome5 name="search" size={16} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 8 }} />
-                <Text className='text-sm mb-2 text-dark dark:text-light'>Word Retrieval</Text>
-              </View>
-            <View className='flex-row'>
+            <Text className='text-xl font-bold mb-3 text-dark dark:text-light'>{item.task.name}</Text>
+            <View className='ml-2 flex-row'>
+              <FontAwesome5 name="search" size={16} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 8 }} />
+              <Text className='text-sm mb-2 text-dark dark:text-light'>Word Retrieval</Text>
+            </View>
+            <View className='ml-2 flex-row'>
               <Fontisto name="doctor" size={18} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 10 }} />
               <Text className='text-sm mb-3 text-dark dark:text-light'>{item.staff.username}</Text>
             </View>
@@ -363,7 +360,7 @@ const Tasks: React.FC<TaskData> = () => {
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#008000", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
-                    onPress={() => {
+                    onPress={isRefreshing ? null :() => {
                       // Pass taskId to the chatbot page
                       router.push({
                         pathname: "/chatbot/chatbot",
@@ -385,7 +382,7 @@ const Tasks: React.FC<TaskData> = () => {
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#F3960F", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
-                    onPress={() => {
+                    onPress={isRefreshing ? null :() => {
                       // Pass taskId to the chatbot page
                       router.push({
                         pathname: "/chatbot/chatbot",
@@ -407,7 +404,7 @@ const Tasks: React.FC<TaskData> = () => {
                     style={({ pressed }) => [
                       pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#858585", flexDirection: "row", alignItems: "center", padding: 10 }
                     ]}
-                    onPress={() => {
+                    onPress={isRefreshing ? null :() => {
                       // handle onPress
                       setSelectedTaskId(item.task.id);
                       setDialogHeaderMessage("Start Task");

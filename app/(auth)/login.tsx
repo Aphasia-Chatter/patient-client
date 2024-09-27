@@ -16,6 +16,7 @@ const login = () => {
   const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [isFocused, setIsFocused] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -110,16 +111,18 @@ const login = () => {
             //   minHeight: Dimensions.get("window").height - 100,
             // }}
         >
-          {/* Preference Logo */}
-          <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
-            <Pressable
-              style={({ pressed }) => [,
-                pressed ? { opacity: 0.5 } : {},
-              ]} 
-              onPress={() => router.push("/preference")}>
-              <Feather name="settings" size={24} color={'#F9F9F9'}/>
-            </Pressable>
-          </View>
+          {/* Preference Logo (Only render when not focused) */}
+          {!isFocused && (
+            <View className={`w-30 h-30 absolute top-0 right-0 ${Platform.OS === 'ios' ? 'mt-4' : 'mt-16'} mr-8 p-1 rounded-full justify-center items-center bg-neutral-300 dark:bg-neutral-700`}>
+              <Pressable
+                style={({ pressed }) => [,
+                  pressed ? { opacity: 0.5 } : {},
+                ]} 
+                onPress={() => router.push("/preference")}>
+                <Feather name="settings" size={24} color={'#F9F9F9'}/>
+              </Pressable>
+            </View>
+          )}
 
           <ErrorModal 
             headerMessage={errorHeaderMessage}
@@ -147,6 +150,8 @@ const login = () => {
             handleChangeText={(e) => setForm({ ...form, username: e })}
             placeholder="Enter your username"
             otherStyles="mt-7"
+            onFocus={() => setIsFocused(true)}   // Set focus to true on focus
+            onBlur={() => setIsFocused(false)}   // Set focus to false on blur
             keyboardType="default"
           />
 
@@ -156,6 +161,8 @@ const login = () => {
             handleChangeText={(e) => setForm({ ...form, password: e })}
             placeholder="Enter your password"
             otherStyles="mt-4"
+            onFocus={() => setIsFocused(true)}   // Set focus to true on focus
+            onBlur={() => setIsFocused(false)}   // Set focus to false on blur
           />
 
           {/* Login */}

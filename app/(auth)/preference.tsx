@@ -24,7 +24,7 @@ const preference = () => {
               <Text className="font-normal text-lg text-dark dark:text-light">Language</Text>
               <View className='flex-grow flex-shrink' />
               <Text className="font-normal text-lg mr-2 text-dark dark:text-light">English</Text>
-              <Feather color="#C6C6C6" name="chevron-right" size={24} />
+              {/* <Feather color="#C6C6C6" name="chevron-right" size={24} /> */}
             </Pressable>
           </View>
 

@@ -9,9 +9,11 @@ interface FormFieldProps extends TextInputProps {
     placeholder: string;
     handleChangeText: (text: string) => void;
     otherStyles?: string;
+    onFocus?: () => void;  // Add onFocus prop
+    onBlur?: () => void;   // Add onBlur prop
   }
 
-const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handleChangeText, otherStyles, ...props }) => {
+const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handleChangeText, otherStyles, onFocus, onBlur, ...props }) => {
   const { colorScheme } = useColorScheme();
   const [ showPassword, setShowPassword ] = useState(false);
   
@@ -31,6 +33,8 @@ const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handle
             placeholder={placeholder}
             placeholderTextColor={colorScheme === 'dark' ? '#fff' : '#525252'}
             onChangeText={handleChangeText}
+            onFocus={onFocus}  // Pass onFocus to TextInput
+            onBlur={onBlur}    // Pass onBlur to TextInput
             secureTextEntry={(title === "Password" || title === "Confirm Password" || title === "Current Password" || title === "New Password" || title === "Confirm New Password") && !showPassword}
             {...props}
           />

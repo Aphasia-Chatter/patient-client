@@ -378,14 +378,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       );
     }
   };
-
-  useEffect(() => {
-    // Cleanup function to stop speech when exiting the page
-    return () => {
-      console.log('Stopping Speech');
-      Speech.stop(); // Stop the speech synthesis
-    };
-  }, []); // Empty dependency array means this runs on unmount
   
   // Recording
   const [ isRecording, setIsRecording ] = useState(false);
@@ -523,13 +515,17 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   };
 
   useEffect(() => {
-    return recording
-      ? () => {
-          console.log('Unloading Sound');
-          recording.stopAndUnloadAsync();
-        }
-      : undefined;
-  }, [recording]);
+    // Cleanup function
+    return () => {
+      console.log('Stopping Speech');
+      Speech.stop(); // Stop the speech synthesis
+  
+      if (recording) {
+        console.log('Unloading Sound');
+        recording.stopAndUnloadAsync(); // Stop and unload the recording
+      }
+    };
+  }, [recording]); // Include recording in the dependency array
 
   useEffect(() => {
     if (flatListRef.current && messages.length !== previousMessageCount.current) {

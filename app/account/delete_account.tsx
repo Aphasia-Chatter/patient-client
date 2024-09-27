@@ -212,7 +212,7 @@ const deleteAccount = () => {
           <CustomButton
             title="Delete Account Permanently"
             handlePress={handleDialogModalOpen}
-            backgroundColor="#0072B2"
+            backgroundColor="#DC2626"
             containerStyles={[{ width: '100%' }]}
             isLoading={isSubmitting}
           />

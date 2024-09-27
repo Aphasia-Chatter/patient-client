@@ -15,7 +15,7 @@ interface TaskFilterModalProps {
 
 const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, modalVisible, onConfirm, onDismiss }) => {
     const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false)
-    const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState('');
+    const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState('1');
 
     const [ isTaskStatusOpen, setIsTaskStatusOpen ] = useState(false)
     const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState('');

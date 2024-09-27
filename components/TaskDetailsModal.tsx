@@ -45,7 +45,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, 
       {/* Task Details Section */}
       <View style={styles.section}>
         {/* Name of Task */}
-        <Text style={styles.label}>Task Name</Text>
+        <Text style={styles.label}>Name</Text>
         <Text style={styles.text}>{nameOfTask}</Text>
       </View>
   
