@@ -18,7 +18,7 @@ const profile = () => {
     <View className='flex-1 flex-grow flex-shrink px-4 bg-light dark:bg-dark'>
       <ScrollView showsHorizontalScrollIndicator={false}>
         {/* IMAGE DISPLAY WITH USERNAME */}
-        <View className='rounded-lg mb-10 p-4 items-center justify-start'>
+        <View className='rounded-lg my-4 p-4 items-center justify-start'>
           <Image
             source={icons.chatbot}
             className="w-24 h-24 rounded-full border-2 mb-3 border-gray-200 dark:border-white"

@@ -129,6 +129,8 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
               pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#858585"}
             ]}
             onPress={() => {
+              setIsTaskCategoryOpen(false);
+              setIsTaskStatusOpen(false);
               onDismiss();
             }}>
             <Text className='text-base' style={styles.actionText}>Dismiss</Text>

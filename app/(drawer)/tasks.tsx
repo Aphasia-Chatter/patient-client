@@ -152,7 +152,21 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
-            setTasks(jsonResponse.data.tasks);
+            // Sort the tasks by createdAt before setting them
+            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+              const dateA = new Date(a.task.createdAt);
+              const dateB = new Date(b.task.createdAt);
+            
+              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                // Handle invalid dates, e.g., put them at the end
+                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+              }
+            
+              // Sort by latest first
+              return dateB.getTime() - dateA.getTime();
+            });
+
+            setTasks(sortedTasks);
           } else {
             setDataStatusMessage("No word retrieval tasks found.");
           }
@@ -176,7 +190,21 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
           
           if (response.ok) {
-            setTasks(jsonResponse.data.tasks);
+            // Sort the tasks by createdAt before setting them
+            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+              const dateA = new Date(a.task.createdAt);
+              const dateB = new Date(b.task.createdAt);
+            
+              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                // Handle invalid dates, e.g., put them at the end
+                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+              }
+            
+              // Sort by latest first
+              return dateB.getTime() - dateA.getTime();
+            });
+
+            setTasks(sortedTasks);
           } else {
             setDataStatusMessage("No sentence retrieval tasks found.");
           }
@@ -200,7 +228,21 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
-            setTasks(jsonResponse.data.tasks);
+            // Sort the tasks by createdAt before setting them
+            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+              const dateA = new Date(a.task.createdAt);
+              const dateB = new Date(b.task.createdAt);
+            
+              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                // Handle invalid dates, e.g., put them at the end
+                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+              }
+            
+              // Sort by latest first
+              return dateB.getTime() - dateA.getTime();
+            });
+
+            setTasks(sortedTasks);
           } else {
             setDataStatusMessage("No article reading tasks found.");
           }
@@ -220,7 +262,21 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
-            setTasks(jsonResponse.data.tasks);
+            // Sort the tasks by createdAt before setting them
+            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+              const dateA = new Date(a.task.createdAt);
+              const dateB = new Date(b.task.createdAt);
+            
+              if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                // Handle invalid dates, e.g., put them at the end
+                return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
+              }
+            
+              // Sort by latest first
+              return dateB.getTime() - dateA.getTime();
+            });
+
+            setTasks(sortedTasks);
           } else {
             setDataStatusMessage("No word retrieval tasks found.");
           }
@@ -229,6 +285,7 @@ const Tasks: React.FC<TaskData> = () => {
     } catch (error) {
       console.error('Error:', error);
       setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
+      
       if (signal.aborted) {
         setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
         setErrorMessage("The request has been aborted due to timeout.")
@@ -238,7 +295,11 @@ const Tasks: React.FC<TaskData> = () => {
         setErrorHeaderMessage("NETWORK REQUEST ERROR")
         setErrorMessage("There was a problem with the network request.")
         setErrorModalVisible(true);
-      }      
+
+      // TEMPORARY: Error due to spelling error in the routing (or no existing route)
+      } else if (error instanceof SyntaxError) {
+        setDataStatusMessage("No task found.");
+      }    
     } finally {
       setRetrieving(false);
     }
@@ -448,6 +509,7 @@ const Tasks: React.FC<TaskData> = () => {
         setModalVisible={setTaskFilterModalVisible}
         onConfirm={(categoryOfTask) => {
           if (categoryOfTask !== null) {
+            setTasks([]);
             fetchAllTasks({ categoryOfTask });
           } else {
             console.warn("categoryOfTask is null. Fetching tasks skipped.");
@@ -458,7 +520,7 @@ const Tasks: React.FC<TaskData> = () => {
       
       <View className='flex-row justify-center mb-6'>
         {
-          tasks.length > 0 && isRetrieving == false && (
+          !isRetrieving && (
             <Pressable
             style={({ pressed }) => [
               pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
@@ -483,22 +545,26 @@ const Tasks: React.FC<TaskData> = () => {
               !isRetrieving && (
                 <>
                   <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
-                  <Pressable
-                    style={({ pressed }) => [
-                      pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
-                    ]}
-                    onPress={() => {
-                      // Refresh Button
-                      fetchAllTasks();
-
-                      // Set retrieving true
-                      setRetrieving(true);
-                    }}>
-                    <View className='flex-row p-1'>
-                      <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
-                      <Text className='text-lg' style={styles.actionText}>Refresh</Text>
-                    </View>
-                  </Pressable>
+                  {/* TEMPORARY AS THERE IS NO OTHER TYPE OF TASK YET */}
+                  {selectedTaskCategory == 1 && (
+                      <Pressable
+                      style={({ pressed }) => [
+                        pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
+                      ]}
+                      onPress={() => {
+                        // Refresh Button
+                        fetchAllTasks();
+  
+                        // Set retrieving true
+                        setRetrieving(true);
+                      }}>
+                      <View className='flex-row p-1'>
+                        <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
+                        <Text className='text-lg' style={styles.actionText}>Refresh</Text>
+                      </View>
+                    </Pressable>
+                    )
+                  }
                 </>
               )
             }
