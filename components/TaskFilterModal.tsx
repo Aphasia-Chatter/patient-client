@@ -9,16 +9,18 @@ interface TaskFilterModalProps {
   taskFilterMessage: string;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  onConfirm: (categoryOfTask: number | null) => void;  
+  onConfirm: (categoryOfTask: number | null, statusOfTask: number | null) => void;  
   onDismiss: () => void;
 }
 
 const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, modalVisible, onConfirm, onDismiss }) => {
-    const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false)
+    const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false);
+    const [ previousTaskCategoryValue, setPreviousTaskCategoryValue ] = useState('1');
     const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState('1');
 
-    const [ isTaskStatusOpen, setIsTaskStatusOpen ] = useState(false)
-    const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState('');
+    const [ isTaskStatusOpen, setIsTaskStatusOpen ] = useState(false);
+    const [ previousTaskStatusValue, setPreviousTaskStatusValue ] = useState('1');
+    const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState('1');
 
     const taskCategoryItems = [
       {label: "Word Retrieval Task", value: "1"},
@@ -27,9 +29,10 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
     ]
 
     const taskStatusItems = [
-      {label: "Not started", value: "1"},
-      {label: "In Progress", value: "2"},
-      {label: "Completed", value: "3"}
+      {label: "All", value: "1"},
+      {label: "Not started", value: "2"},
+      {label: "In Progress", value: "3"},
+      {label: "Completed", value: "4"}
     ]
 
     const convertStringToNumber = (inputString: string): number | null => {
@@ -62,7 +65,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
 
     // Modal Body
     const modalBody=(
-      <View style={[styles.modalBody, (isTaskCategoryOpen || isTaskStatusOpen) && styles.openModalBody]}>
+      <View style={[styles.modalBody, (isTaskCategoryOpen && styles.openModalBody) || (isTaskStatusOpen && styles.openModalBodyTwo)]}>
         <Text className='text-lg mb-4'>{taskFilterMessage}</Text>
         <View style={styles.column}>
           {/* Task Type */}
@@ -135,15 +138,31 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
             }}>
             <Text className='text-base' style={styles.actionText}>Dismiss</Text>
           </Pressable>
-          <Pressable
-            style={({ pressed }) => [
-              pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#0072B2"}
-            ]}
-            onPress={() => {
-              onConfirm(convertStringToNumber(currentTaskCategoryValue));
-            }}>
-            <Text className='text-base' style={styles.actionText}>Confirm</Text>
-          </Pressable>
+          { (previousTaskCategoryValue !== currentTaskCategoryValue || previousTaskStatusValue !== currentTaskStatusValue) && (
+            <Pressable
+              style={({ pressed }) => [
+                pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#0072B2"}
+              ]}
+              disabled={previousTaskCategoryValue === currentTaskCategoryValue && previousTaskStatusValue === currentTaskStatusValue}
+              onPress={() => {
+                const categoryValue = convertStringToNumber(currentTaskCategoryValue);
+                const statusValue = convertStringToNumber(currentTaskStatusValue);
+              
+                // Check if both conversions are valid numbers and not null
+                if (categoryValue !== null && !isNaN(categoryValue) && statusValue !== null && !isNaN(statusValue)) {
+                  // If both are valid numbers, set both the category and status to as previous value before calling onConfirm
+                  setPreviousTaskCategoryValue(currentTaskCategoryValue);
+                  setPreviousTaskStatusValue(currentTaskCategoryValue);
+                  onConfirm(categoryValue, statusValue);
+                } else {
+                  // Handle the case where conversion failed or null is encountered
+                  console.warn("Invalid input: category or status is not a valid number.");
+                }
+              }}>
+              <Text className='text-base' style={styles.actionText}>Confirm</Text>
+            </Pressable>
+            )
+          }
         </View>
       </View>
     )
@@ -221,6 +240,12 @@ const styles = StyleSheet.create({
       paddingTop:20,
       paddingHorizontal:15,
       paddingBottom:120
+    },
+    openModalBodyTwo:{
+      backgroundColor:"#fff",
+      paddingTop:20,
+      paddingHorizontal:15,
+      paddingBottom:160
     },
     column: {
       paddingBottom: 15

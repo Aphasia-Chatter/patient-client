@@ -12,7 +12,7 @@ import { useAuthContext } from '../../context/AuthContext';
 
 type TaskFilterType = {
   categoryOfTask?: number;
-  taskStatus?: number;
+  statusOfTask?: number;
 };
 
 type TaskData = {
@@ -152,8 +152,23 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
+            let tasks = jsonResponse.data.tasks;
+
+            if (additionalParams.statusOfTask == 2) {
+              // Keep only tasks with status "Not Started"
+              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
+              
+            } else if (additionalParams.statusOfTask == 3) {
+              // Keep only tasks with status "In Progress"
+              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
+
+            } else if (additionalParams.statusOfTask == 4) {
+              // Keep only tasks with status "Completed"
+              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
+            }
+
             // Sort the tasks by createdAt before setting them
-            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
               const dateA = new Date(a.task.createdAt);
               const dateB = new Date(b.task.createdAt);
             
@@ -190,8 +205,23 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
           
           if (response.ok) {
+            let tasks = jsonResponse.data.tasks;
+
+            if (additionalParams.statusOfTask == 2) {
+              // Keep only tasks with status "Not Started"
+              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
+              
+            } else if (additionalParams.statusOfTask == 3) {
+              // Keep only tasks with status "In Progress"
+              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
+
+            } else if (additionalParams.statusOfTask == 4) {
+              // Keep only tasks with status "Completed"
+              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
+            }
+
             // Sort the tasks by createdAt before setting them
-            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
               const dateA = new Date(a.task.createdAt);
               const dateB = new Date(b.task.createdAt);
             
@@ -228,8 +258,23 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
+            let tasks = jsonResponse.data.tasks;
+
+            if (additionalParams.statusOfTask == 2) {
+              // Keep only tasks with status "Not Started"
+              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
+              
+            } else if (additionalParams.statusOfTask == 3) {
+              // Keep only tasks with status "In Progress"
+              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
+
+            } else if (additionalParams.statusOfTask == 4) {
+              // Keep only tasks with status "Completed"
+              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
+            }
+
             // Sort the tasks by createdAt before setting them
-            const sortedTasks = jsonResponse.data.tasks.sort((a: TaskData, b: TaskData) => {
+            const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
               const dateA = new Date(a.task.createdAt);
               const dateB = new Date(b.task.createdAt);
             
@@ -344,8 +389,6 @@ const Tasks: React.FC<TaskData> = () => {
           clearTimeout(timeoutId);
 
           const jsonResponse = await response.json();
-          
-          // console.log('Confirmed with jsonResponse:', jsonResponse);
     
           if (response.ok) {
             // Clear data
@@ -507,10 +550,10 @@ const Tasks: React.FC<TaskData> = () => {
         taskFilterMessage={taskFilterMessage}
         modalVisible={taskFilterModalVisible}
         setModalVisible={setTaskFilterModalVisible}
-        onConfirm={(categoryOfTask) => {
-          if (categoryOfTask !== null) {
+        onConfirm={(categoryOfTask, statusOfTask) => {
+          if (categoryOfTask !== null && statusOfTask !== null) {
             setTasks([]);
-            fetchAllTasks({ categoryOfTask });
+            fetchAllTasks({ categoryOfTask, statusOfTask });
           } else {
             console.warn("categoryOfTask is null. Fetching tasks skipped.");
           }
