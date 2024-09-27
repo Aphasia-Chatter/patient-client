@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl, Alert } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl, Alert, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
@@ -49,13 +49,14 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
   const flatListRef = useRef<FlatList<Message>>(null);
   const previousMessageCount = useRef(messages.length);
+  const [atBottom, setAtBottom] = useState(true); // State to track if at bottom
 
   // TTS Status
   const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);
 
   useEffect(() => {
     console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
-  
+
     if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
         // Get word retrieval task
@@ -358,8 +359,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         <>
           {
             item.content.length == 0 ? (
-              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-orange-500 dark:bg-orange-600">
-                <Text className='text-base text-light'>Invalid input. Please try again</Text>
+              <View key={index} className="rounded-xl p-2 ml-14 mt-3 flex-row items-center w-10/12 flex justify-center bg-blue-700 dark:bg-blue-800">
+                <Text className='text-base mr-2 text-gray-300'>Invalid input. Please try again</Text>
+                <MaterialIcons name="error" size={24} color='orange' style={{ marginTop: 1 }}/>
               </View>
             ) : (
               <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
@@ -547,7 +549,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setModalVisible={setTaskDetailsModalVisible}
       />
       {
-        messages.length > 0 ? (
+        messages.length >= 0 && wordRetrievalImageData != null ? (
           <View className="px-3 mb-6 flex-1">
             {/* Centered Container */}
             <View className="flex justify-center items-center w-full mt-3 my-3">
@@ -577,17 +579,23 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               onContentSizeChange={() => {
                 flatListRef.current?.scrollToEnd({ animated: true })
               }}
+              scrollEventThrottle={16}
               contentContainerStyle={styles.flatListContent}
               ListFooterComponent={<View style={{height: 105}} pointerEvents="none"/>}
               style={{ 
-                marginBottom: isTaskCompleted ? 25 : 0
+                marginBottom: isTaskCompleted ? 25 : 0 // Whitespace of the bottom of the chat messages
               }} 
               refreshControl={
-                <RefreshControl
+                // Disable refresh control at the start of the task when user first enter
+                // or when task is already completed
+                (messages.length > 0 && isTaskCompleted !== "true") ? (
+                  <RefreshControl
                   refreshing={refreshing}
                   onRefresh={onRefresh}
-                />
+                  />
+                ) : undefined
               }
+              
             />
           </View>
       ) : (

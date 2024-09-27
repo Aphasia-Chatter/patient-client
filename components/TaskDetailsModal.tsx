@@ -1,5 +1,4 @@
-import { Modal, StyleSheet, Text, Pressable, View, TextInput, Button, Image,
-} from "react-native";
+import { Modal, StyleSheet, Text, Pressable, View, TextInput, Button, Image, Dimensions} from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -11,6 +10,8 @@ interface TaskDetailsModalProps {
   setModalVisible: (visible: boolean) => void;
 }
 
+const { width, height } = Dimensions.get('window');
+
 const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, status, modalVisible, setModalVisible}) => {
   const [nameOfTask, setNameOfTask] = useState(name);
   const [descriptionOfTask, setDescriptionOfTask] = useState(description);
@@ -19,7 +20,13 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, 
   useEffect(() => {
     setNameOfTask(name);
     setDescriptionOfTask(description);
-    setStatusOfTask(status as string);
+
+    if (status === "null" || status === "false") {
+      setStatusOfTask("In Progress");
+    } else if (status === "true") {
+      setStatusOfTask("Completed");
+    }
+
   }, [name, description, status]);
 
   // Modal Header
@@ -34,14 +41,26 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, 
 
   // Modal Body
   const modalBody = (
-  <View style={styles.modalBody}>
-    {/* Name of Task */}
-    <Text className='text-lg mb-4 text-dark'>Name: {nameOfTask}</Text>
-    {/* Description of Task*/}
-    <Text className='text-lg mb-4 text-dark'>Description: {descriptionOfTask}</Text>
-    {/* Status of Task*/}
-    <Text className='text-lg mb-4 text-dark'>Status: {statusOfTask}</Text>
-  </View>
+    <View style={styles.modalBody}>
+      {/* Task Details Section */}
+      <View style={styles.section}>
+        {/* Name of Task */}
+        <Text style={styles.label}>Task Name</Text>
+        <Text style={styles.text}>{nameOfTask}</Text>
+      </View>
+  
+      {/* Description of Task */}
+      <View style={styles.section}>
+        <Text style={styles.label}>Description</Text>
+        <Text style={styles.text}>{descriptionOfTask}</Text>
+      </View>
+  
+      {/* Status of Task */}
+      <View style={styles.section}>
+        <Text style={styles.label}>Status</Text>
+        <Text style={styles.text}>{statusOfTask}</Text>
+      </View>
+    </View>
   );
 
   // Modal Footer
@@ -94,21 +113,17 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, 
 export default TaskDetailsModal;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   modal: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingBottom: height * 0.25,
   },
   modalContainer: {
     backgroundColor: "#f9fafb",
-    width: "100%",
+    width: width * 0.8, // Set both width and height to 80% of the screen width
+    height: width * 0.8, // Ensuring it's square
     borderRadius: 5,
   },
   modalHeader: {
@@ -129,42 +144,11 @@ const styles = StyleSheet.create({
   },
   modalBody: {
     backgroundColor: "#fff",
-    paddingVertical: 20,
-    paddingHorizontal: 15,
+    padding: 15,
   },
-  row: {
-    flex: 1,
-    flexDirection: "row",
+  modalFooter: {
+    backgroundColor: 'white'
   },
-  column: {
-    flex: 1,
-  },
-  columnTwo: {
-    marginLeft: 16,
-    marginBottom: 32,
-  },
-  rowTwo: {
-    flex: 1,
-    marginTop: 25,
-  },
-  textInput: {
-    height: 50,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 16,
-    fontSize: 16,
-    paddingHorizontal: 10,
-  },
-  picker: {
-    height: 50,
-    backgroundColor: "white",
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 16,
-    fontSize: 16,
-    paddingStart: 10,
-  },
-  modalFooter: {},
   actions: {
     borderRadius: 5,
     marginHorizontal: 10,
@@ -173,5 +157,18 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: "#fff",
+  },
+  section: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  text: {
+    fontSize: 14,
+    color: '#666',
   },
 });
