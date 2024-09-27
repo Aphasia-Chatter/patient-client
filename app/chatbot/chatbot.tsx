@@ -237,8 +237,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setErrorMessage("There was a problem with the network request.")
         setErrorModalVisible(true);
       }      
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -314,7 +312,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               source={icons.chatbot}
             />
             {/* Chatbot Message Bubble */}
-            <View className="rounded-xl p-2 bg-gray-200 dark:bg-gray-600">
+            <View className="rounded-xl p-2 mr-5 bg-gray-200 dark:bg-gray-600">
               {/* Chatbot Message Content */}
               <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
   
@@ -342,14 +340,21 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             </View>
           </View>
   
-          {/* Recording Animation */}
-          {
-            isRecording && (
-              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
-                <Text className='text-base text-light'>......</Text>
-              </View>
-            )
-          }
+          {/* Recording Animation (only for the last message) */}
+          {/* Determine if this is the last item} */}
+          {index === messages.length - 1 && (
+            <>
+              {isRecording ? (
+                  <View className="rounded-xl p-2 ml-20 mt-3 bg-orange-500 dark:bg-orange-600">
+                    <Text className='text-base text-light'>Listening......</Text>
+                  </View>
+                ) : isRecordingSubmitting && (
+                  <View className="rounded-xl p-2 ml-20 mt-3 bg-orange-500 dark:bg-orange-600">
+                    <Text className='text-base text-light'>Translating...</Text>
+                  </View>
+                )}
+            </>
+          )}
         </>
       );
     } else {
@@ -386,7 +391,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ isRecording, setIsRecording ] = useState(false);
   const [ recording, setRecording ] = useState<Audio.Recording>();
   const [ permissionResponse, requestPermission ] = Audio.usePermissions();
-  const [ isSubmitting, setSubmitting ] = useState(false);
+  const [ isRecordingSubmitting, setRecordingSubmitting ] = useState(false);
 
   const startRecording = async () => {
     try {
@@ -443,10 +448,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const sendRecording = async (recordingUri: string | null) => {
     if (recordingUri != null) {
       // Encode recording content as a Base64 string
-      const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
       const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
         encoding: FileSystem.EncodingType.Base64,
       })
@@ -465,6 +466,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       const timeoutId = setTimeout(() => {
         controller.abort();
       }, timeout);
+
+      setRecordingSubmitting(true);
       
       try {
         const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
@@ -513,6 +516,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           setErrorMessage("There was a problem with the network request.")
           setErrorModalVisible(true);
         } 
+      } finally {
+        setRecordingSubmitting(false);
       }
     }
   };
@@ -603,7 +608,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       )}
 
       {isTaskCompleted === "null" && (
-        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
+        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-8' : 'pb-2'} bg-light dark:bg-dark`}>
           <Text className='text-sm font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
           {isRecording ? (
             <Pressable
