@@ -160,7 +160,7 @@ const register = () => {
                 value={form.username}
                 handleChangeText={(e) => setForm({ ...form, username: e })}
                 placeholder="Enter your username"
-                otherStyles="mt-10"
+                otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
               />
 
               <FormField
@@ -168,7 +168,7 @@ const register = () => {
                 value={form.password}
                 handleChangeText={(e) => setForm({ ...form, password: e })}
                 placeholder="Enter your password"
-                otherStyles="mt-7"
+                otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
               />
 
               <FormField
@@ -176,7 +176,7 @@ const register = () => {
                 value={form.confirmPassword}
                 handleChangeText={(e) => setForm({ ...form, confirmPassword: e })}
                 placeholder="Re-enter your password"
-                otherStyles="mt-7"
+                otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
               />
 
               <FormField
@@ -184,7 +184,7 @@ const register = () => {
                 value={form.enrolmentCode}
                 handleChangeText={(e) => setForm({ ...form, enrolmentCode: e })}
                 placeholder="Enter the enrollment code"
-                otherStyles="mt-7"
+                otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 keyboardType="default"
               />
 
