@@ -7,20 +7,19 @@ import { MaterialIcons } from '@expo/vector-icons';
 interface TaskFilterModalProps {
   headerMessage: string;
   taskFilterMessage: string;
+  currentTaskCategoryValue: number;
+  currentTaskStatusValue: number;
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  onConfirm: (categoryOfTask: number | null, statusOfTask: number | null) => void;  
-  onDismiss: () => void;
+  onConfirm: (categoryOfTask: number | null, statusOfTask: number | null) => void;
 }
 
-const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, modalVisible, onConfirm, onDismiss }) => {
+const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, currentTaskCategoryValue, currentTaskStatusValue, modalVisible, setModalVisible, onConfirm }) => {
     const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false);
-    const [ previousTaskCategoryValue, setPreviousTaskCategoryValue ] = useState('1');
-    const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState('1');
+    const [ selectedTaskCategoryValue, setSelectedTaskCategoryValue ] = useState('1');
 
     const [ isTaskStatusOpen, setIsTaskStatusOpen ] = useState(false);
-    const [ previousTaskStatusValue, setPreviousTaskStatusValue ] = useState('1');
-    const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState('1');
+    const [ selectedTaskStatusValue, setSelectedTaskStatusValue ] = useState('1');
 
     const taskCategoryItems = [
       {label: "Word Retrieval Task", value: "1"},
@@ -78,8 +77,8 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
                   setIsTaskStatusOpen(false)
                 }
               }
-              value={currentTaskCategoryValue}
-              setValue={setCurrentTaskCategoryValue}
+              value={selectedTaskCategoryValue}
+              setValue={setSelectedTaskCategoryValue}
               placeholder='--Select Category of Task--'
               placeholderStyle={{color: 'grey', fontWeight: '500', fontSize: 14}}
               showArrowIcon={true}
@@ -104,8 +103,8 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
                       setIsTaskCategoryOpen(false)
                     }
                   }
-                  value={currentTaskStatusValue}
-                  setValue={setCurrentTaskStatusValue}
+                  value={selectedTaskStatusValue}
+                  setValue={setSelectedTaskStatusValue}
                   placeholder='--Select Status of Task--'
                   placeholderStyle={{color: 'grey', fontWeight: '500', fontSize: 14}}
                   showArrowIcon={true}
@@ -134,25 +133,23 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
             onPress={() => {
               setIsTaskCategoryOpen(false);
               setIsTaskStatusOpen(false);
-              onDismiss();
+              setModalVisible(false);
             }}>
             <Text className='text-base' style={styles.actionText}>Dismiss</Text>
           </Pressable>
-          { (previousTaskCategoryValue !== currentTaskCategoryValue || previousTaskStatusValue !== currentTaskStatusValue) && (
+          {(currentTaskCategoryValue.toString() !== selectedTaskCategoryValue || currentTaskStatusValue.toString() !== selectedTaskStatusValue) && (
             <Pressable
               style={({ pressed }) => [
                 pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#0072B2"}
               ]}
-              disabled={previousTaskCategoryValue === currentTaskCategoryValue && previousTaskStatusValue === currentTaskStatusValue}
+              disabled={currentTaskCategoryValue.toString() === selectedTaskCategoryValue && currentTaskStatusValue.toString() === selectedTaskStatusValue}
               onPress={() => {
-                const categoryValue = convertStringToNumber(currentTaskCategoryValue);
-                const statusValue = convertStringToNumber(currentTaskStatusValue);
+                const categoryValue = convertStringToNumber(selectedTaskCategoryValue);
+                const statusValue = convertStringToNumber(selectedTaskStatusValue);
               
                 // Check if both conversions are valid numbers and not null
                 if (categoryValue !== null && !isNaN(categoryValue) && statusValue !== null && !isNaN(statusValue)) {
-                  // If both are valid numbers, set both the category and status to as previous value before calling onConfirm
-                  setPreviousTaskCategoryValue(currentTaskCategoryValue);
-                  setPreviousTaskStatusValue(currentTaskCategoryValue);
+                  // If both are valid numbers, call onConfirm
                   onConfirm(categoryValue, statusValue);
                 } else {
                   // Handle the case where conversion failed or null is encountered
@@ -161,8 +158,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
               }}>
               <Text className='text-base' style={styles.actionText}>Confirm</Text>
             </Pressable>
-            )
-          }
+          )}
         </View>
       </View>
     )

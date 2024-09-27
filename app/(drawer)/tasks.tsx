@@ -74,6 +74,8 @@ const Tasks: React.FC<TaskData> = () => {
   const [ taskFilterModalVisible, setTaskFilterModalVisible ] = useState(false);
   const [ taskFilterHeaderMessage, setTaskFilterHeaderMessage ] = useState('');
   const [ taskFilterMessage, setTaskFilterMessage ] = useState('');
+  const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState(1);
+  const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState(1);
 
   const maxTasks = 5; // Maximum number of tasks to keep in memory
   const flatListRef = useRef<FlatList<TaskData>>(null);
@@ -101,8 +103,6 @@ const Tasks: React.FC<TaskData> = () => {
     setRetrieving(true);
 
     try {
-      setDataStatusMessage("Loading task data...")
-
       if (appUser?.sessionToken == undefined) {
         // Introduce a 5-second delay before setting the error message to make user believe that fetching from api occurs
         setTimeout(() => {
@@ -183,6 +183,7 @@ const Tasks: React.FC<TaskData> = () => {
 
             setTasks(sortedTasks);
           } else {
+            console.log("No word retrieval tasks found.");
             setDataStatusMessage("No word retrieval tasks found.");
           }
         } 
@@ -236,6 +237,7 @@ const Tasks: React.FC<TaskData> = () => {
 
             setTasks(sortedTasks);
           } else {
+            console.log("No sentence retrieval tasks found.");
             setDataStatusMessage("No sentence retrieval tasks found.");
           }
         } 
@@ -289,6 +291,7 @@ const Tasks: React.FC<TaskData> = () => {
 
             setTasks(sortedTasks);
           } else {
+            console.log("No sentence retrieval tasks found.");
             setDataStatusMessage("No article reading tasks found.");
           }
         }
@@ -343,7 +346,7 @@ const Tasks: React.FC<TaskData> = () => {
 
       // TEMPORARY: Error due to spelling error in the routing (or no existing route)
       } else if (error instanceof SyntaxError) {
-        setDataStatusMessage("No task found.");
+        setDataStatusMessage("No tasks are found.");
       }    
     } finally {
       setRetrieving(false);
@@ -548,17 +551,21 @@ const Tasks: React.FC<TaskData> = () => {
       <TaskFilterModal 
         headerMessage={taskFilterHeaderMessage}
         taskFilterMessage={taskFilterMessage}
+        currentTaskCategoryValue={currentTaskCategoryValue}
+        currentTaskStatusValue={currentTaskStatusValue}
         modalVisible={taskFilterModalVisible}
         setModalVisible={setTaskFilterModalVisible}
         onConfirm={(categoryOfTask, statusOfTask) => {
           if (categoryOfTask !== null && statusOfTask !== null) {
             setTasks([]);
+            setCurrentTaskCategoryValue(categoryOfTask);
+            setCurrentTaskStatusValue(statusOfTask);
+
             fetchAllTasks({ categoryOfTask, statusOfTask });
           } else {
             console.warn("categoryOfTask is null. Fetching tasks skipped.");
           }
         }}
-        onDismiss={() => setTaskFilterModalVisible(false)}
       />
       
       <View className='flex-row justify-center mb-6'>
@@ -590,14 +597,14 @@ const Tasks: React.FC<TaskData> = () => {
                   <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
                   {/* TEMPORARY AS THERE IS NO OTHER TYPE OF TASK YET */}
                   {selectedTaskCategory == 1 && (
-                      <Pressable
+                    <Pressable
                       style={({ pressed }) => [
                         pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
                       ]}
                       onPress={() => {
                         // Refresh Button
                         fetchAllTasks();
-  
+
                         // Set retrieving true
                         setRetrieving(true);
                       }}>
