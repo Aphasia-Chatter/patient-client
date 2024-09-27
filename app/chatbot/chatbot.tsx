@@ -40,7 +40,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
 
-  // Task Name, Description, Completion Status
+  const [ taskDetailsModalVisible, setTaskDetailsModalVisible ] = useState(false);
   const [ taskName, setTaskName ] = useState('');
   const [ taskDescription, setTaskDescription ] = useState('');
   const [ isTaskCompleted, setIsTaskCompleted ] = useState(completedAt);
@@ -77,8 +77,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     setTimeout(async () => {
       // TODO: Refresh word retrieval chat history
       await fetchAllWordRetrievalSessionChatHistory();
+
+      if (flatListRef.current) {
+        flatListRef.current.scrollToEnd({ animated: true });
+      }
+
       setRefreshing(false);
-    });
+    }, 600);
   }, []);
 
   const fetchAllWordRetrievalSessionChatHistory = async () => {
@@ -350,9 +355,19 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       // Patient Input
       return (
         // Patient Message Bubble
-        <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
-          <Text className='text-base text-light'>{item.content}</Text>
-        </View>
+        <>
+          {
+            item.content.length == 0 ? (
+              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-orange-500 dark:bg-orange-600">
+                <Text className='text-base text-light'>Invalid input. Please try again</Text>
+              </View>
+            ) : (
+              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
+                <Text className='text-base text-light'>{item.content}</Text>
+              </View>
+            )
+          }
+        </>
       );
     }
   };
@@ -524,22 +539,21 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         modalVisible={errorModalVisible}
         setModalVisible={setErrorModalVisible}
       />
-      <TaskDetailsModal 
-        headerMessage={errorHeaderMessage}
-        name={errorHeaderMessage}
-        description={errorHeaderMessage}
-        status={errorHeaderMessage}
-        modalVisible={errorModalVisible}
-        setModalVisible={setErrorModalVisible}
+      <TaskDetailsModal
+        name={taskName}
+        description={taskDescription}
+        status={isTaskCompleted}
+        modalVisible={taskDetailsModalVisible}
+        setModalVisible={setTaskDetailsModalVisible}
       />
       {
-        messages.length >= 0 ? (
-          <View className="px-3 mb-6">
+        messages.length > 0 ? (
+          <View className="px-3 mb-6 flex-1">
             {/* Centered Container */}
             <View className="flex justify-center items-center w-full mt-3 my-3">
               {/* Chatbot Image Message Bubble */}
               <Pressable onPress={() => {
-                Alert.alert("Task Description", taskDescription)
+                setTaskDetailsModalVisible(true);
               }} className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
                 <ImageBackground 
                   className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4"
@@ -557,17 +571,16 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               data={messages}
               renderItem={renderMessage}
               keyExtractor={(item, index) => index.toString()}
-              // onEndReached={loadMoreMessages} // Load more messages when end is reached
-              onEndReachedThreshold={0.1} // Load more when 10% from the bottom
               showsVerticalScrollIndicator={false}
               ref={flatListRef}
               keyboardShouldPersistTaps="handled" // Change this to handled
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-              contentContainerStyle={[styles.flatListContent, { 
-                paddingBottom: isTaskCompleted ? 25 : 0 
-              }]}
+              onContentSizeChange={() => {
+                flatListRef.current?.scrollToEnd({ animated: true })
+              }}
+              contentContainerStyle={styles.flatListContent}
+              ListFooterComponent={<View style={{height: 105}} pointerEvents="none"/>}
               style={{ 
-                marginBottom: isTaskCompleted ? 325 : 0
+                marginBottom: isTaskCompleted ? 25 : 0
               }} 
               refreshControl={
                 <RefreshControl

@@ -482,25 +482,27 @@ const Tasks: React.FC<TaskData> = () => {
       {
         tasks.length == 0 ? (
           <View className='flex-1 justify-center align-bottom items-center'>
-            <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
             {
-              isRetrieving == false && (
-                <Pressable
-                  style={({ pressed }) => [
-                    pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
-                  ]}
-                  onPress={() => {
-                    // Refresh Button
-                    fetchAllTasks();
+              !isRetrieving && (
+                <>
+                  <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
+                  <Pressable
+                    style={({ pressed }) => [
+                      pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
+                    ]}
+                    onPress={() => {
+                      // Refresh Button
+                      fetchAllTasks();
 
-                    // Set retrieving true
-                    setRetrieving(true);
-                  }}>
-                  <View className='flex-row p-1'>
-                    <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
-                    <Text className='text-lg' style={styles.actionText}>Refresh</Text>
-                  </View>
-                </Pressable>
+                      // Set retrieving true
+                      setRetrieving(true);
+                    }}>
+                    <View className='flex-row p-1'>
+                      <SimpleLineIcons name="refresh" size={26} color='#fff' style={{ marginRight: 10 }} />
+                      <Text className='text-lg' style={styles.actionText}>Refresh</Text>
+                    </View>
+                  </Pressable>
+                </>
               )
             }
           </View>

@@ -4,21 +4,14 @@ import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface TaskDetailsModalProps {
-  headerMessage: string;
   name: string;
   description: string;
-  status: string;
+  status: string | string[];
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
 }
 
-const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
-  headerMessage,
-  modalVisible,
-  name,
-  description,
-  status,
-}) => {
+const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, status, modalVisible, setModalVisible}) => {
   const [nameOfTask, setNameOfTask] = useState(name);
   const [descriptionOfTask, setDescriptionOfTask] = useState(description);
   const [statusOfTask, setStatusOfTask] = useState(description);
@@ -26,53 +19,29 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   useEffect(() => {
     setNameOfTask(name);
     setDescriptionOfTask(description);
-    setStatusOfTask(status);
+    setStatusOfTask(status as string);
   }, [name, description, status]);
 
   // Modal Header
   const modalHeader = (
-    <View className="bg-orange-600" style={styles.modalHeader}>
+    <View className="bg-blue-500" style={styles.modalHeader}>
       <View className="flex-row items-center">
-        <MaterialIcons name="assessment" size={32} color="#fff" />
-        <Text style={styles.title}>{headerMessage}</Text>
+        <MaterialIcons name="info" size={32} color="#fff" />
+        <Text style={styles.title}>Task Details</Text>
       </View>
     </View>
   );
 
   // Modal Body
   const modalBody = (
-    <View style={styles.modalBody}>
-      <Text className="text-lg mb-2">{nameOfTask}</Text>
-      <View style={styles.row}>
-        <View style={styles.column}>
-          {/* Name of Task */}
-          <TextInput
-            style={styles.textInput}
-            placeholder="Name of Task"
-            placeholderTextColor="gray"
-            value={nameOfTask}
-            onChangeText={setNameOfTask}
-            autoFocus={true}
-          />
-          {/* Description of Task*/}
-          <TextInput
-            style={styles.textInput}
-            placeholder="Description Of Task"
-            placeholderTextColor="gray"
-            value={descriptionOfTask}
-            onChangeText={setDescriptionOfTask}
-          />
-          {/* Status of Task*/}
-          <TextInput
-            style={styles.textInput}
-            placeholder="Status Of Task"
-            placeholderTextColor="gray"
-            value={statusOfTask}
-            onChangeText={setStatusOfTask}
-          />
-        </View>
-      </View>
-    </View>
+  <View style={styles.modalBody}>
+    {/* Name of Task */}
+    <Text className='text-lg mb-4 text-dark'>Name: {nameOfTask}</Text>
+    {/* Description of Task*/}
+    <Text className='text-lg mb-4 text-dark'>Description: {descriptionOfTask}</Text>
+    {/* Status of Task*/}
+    <Text className='text-lg mb-4 text-dark'>Status: {statusOfTask}</Text>
+  </View>
   );
 
   // Modal Footer
@@ -87,8 +56,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             { ...styles.actions, backgroundColor: "#858585" },
           ]}
           onPress={() => {
-            setNameOfTask("");
-            setDescriptionOfTask("");
+            setModalVisible(false);
           }}
         >
           <Text className="text-base" style={styles.actionText}>
