@@ -67,15 +67,14 @@ const Tasks: React.FC<TaskData> = () => {
   const [ dialogMessage, setDialogMessage ] = useState('');
 
   const [ tasks, setTasks ] = useState<TaskData[]>([]);
-  const [ selectedTaskCategory, setSelectedTaskCategory ] = useState(1); // Default set to word retrieval
-  const [ selectedTaskCategoryName, setSelectedTaskCategoryName ] = useState('Word Retrieval'); //
-  const [ selectedTaskId, setSelectedTaskId ] = useState('');
+  const [ currentTaskCategory, setCurrentTaskCategory ] = useState(1); // Default set to word retrieval
+  const [ currentTaskStatus, setCurrentTaskStatus ] = useState(1);
+  const [ currentTaskCategoryName, setCurrentTaskCategoryName ] = useState('Word Retrieval'); //
+  const [ currentTaskId, setCurrentTaskId ] = useState('');
 
   const [ taskFilterModalVisible, setTaskFilterModalVisible ] = useState(false);
   const [ taskFilterHeaderMessage, setTaskFilterHeaderMessage ] = useState('');
   const [ taskFilterMessage, setTaskFilterMessage ] = useState('');
-  const [ currentTaskCategoryValue, setCurrentTaskCategoryValue ] = useState(1);
-  const [ currentTaskStatusValue, setCurrentTaskStatusValue ] = useState(1);
 
   const maxTasks = 5; // Maximum number of tasks to keep in memory
   const flatListRef = useRef<FlatList<TaskData>>(null);
@@ -134,8 +133,8 @@ const Tasks: React.FC<TaskData> = () => {
         // Use ipconfig to find ip address of your pc in the local network
         // Determine the endpoint based on the presence of the wordRetrievalTask key
         if (additionalParams.categoryOfTask == 1) {
-          setSelectedTaskCategory(1);
-          setSelectedTaskCategoryName('Word Retrieval')
+          setCurrentTaskCategory(1);
+          setCurrentTaskCategoryName('Word Retrieval')
           setTaskFilterModalVisible(false);
 
           response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
@@ -188,8 +187,8 @@ const Tasks: React.FC<TaskData> = () => {
           }
         } 
         else if (additionalParams.categoryOfTask == 2) {
-          setSelectedTaskCategory(2);
-          setSelectedTaskCategoryName('Sentence Retrieval')
+          setCurrentTaskCategory(2);
+          setCurrentTaskCategoryName('Sentence Retrieval')
           setTaskFilterModalVisible(false);
 
           response = await fetch(`https://aphasia.mooo.com/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
@@ -242,8 +241,8 @@ const Tasks: React.FC<TaskData> = () => {
           }
         } 
         else if (additionalParams.categoryOfTask == 3) {
-          setSelectedTaskCategory(3);
-          setSelectedTaskCategoryName('Article Reading')
+          setCurrentTaskCategory(3);
+          setCurrentTaskCategoryName('Article Reading')
           setTaskFilterModalVisible(false);
 
           response = await fetch(`https://aphasia.mooo.com/api/patient/get-article-reading-task?${params.toString()}`, {
@@ -364,14 +363,14 @@ const Tasks: React.FC<TaskData> = () => {
     setDialogModalVisible(false);
     setSubmitting(true);
 
-    if (selectedTaskCategory == null) {
+    if (currentTaskCategory == null) {
       setErrorHeaderMessage("MISSING_INPUT")
       setErrorMessage("Please select a task category")
       setErrorModalVisible(true);
       setSubmitting(false);
     }
     else {
-      if (selectedTaskCategory === 1) {
+      if (currentTaskCategory === 1) {
         try {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
@@ -383,7 +382,7 @@ const Tasks: React.FC<TaskData> = () => {
             body: JSON.stringify({
               username: username,
               sessionToken: sessionToken,
-              taskID: selectedTaskId,
+              taskID: currentTaskId,
             }),
             signal: signal
           });
@@ -404,7 +403,7 @@ const Tasks: React.FC<TaskData> = () => {
               pathname: "/chatbot/chatbot",
               params: {
                 taskCategory: 1,
-                filePath: tasks.find(task => task.task.id === selectedTaskId)?.word_retrieval_task.imagePath,
+                filePath: tasks.find(task => task.task.id === currentTaskId)?.word_retrieval_task.imagePath,
                 taskSessionID: jsonResponse.data.taskSessionID,
                 taskID: jsonResponse.data.taskID,
                 completedAt: "null"
@@ -433,9 +432,9 @@ const Tasks: React.FC<TaskData> = () => {
           setSubmitting(false);
         }
         
-      } else if (selectedTaskCategory === 2) {
+      } else if (currentTaskCategory === 2) {
 
-      } else if (selectedTaskCategory === 3) {
+      } else if (currentTaskCategory === 3) {
 
       } else {
         setErrorHeaderMessage("INVALID_INPUT")
@@ -513,7 +512,7 @@ const Tasks: React.FC<TaskData> = () => {
                     ]}
                     onPress={isRefreshing ? null :() => {
                       // handle onPress
-                      setSelectedTaskId(item.task.id);
+                      setCurrentTaskId(item.task.id);
                       setDialogHeaderMessage("Start Task");
                       setDialogMessage(`Are you sure you want to begin '${item.task.name}' task? Note that the time starts upon confirmation.`);
                       setDialogModalVisible(true);
@@ -551,15 +550,15 @@ const Tasks: React.FC<TaskData> = () => {
       <TaskFilterModal 
         headerMessage={taskFilterHeaderMessage}
         taskFilterMessage={taskFilterMessage}
-        currentTaskCategoryValue={currentTaskCategoryValue}
-        currentTaskStatusValue={currentTaskStatusValue}
+        currentTaskCategoryValue={currentTaskCategory}
+        currentTaskStatusValue={currentTaskStatus}
         modalVisible={taskFilterModalVisible}
         setModalVisible={setTaskFilterModalVisible}
         onConfirm={(categoryOfTask, statusOfTask) => {
           if (categoryOfTask !== null && statusOfTask !== null) {
             setTasks([]);
-            setCurrentTaskCategoryValue(categoryOfTask);
-            setCurrentTaskStatusValue(statusOfTask);
+            setCurrentTaskCategory(categoryOfTask);
+            setCurrentTaskStatus(statusOfTask);
 
             fetchAllTasks({ categoryOfTask, statusOfTask });
           } else {
@@ -585,7 +584,7 @@ const Tasks: React.FC<TaskData> = () => {
             </Pressable>
           )
         }
-        <Text className='font-bold text-xl mt-1 text-dark dark:text-light'>{selectedTaskCategoryName}</Text>
+        <Text className='font-bold text-xl mt-1 text-dark dark:text-light'>{currentTaskCategoryName}</Text>
       </View>
 
       {
@@ -595,8 +594,6 @@ const Tasks: React.FC<TaskData> = () => {
               !isRetrieving && (
                 <>
                   <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
-                  {/* TEMPORARY AS THERE IS NO OTHER TYPE OF TASK YET */}
-                  {selectedTaskCategory == 1 && (
                     <Pressable
                       style={({ pressed }) => [
                         pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}
@@ -613,13 +610,11 @@ const Tasks: React.FC<TaskData> = () => {
                         <Text className='text-lg' style={styles.actionText}>Refresh</Text>
                       </View>
                     </Pressable>
-                    )
-                  }
                 </>
               )
             }
           </View>
-        ) : tasks.length > 0 && selectedTaskCategory == 1 ? (
+        ) : tasks.length > 0 && currentTaskCategory == 1 ? (
           <FlatList
             data={tasks}
             renderItem={renderWordRetrievalTaskItem}
@@ -636,9 +631,9 @@ const Tasks: React.FC<TaskData> = () => {
               />
             }
           />
-        ) : tasks.length > 0 && selectedTaskCategory == 2 ? (
+        ) : tasks.length > 0 && currentTaskCategory == 2 ? (
           <></>
-        ) : tasks.length > 0 && selectedTaskCategory == 3 ? (
+        ) : tasks.length > 0 && currentTaskCategory == 3 ? (
           <></>
         ) : (
           <></>
