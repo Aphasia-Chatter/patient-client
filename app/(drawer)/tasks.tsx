@@ -334,6 +334,8 @@ const Tasks: React.FC<TaskData> = () => {
           jsonResponse = await response.json();
     
           if (response.ok) {
+            let tasks = jsonResponse.data.tasks;
+
             if (tasks.length == 0) {
               setDataStatusMessage("No tasks are found.");
             } else {
@@ -594,7 +596,11 @@ const Tasks: React.FC<TaskData> = () => {
             setCurrentTaskStatus(statusOfTask);
             setTasks([]);
 
-            setLoadingFeedbackModalVisible(true);
+            // TEMPORARY: Error due to spelling error in the routing (or no existing route)
+            if (categoryOfTask == 1) {
+              setLoadingFeedbackModalVisible(true);
+            }
+
             fetchAllTasks({ categoryOfTask, statusOfTask });
           } else {
             console.warn("categoryOfTask is null. Fetching tasks skipped.");
