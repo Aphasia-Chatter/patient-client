@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from "expo-av";
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl, Alert } from "react-native";
+import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import * as FileSystem from 'expo-file-system';
+import * as Speech from 'expo-speech';
 
 import { useLocalSearchParams } from 'expo-router'
 
@@ -21,11 +22,10 @@ type PatientWordRetrievalTaskImageData = {
 type Message = {
   author: 'bot' | 'user';
   content: string;
+  isTTSPlaying?: boolean;
 };
 
-const dummyMessages: Message[] = [];
-
-const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = dummyMessages }) => {
+const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = [] }) => {
   const { taskCategory, filePath, taskSessionID, taskID, completedAt } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
@@ -39,43 +39,35 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
 
-  // name and title
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  // Task Name and description
+  const [ taskName, setTaskName ] = useState('');
+  const [ taskDescription, setTaskDescription ] = useState('');
 
   // Message History
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
-  const [ loading, setLoading ] = useState(false);
-  const maxMessages = 200; // Maximum number of messages to keep in memory
   const flatListRef = useRef<FlatList<Message>>(null);
 
+  const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);
+
   // Completed
-  const [completed, setCompleted] = useState(completedAt);
+  const [ isTaskCompleted, setIsTaskCompleted ] = useState(completedAt);
 
   useEffect(() => {
-    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, completed });
+    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
   
     if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
-        console.log(completed)
         // Get word retrieval task
         fetchWordRetrievalTask();
   
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
-
-        console.log(filePath);
   
         // TODO: Get word retrieval chat history at launch
         fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
       console.error('Invalid task category, task id or filePath');
-    }
-  
-    // Scroll to the bottom when messages change
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
     }
   }, []);
 
@@ -118,7 +110,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
       if (response.ok) {
         // Set chat history messages
-        console.log(`Messages: ${jsonResponse.data.messages[0]}`);
         setMessages(jsonResponse.data.messages);
       } else {
         setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
@@ -169,8 +160,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           const data = jsonResponse.data;
           const name = data.task.name;
           const description = data.task.description;
-          setName(name);
-          setDescription(description);
+          setTaskName(name);
+          setTaskDescription(description);
         }
      } catch(error) {
         console.error('Error:', error);
@@ -245,20 +236,112 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   };
 
   const renderMessage: ListRenderItem<Message> = ({ item, index }) => {
+    const toggleTTS = () => {
+      // Update the message state
+      const updatedMessages = messages.map((msg, idx) => {
+        if (idx === index) {
+          // Toggle the TTS playing state
+          const newTTSState = !msg.isTTSPlaying;
+          if (newTTSState) {
+            // If it's going to play, stop any currently playing TTS
+            Speech.stop();
+
+            // Start TTS
+            Speech.speak(msg.content, {
+              rate: 0.7,
+              pitch: 1,
+              voice:"com.apple.voice.compact.en-US.Samantha",
+              onStart:() => setIsTTSPlaying(true), 
+              onPause:() => setIsTTSPlaying(false), 
+              onResume:() => setIsTTSPlaying(true),
+              onDone:() => {
+                setIsTTSPlaying(false)
+                
+                // Update the message state to set isTTSPlaying to false
+                setMessages(prevMessages =>
+                  prevMessages.map((m, i) =>
+                    i === index ? { ...m, isTTSPlaying: false } : m
+                  )
+                );
+              },
+              onStopped:() => {
+                setIsTTSPlaying(false)
+                
+                // Ensure message state is also updated here
+                setMessages(prevMessages =>
+                  prevMessages.map((m, i) =>
+                    i === index ? { ...m, isTTSPlaying: false } : m
+                  )
+                );
+              },
+              onError: () => {
+                setIsTTSPlaying(false)
+
+                // Handle error
+                setMessages(prevMessages =>
+                  prevMessages.map((m, i) =>
+                    i === index ? { ...m, isTTSPlaying: false } : m
+                  )
+                );
+              }
+            });
+          } else {
+            Speech.stop(); // Stop TTS
+          }
+          return { ...msg, isTTSPlaying: newTTSState };
+        }
+        return msg;
+      });
+  
+      setMessages(updatedMessages); // Update the messages state
+    };
+  
     if (item.author === "bot") {
       // Chatbot Response
       return (
-        <View key={index} className="flex-row justify-start items-start mt-3">
-          {/* Chatbot Icon */}
-          <Image
-            className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
-            source={icons.chatbot}
-          />
-          {/* Chatbot Message Bubble */}
-          <View className="rounded-xl p-2 flex-1 bg-gray-200 dark:bg-gray-600">
-            <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
+        <>
+          <View key={index} className="flex-row justify-start items-start mt-3">
+            {/* Chatbot Icon */}
+            <Image
+              className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
+              source={icons.chatbot}
+            />
+            {/* Chatbot Message Bubble */}
+            <View className="rounded-xl p-2 bg-gray-200 dark:bg-gray-600">
+              {/* Chatbot Message Content */}
+              <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
+  
+              {/* Chatbot Message TTS Button */}
+              <Pressable 
+                key={index}
+                style={({ pressed }) => [
+                  pressed ? { opacity: 0.7 } : {}, 
+                  { 
+                    ...styles.actions, 
+                    backgroundColor: item.isTTSPlaying ? "red" : "green" // Change color based on TTS state
+                  }
+                ]}
+                onPress={toggleTTS}>
+                {
+                  item.isTTSPlaying ? (
+                    <MaterialCommunityIcons name="text-to-speech-off" size={36} color='#fff'/>
+                  ) : (
+                    <MaterialCommunityIcons name="text-to-speech" size={36} color='#fff'/>
+                  )
+                }
+              </Pressable>
+            </View>
           </View>
-        </View>
+  
+          {/* Recording Animation */}
+          {
+            isRecording && (
+              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
+                <Text className='text-base text-light'>......</Text>
+              </View>
+            )
+          }
+        </>
       );
     } else {
       // Patient Input
@@ -271,156 +354,148 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
   };
 
+  useEffect(() => {
+    // Cleanup function to stop speech when exiting the page
+    return () => {
+      console.log('Stopping Speech');
+      Speech.stop(); // Stop the speech synthesis
+    };
+  }, []); // Empty dependency array means this runs on unmount
+  
   // Recording
-const [isRecording, setIsRecording] = useState(false);
-const [recording, setRecording] = useState<Audio.Recording>();
-const [permissionResponse, requestPermission] = Audio.usePermissions();
-const [isSubmitting, setSubmitting] = useState(false);
+  const [ isRecording, setIsRecording ] = useState(false);
+  const [ recording, setRecording ] = useState<Audio.Recording>();
+  const [ permissionResponse, requestPermission ] = Audio.usePermissions();
+  const [ isSubmitting, setSubmitting ] = useState(false);
 
-const startRecording = async () => {
-  try {
-    if (!permissionResponse || permissionResponse.status !== 'granted') {
-      console.log('Requesting permission..');
-      await requestPermission();
-    }
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-      playsInSilentModeIOS: true,
-      playThroughEarpieceAndroid: true,
-      interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-      shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
-    });
-
-    console.log('Starting recording..');
-    const { recording } = await Audio.Recording.createAsync(
-      Audio.RecordingOptionsPresets.HIGH_QUALITY
-    );
-
-    setRecording(recording);
-
-    console.log('Recording started');
-    setIsRecording(true);
-  } catch (err) {
-    console.error('Failed to start recording', err);
-  }
-};
-
-const stopRecording = async () => {
-  try {
-    if (recording) {
-      console.log('Stopping recording..');
-      await recording.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-      });
-
-      const recordingUri = recording.getURI();
-      console.log('Recording stopped and stored at', recordingUri);
-
-      sendRecording(recordingUri);
-
-      setIsRecording(false);
-    } else {
-      console.log('No recording to stop');
-    }
-  } catch (err) {
-    console.error('Failed to stop recording', err);
-  }
-};
-
-// const playRecording = async () => {
-//   if (recording != null) {
-//     const uri = recording.getURI();
-
-//     if (uri != null) {
-//       console.log('Loading Sound');
-//       const { sound } = await Audio.Sound.createAsync({ uri });
-
-//       console.log('Playing Sound');
-//       await sound.playAsync();
-//     }
-//   }
-// };
-
-const sendRecording = async (recordingUri: string | null) => {
-  if (recordingUri != null) {
-    // Encode recording content as a Base64 string
-    const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    })
-
-    // Attach the Base64 string to the key 'audioFile'
-    const formData = new FormData();
-    formData.append('audioFileData', recordingBlob);
-    formData.append('audioFilePath', recordingUri);
-    formData.append('username', appUser?.username || '');
-    formData.append('sessionToken', appUser?.sessionToken || '');
-    formData.append('taskSessionID', taskSessionID?.toString() || '');
-
-    console.log(formData)
-
-    const controller = new AbortController();
-    const timeout = 5000;
-    const signal = controller.signal;
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, timeout);
-    
+  const startRecording = async () => {
     try {
-      const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
-        },
-        body: formData,
-        signal: signal
+      if (!permissionResponse || permissionResponse.status !== 'granted') {
+        console.log('Requesting permission..');
+        await requestPermission();
+      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+        playsInSilentModeIOS: true,
+        playThroughEarpieceAndroid: true,
+        interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+        shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
       });
 
-      // Clear the timeout if the request is successful
-      clearTimeout(timeoutId);
+      console.log('Starting recording..');
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
 
-      const result = await response.json();
+      setRecording(recording);
 
-      if (response.ok) {
-        // Get chatbot response from the backend
-        console.log("success");
-        console.log("transcription from backend:", result.data.transcription);
-
-        // Update chat history
-        const newMessages = [...messages];
-        newMessages.push({
-          author: 'user',
-          content: result.data.transcription,
-        }, {
-          author: 'bot',
-          content: result.data.message,
-        });
-        setMessages(newMessages);
-
-        if (result.data.completed) {
-          setCompleted("true");
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      if (signal.aborted) {
-        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-        setErrorMessage("The request has been aborted due to timeout.")
-        setErrorModalVisible(true);
-      }
-      else if (error instanceof TypeError) { // Error such as Network request failed
-        setErrorHeaderMessage("NETWORK REQUEST ERROR")
-        setErrorMessage("There was a problem with the network request.")
-        setErrorModalVisible(true);
-      } 
+      console.log('Recording started');
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Failed to start recording', err);
     }
-  }
-};
+  };
+
+  const stopRecording = async () => {
+    try {
+      if (recording) {
+        console.log('Stopping recording..');
+        await recording.stopAndUnloadAsync();
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+        });
+
+        const recordingUri = recording.getURI();
+        console.log('Recording stopped and stored at', recordingUri);
+
+        sendRecording(recordingUri);
+
+        setIsRecording(false);
+      } else {
+        console.log('No recording to stop');
+      }
+    } catch (err) {
+      console.error('Failed to stop recording', err);
+    }
+  };
+
+  const sendRecording = async (recordingUri: string | null) => {
+    if (recordingUri != null) {
+      // Encode recording content as a Base64 string
+      const recordingBase64 = await FileSystem.readAsStringAsync(recordingUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      })
+
+      // Attach the Base64 string to the key 'audioFile'
+      const formData = new FormData();
+      formData.append('audioFileData', recordingBlob);
+      formData.append('audioFilePath', recordingUri);
+      formData.append('username', appUser?.username || '');
+      formData.append('sessionToken', appUser?.sessionToken || '');
+      formData.append('taskSessionID', taskSessionID?.toString() || '');
+
+      const controller = new AbortController();
+      const timeout = 5000;
+      const signal = controller.signal;
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, timeout);
+      
+      try {
+        const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
+          },
+          body: formData,
+          signal: signal
+        });
+
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Get chatbot response from the backend
+          console.log("transcription from backend:", result.data.transcription);
+
+          // Update chat history
+          const newMessages = [...messages];
+          newMessages.push({
+            author: 'user',
+            content: result.data.transcription,
+          }, {
+            author: 'bot',
+            content: result.data.message,
+          });
+          setMessages(newMessages);
+
+          if (result.data.completed) {
+            setIsTaskCompleted("true");
+            Alert.alert('Task Completed!')
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (signal.aborted) {
+          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+          setErrorMessage("The request has been aborted due to timeout.")
+          setErrorModalVisible(true);
+        }
+        else if (error instanceof TypeError) { // Error such as Network request failed
+          setErrorHeaderMessage("NETWORK REQUEST ERROR")
+          setErrorMessage("There was a problem with the network request.")
+          setErrorModalVisible(true);
+        } 
+      }
+    }
+  };
 
   useEffect(() => {
     return recording
@@ -432,7 +507,7 @@ const sendRecording = async (recordingUri: string | null) => {
   }, [recording]);
 
   useEffect(() => {
-    // Scroll to the bottom when messages change
+    // Scroll to the bottom when new messages are added
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
@@ -446,9 +521,58 @@ const sendRecording = async (recordingUri: string | null) => {
         modalVisible={errorModalVisible}
         setModalVisible={setErrorModalVisible}
       />
-      {completed === "null" ? (
+      {
+        messages.length >= 0 ? (
+          <View className="px-3 mb-6">
+            {/* Centered Container */}
+            <View className="flex justify-center items-center w-full mt-3 my-3">
+              {/* Chatbot Image Message Bubble */}
+              <Pressable onPress={() => {
+                Alert.alert("Task Description", taskDescription)
+              }} className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
+                <ImageBackground 
+                  className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4"
+                  resizeMode="cover"
+                >
+                  <Image
+                    source={{ uri: `data:image/jpeg;base64,${wordRetrievalImageData?.data}` }}
+                    className="w-full h-full"
+                    resizeMode="contain"
+                  />
+                </ImageBackground>
+              </Pressable>
+            </View>
+            <FlatList
+              data={messages}
+              renderItem={renderMessage}
+              keyExtractor={(item, index) => index.toString()}
+              // onEndReached={loadMoreMessages} // Load more messages when end is reached
+              onEndReachedThreshold={0.1} // Load more when 10% from the bottom
+              showsVerticalScrollIndicator={false}
+              ref={flatListRef}
+              keyboardShouldPersistTaps="handled" // Change this to handled
+              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+              contentContainerStyle={[styles.flatListContent, { 
+                paddingBottom: isTaskCompleted ? 25 : 0 
+              }]}
+              style={{ 
+                marginBottom: isTaskCompleted ? 325 : 0
+              }} 
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }
+            />
+          </View>
+      ) : (
+        <View className='flex-1'></View>
+      )}
+
+      {isTaskCompleted === "null" && (
         <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-9' : 'pb-2'} bg-light dark:bg-dark`}>
-          <Text className='text-base font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
+          <Text className='text-sm font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
           {isRecording ? (
             <Pressable
               style={({ pressed }) => [
@@ -483,10 +607,6 @@ const sendRecording = async (recordingUri: string | null) => {
             <View className='flex-1'></View>
           )}
         </View>
-      ) : completed !== undefined && (
-        <View className='absolute bottom-0 left-0 right-0 justify-center items-center pt-1 pb-10 bg-light dark:bg-dark'>
-          <Text className='text-xl font-medium text-dark dark:text-light'>Word Retrieval Task Completed!</Text>
-        </View>
       )}
     </View>
   );
@@ -498,5 +618,16 @@ const styles = StyleSheet.create({
   flatListContent: {
     paddingHorizontal: 4,
     paddingBottom: 148, // Ensure some space at the bottom for the overlay button
+  },
+  actions:{
+    borderRadius: '100%',
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%'
+  },
+  actionText:{
+    color:"#fff",
+    fontSize: 12
   },
 });

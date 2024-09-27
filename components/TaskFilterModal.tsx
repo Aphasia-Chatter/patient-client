@@ -49,7 +49,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
       }
     };
 
-
+    
     // Modal Header
     const modalHeader=(
       <View className='bg-blue-500' style={styles.modalHeader}>
@@ -186,11 +186,12 @@ const styles = StyleSheet.create({
       flex:1,
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 16
     },
     modalContainer:{
       backgroundColor:"#f9fafb",
       width:"100%",
-      borderRadius:5
+      borderRadius:5,
     },
     modalHeader:{
       paddingStart: 16,

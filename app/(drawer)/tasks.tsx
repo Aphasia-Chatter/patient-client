@@ -462,23 +462,21 @@ const Tasks: React.FC<TaskData> = () => {
       <View className='flex-row justify-center mb-6'>
         {
           tasks.length > 0 && isRetrieving == false && (
-            <>
-              <Pressable
-              style={({ pressed }) => [
-                pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
-              ]}
-              onPress={() => {
-                // Filter Button
-                setTaskFilterHeaderMessage("Filter Task")
-                setTaskFilterMessage("Please filter the task to your liking.")
-                setTaskFilterModalVisible(true);
-              }}>
-              <MaterialCommunityIcons name="filter-variant" size={24} color='#fff'/>
-              </Pressable>
-              <Text className='font-bold text-center text-2xl text-dark dark:text-light'>{selectedTaskCategoryName}</Text>
-            </>
+            <Pressable
+            style={({ pressed }) => [
+              pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0", position: 'absolute', right: 0}
+            ]}
+            onPress={() => {
+              // Filter Button
+              setTaskFilterHeaderMessage("Filter Task")
+              setTaskFilterMessage("Please filter the task to your liking.")
+              setTaskFilterModalVisible(true);
+            }}>
+            <MaterialCommunityIcons name="filter-variant" size={24} color='#fff'/>
+            </Pressable>
           )
         }
+        <Text className='font-bold text-xl mt-1 text-dark dark:text-light'>{selectedTaskCategoryName}</Text>
       </View>
 
       {

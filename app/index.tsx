@@ -93,7 +93,7 @@ const Welcome = () => {
             </View>
 
             {/* Tagline */}
-            <Text className="text-xl font-pregular mt-7 text-center text-dark dark:text-light">
+            <Text className="text-lg font-normal mt-7 text-center text-dark dark:text-light">
               Let's get started on your journey to improve your communication!
             </Text>
 
