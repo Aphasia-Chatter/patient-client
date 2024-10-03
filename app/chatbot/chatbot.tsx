@@ -49,7 +49,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
   const flatListRef = useRef<FlatList<Message>>(null);
   const previousMessageCount = useRef(messages.length);
-  const [atBottom, setAtBottom] = useState(true); // State to track if at bottom
+  const [scrollEnabled, setScrollEnabled] = useState(true)
 
   // TTS Status
   const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);
@@ -325,12 +325,22 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                     ...styles.actions,
                     marginTop: 12,
                     margin: 4,
-                    backgroundColor: item.isTTSPlaying ? "red" : "green" // Change color based on TTS state
+                    backgroundColor: isRecording 
+                    ? "grey" // Background is grey when recording
+                    : item.isTTSPlaying 
+                      ? "red"  // Background is red when TTS is playing
+                      : "green" // Default background is green
                   }
                 ]}
-                onPress={toggleTTS}>
+                onPress={() => {
+                  // Disable TTS while recording
+                  if (!isRecording) {
+                    toggleTTS();
+                  } 
+                }}
+                disabled={isRecording}> 
                 {
-                  item.isTTSPlaying ? (
+                  (item.isTTSPlaying || isRecording) ? (
                     <MaterialCommunityIcons name="text-to-speech-off" size={24} color='#fff'/>
                   ) : (
                     <MaterialCommunityIcons name="text-to-speech" size={24} color='#fff'/>
@@ -395,6 +405,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         allowsRecordingIOS: true,
         interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
         playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
         playThroughEarpieceAndroid: true,
         interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
         shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
@@ -420,7 +431,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         console.log('Stopping recording..');
         await recording.stopAndUnloadAsync();
         await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
+          allowsRecordingIOS: true,
+          interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: true,
+          interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+          shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
         });
 
         const recordingUri = recording.getURI();
@@ -581,6 +598,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 flatListRef.current?.scrollToEnd({ animated: true })
               }}
               scrollEventThrottle={16}
+              scrollEnabled={scrollEnabled}
               contentContainerStyle={styles.flatListContent}
               ListFooterComponent={<View style={{height: 105}} pointerEvents="none"/>}
               style={{ 
