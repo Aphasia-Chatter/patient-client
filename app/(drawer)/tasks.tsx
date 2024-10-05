@@ -101,7 +101,7 @@ const Tasks: React.FC<TaskData> = () => {
 
   const fetchAllTasks = async (additionalParams: TaskFilterType = {}) => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -198,127 +198,6 @@ const Tasks: React.FC<TaskData> = () => {
             setDataStatusMessage("No word retrieval tasks found.");
           }
         } 
-        else if (additionalParams.categoryOfTask == 2) {
-          setCurrentTaskCategory(2);
-          setCurrentTaskCategoryName('Sentence Retrieval')
-          setTaskFilterModalVisible(false);
-
-          response = await fetch(`https://aphasia.mooo.com/api/patient/get-sentence-retrieval-task?${params.toString()}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            signal: signal
-          });
-
-          // Clear the timeout if the request is successful
-          clearTimeout(timeoutId);
-
-          jsonResponse = await response.json();
-          
-          if (response.ok) {
-            let tasks = jsonResponse.data.tasks;
-
-            if (tasks.length == 0) {
-              setDataStatusMessage("No sentence retrieval tasks found.");
-            }
-            else {
-              if (additionalParams.statusOfTask == 2) {
-                // Keep only tasks with status "Not Started"
-                tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
-                
-              } else if (additionalParams.statusOfTask == 3) {
-                // Keep only tasks with status "In Progress"
-                tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
-  
-              } else if (additionalParams.statusOfTask == 4) {
-                // Keep only tasks with status "Completed"
-                tasks = tasks.filter((task: TaskData) => task.status === "Completed");
-              }
-  
-              if (tasks.length == 0) {
-                setDataStatusMessage("No tasks are found.");
-              } else {
-                // Sort the tasks by createdAt before setting them
-                const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
-                  const dateA = new Date(a.task.createdAt);
-                  const dateB = new Date(b.task.createdAt);
-                
-                  if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                    // Handle invalid dates, e.g., put them at the end
-                    return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
-                  }
-                
-                  // Sort by latest first
-                  return dateB.getTime() - dateA.getTime();
-                });
-  
-                setTasks(sortedTasks);
-              }
-            }
-          } else {
-            console.log("No sentence retrieval tasks found.");
-            setDataStatusMessage("No sentence retrieval tasks found.");
-          }
-        } 
-        else if (additionalParams.categoryOfTask == 3) {
-          setCurrentTaskCategory(3);
-          setCurrentTaskCategoryName('Article Reading')
-          setTaskFilterModalVisible(false);
-
-          response = await fetch(`https://aphasia.mooo.com/api/patient/get-article-reading-task?${params.toString()}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            signal: signal
-          });
-
-          // Clear the timeout if the request is successful
-          clearTimeout(timeoutId);
-
-          jsonResponse = await response.json();
-    
-          if (response.ok) {
-            let tasks = jsonResponse.data.tasks;
-
-            if (additionalParams.statusOfTask == 2) {
-              // Keep only tasks with status "Not Started"
-              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
-              
-            } else if (additionalParams.statusOfTask == 3) {
-              // Keep only tasks with status "In Progress"
-              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
-
-            } else if (additionalParams.statusOfTask == 4) {
-              // Keep only tasks with status "Completed"
-              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
-            }
-
-            if (tasks.length == 0) {
-              setDataStatusMessage("No tasks are found.");
-            } else {
-              // Sort the tasks by createdAt before setting them
-              const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
-                const dateA = new Date(a.task.createdAt);
-                const dateB = new Date(b.task.createdAt);
-              
-                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                  // Handle invalid dates, e.g., put them at the end
-                  return isNaN(dateA.getTime()) ? 1 : -1; // Push invalid dates to the end
-                }
-              
-                // Sort by latest first
-                return dateB.getTime() - dateA.getTime();
-              });
-
-              setTasks(sortedTasks);
-            }
-          } else {
-            console.log("No sentence retrieval tasks found.");
-            setDataStatusMessage("No article reading tasks found.");
-          }
-        }
         else { // Default gets word retrieval task
           response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task?${params.toString()}`, {
             method: 'GET',
@@ -386,7 +265,7 @@ const Tasks: React.FC<TaskData> = () => {
 
   const createTaskSession = async () => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();

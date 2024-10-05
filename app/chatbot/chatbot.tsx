@@ -89,7 +89,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
   const fetchAllWordRetrievalSessionChatHistory = async () => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -141,7 +141,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
   const fetchWordRetrievalTask = async () => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -187,7 +187,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
   const fetchWordRetrievalTaskImage = async (imagePath: string) => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -470,7 +470,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       formData.append('taskSessionID', taskSessionID?.toString() || '');
 
       const controller = new AbortController();
-      const timeout = 5000;
+      const timeout = 10000;
       const signal = controller.signal;
       const timeoutId = setTimeout(() => {
         controller.abort();

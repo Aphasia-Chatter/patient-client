@@ -25,7 +25,7 @@ const login = () => {
 
   const submit = async (options = {}) => {
     const controller = new AbortController();
-    const timeout = 5000;
+    const timeout = 10000;
     const signal = controller.signal;
     const timeoutId = setTimeout(() => {
       controller.abort();

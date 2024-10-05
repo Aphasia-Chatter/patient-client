@@ -23,8 +23,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
 
     const taskCategoryItems = [
       {label: "Word Retrieval Task", value: "1"},
-      {label: "Sentence Retrieval Task", value: "2"},
-      {label: "Article Reading Task", value: "3"}
+
     ]
 
     const taskStatusItems = [
