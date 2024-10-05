@@ -98,7 +98,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
             <FontAwesome5 name="tasks" size={24} color='#fff'/>
           </View>
         )}
-        label={'Tasks'}
+        label={'Practice Tasks'}
         labelStyle={[
           styles.navItemLabel,
           { color: pathname == '/tasks' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
@@ -117,7 +117,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
             <Feather name="bar-chart-2" size={24} color='#fff'/>
           </View>
         )}
-        label={'Results'}
+        label={'Task Results'}
         labelStyle={[
           styles.navItemLabel,
           { color: pathname == '/result' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
@@ -136,7 +136,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
             <Feather name="user" size={24} color='#fff'/>
           </View>
         )}
-        label={'Profile'}
+        label={'User Profile'}
         labelStyle={[
           styles.navItemLabel,
           { color: pathname == '/profile' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
@@ -152,18 +152,18 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       <DrawerItem
         icon={({color, size}) => (
           <View
-          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-gray-400'>
-            <Feather name="user" size={24} color='#fff'/>
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-blue-500'>
+            <Feather name="help-circle" size={24} color='#fff'/>
           </View>
         )}
         label={'Help & Support'}
         labelStyle={[
           styles.navItemLabel,
-          { color: pathname == '/faq' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
+          { color: pathname == '/help' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
         ]}
-        style={{backgroundColor: pathname == '/faq' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
+        style={{backgroundColor: pathname == '/help' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
         onPress={() => {
-          router.push('/(drawer)/faq')
+          router.push('/(drawer)/help')
         }}
       />
 
@@ -205,7 +205,7 @@ const DrawerLayout = () => {
         <Drawer.Screen name="tasks" options={{headerShown: true, headerTitle: "Tasks"}} />
         <Drawer.Screen name="result" options={{headerShown: true, headerTitle: "Results"}} />
         <Drawer.Screen name="profile" options={{headerShown: true, headerTitle: "Profile"}} />
-        <Drawer.Screen name="faq" options={{headerShown: true, headerTitle: "Help & Support"}} />
+        <Drawer.Screen name="help" options={{headerShown: true, headerTitle: "Help & Support"}} />
       </Drawer>
       
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />

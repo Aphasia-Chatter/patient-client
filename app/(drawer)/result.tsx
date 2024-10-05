@@ -39,9 +39,8 @@ const result = () => {
   }, []);
 
   const speak = () => {
-    const thingToSay = 'It can be done with a bow.';
-    const thingToSay2 = 'Congratulations! You got the right answer, which is Shooting. It involves the act of firing a projectile from a weapon, such as a gun, with the intention of hitting a target.';
-    Speech.speak(thingToSay2, {
+    const thingToSay = 'Congratulations! You have pressed me.';
+    Speech.speak(thingToSay, {
       rate:0.7,
       pitch:1,
       voice:"com.apple.voice.compact.en-US.Samantha",

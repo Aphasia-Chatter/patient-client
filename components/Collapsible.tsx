@@ -8,7 +8,7 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
   const { colorScheme } = useColorScheme();
 
   return (
-    <View className={`p-3 border-t-1 ${isOpen && ' bg-gray-200 dark:bg-gray-600'}`}>
+    <View className={`p-4 ${isOpen && 'border-b-2 border-b-gray-100 dark:border-b-gray-500 bg-gray-200 dark:bg-gray-600'}`}>
       {/* Button that toggles the collapsible content */}
       <TouchableOpacity 
         className='flex-row items-center'
@@ -21,7 +21,7 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
         <Feather
           name={isOpen ? 'minus' : 'plus'}
           size={24}
-          color={isOpen ? colorScheme === 'dark' ? '#D1D5DB' : '#1f2937' : colorScheme === 'dark' ? '#fff' : '#333'}
+          color={isOpen ? (colorScheme === 'dark' ? '#D1D5DB' : '#1f2937') : (colorScheme === 'dark' ? '#fff' : '#333')}
         />
       </TouchableOpacity>
       

@@ -27,6 +27,7 @@ const Welcome = () => {
     // First launched app
     saveValue("isWelcome", true)
     router.replace("/(auth)/login")
+    router.replace("/(drawer)/help")
   };
 
   const redirection = async () => {
