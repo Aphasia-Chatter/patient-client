@@ -147,6 +147,26 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
         }}
       />
 
+
+      {/* FAQ DRAWER ITEM */}
+      <DrawerItem
+        icon={({color, size}) => (
+          <View
+          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-gray-400'>
+            <Feather name="user" size={24} color='#fff'/>
+          </View>
+        )}
+        label={'Help & Support'}
+        labelStyle={[
+          styles.navItemLabel,
+          { color: pathname == '/faq' ? '#fff' : (colorScheme === 'dark' ? '#fff' : '#000')},   
+        ]}
+        style={{backgroundColor: pathname == '/faq' ? '#0072B2' : (colorScheme === 'dark' ? '#171717' : '#F9F9F9')}}
+        onPress={() => {
+          router.push('/(drawer)/faq')
+        }}
+      />
+
       {/* LOGOUT DRAWER ITEM */}
       <View className='flex-1 justify-end'>
         <DrawerItem
@@ -185,6 +205,7 @@ const DrawerLayout = () => {
         <Drawer.Screen name="tasks" options={{headerShown: true, headerTitle: "Tasks"}} />
         <Drawer.Screen name="result" options={{headerShown: true, headerTitle: "Results"}} />
         <Drawer.Screen name="profile" options={{headerShown: true, headerTitle: "Profile"}} />
+        <Drawer.Screen name="faq" options={{headerShown: true, headerTitle: "Help & Support"}} />
       </Drawer>
       
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />

@@ -671,6 +671,7 @@ const styles = StyleSheet.create({
     paddingBottom: 148, // Ensure some space at the bottom for the overlay button
   },
   actions:{
+    borderRadius: 100,
     paddingVertical: 4,
     paddingHorizontal: 20,
     justifyContent: 'center',
