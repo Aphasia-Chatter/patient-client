@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { View, SafeAreaView, Text, Image, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
-import { images, icons } from "../constants";
+import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
 import { useAppContext } from "../context/AppContext"
 import { useAuthContext } from "../context/AuthContext"
@@ -73,7 +73,7 @@ const Welcome = () => {
             <View className="relative mt-5 items-center">
               {/* Tasks Icon */}
               <Image
-                source={icons.chatbot}
+                source={images.chatbot}
                 className="rounded-2xl mb-5"
                 resizeMode="contain"
                 style={{height: 128, width: 128}}

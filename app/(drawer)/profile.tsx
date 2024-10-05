@@ -5,7 +5,7 @@ import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch, Im
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
-import { icons } from "../../constants";
+import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
 
 const profile = () => {
@@ -20,7 +20,7 @@ const profile = () => {
         {/* IMAGE DISPLAY WITH USERNAME */}
         <View className='rounded-lg my-4 p-4 items-center justify-start'>
           <Image
-            source={icons.chatbot}
+            source={images.chatbot}
             className="w-24 h-24 rounded-full border-2 mb-3 border-gray-200 dark:border-white"
             resizeMode="contain"
           />

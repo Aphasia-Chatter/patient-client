@@ -10,7 +10,7 @@ import * as Speech from 'expo-speech';
 import { useLocalSearchParams } from 'expo-router'
 
 import ErrorModal from "../../components/ErrorModal";
-import { images, icons } from "../../constants";
+import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
 
@@ -309,7 +309,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             {/* Chatbot Icon */}
             <Image
               className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
-              source={icons.chatbot}
+              source={images.chatbot}
             />
             {/* Chatbot Message Bubble */}
             <View className="rounded-xl p-2 mr-5 bg-gray-200 dark:bg-gray-600">
