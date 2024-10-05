@@ -27,7 +27,7 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       
       {/* Collapsible content that shows only when isOpen is true */}
       {isOpen && (
-        <View className='mt-4 mb-5 mx-2'>
+        <View className='flex-1 mt-4 mb-5 mx-2'>
           {children}
         </View>
       )}
