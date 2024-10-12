@@ -13,9 +13,6 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "config": {
-        "usesNonExemptEncryption": false
-      },
       "supportsTablet": true,
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
@@ -30,7 +27,8 @@
         "UIBackgroundModes": [
           "audio"
         ]
-      }
+      },
+      "bundleIdentifier": "com.aphasia.patientclient"
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -65,6 +63,12 @@
         "projectId": "4fdfc126-7609-442d-a5f8-02735fd3b4e8"
       }
     },
-    "owner": "xinlonghe"
+    "owner": "xinlonghe",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4fdfc126-7609-442d-a5f8-02735fd3b4e8"
+    }
   }
 }
