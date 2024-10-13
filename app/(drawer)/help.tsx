@@ -5,10 +5,9 @@ import { ExternalLink } from '@/components/ExternalLink';
 import { AntDesign } from '@expo/vector-icons';
 import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
 
-
 const { height, width } = Dimensions.get('window');
 
-const help = () => {
+const Help = () => {
     const video = useRef<Video | null>(null);
     const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
 
@@ -118,7 +117,7 @@ const help = () => {
     );
 }
 
-export default help
+export default Help
 
 const styles = StyleSheet.create({
     scrollViewContainerIOS: {

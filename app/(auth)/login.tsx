@@ -9,7 +9,7 @@ import FormField from "../../components/FormField";
 import { useAuthContext } from '../../context/AuthContext';
 import { saveValue } from "../../utils/SecureStore";
 
-const login = () => {
+const Login = () => {
   const { setAppUser } = useAuthContext();
 
   const [errorModalVisible, setErrorModalVisible] = useState(false);
@@ -118,7 +118,9 @@ const login = () => {
                 style={({ pressed }) => [,
                   pressed ? { opacity: 0.5 } : {},
                 ]} 
-                onPress={() => router.push("/preference")}>
+                onPress={() => router.push("/preference")}
+                accessibilityRole="button"
+                accessibilityLabel="preference">
                 <Feather name="settings" size={24} color={'#F9F9F9'}/>
               </Pressable>
             </View>
@@ -153,6 +155,8 @@ const login = () => {
             onFocus={() => setIsFocused(true)}   // Set focus to true on focus
             onBlur={() => setIsFocused(false)}   // Set focus to false on blur
             keyboardType="default"
+            accessibilityRole="search"
+            accessibilityLabel="username"
           />
 
           <FormField
@@ -163,6 +167,8 @@ const login = () => {
             otherStyles="mt-4"
             onFocus={() => setIsFocused(true)}   // Set focus to true on focus
             onBlur={() => setIsFocused(false)}   // Set focus to false on blur
+            accessibilityRole="search"
+            accessibilityLabel="password"
           />
 
           {/* Login */}
@@ -172,6 +178,8 @@ const login = () => {
             backgroundColor="#0072B2"
             containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
             isLoading={isSubmitting}
+            accessibilityRole="button"
+            accessibilityLabel="login"
           />
 
           {/* Redirect to Register Page */}
@@ -186,4 +194,4 @@ const login = () => {
   )
 }
 
-export default login
+export default Login

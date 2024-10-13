@@ -39,7 +39,9 @@ const profile = () => {
                 // handle onPress
                 router.push("/account/change_password")
               }}
-              className='flex-row items-center justify-start pr-4 h-12'>
+              className='flex-row items-center justify-start pr-4 h-12'
+              accessibilityRole="link"
+              accessibilityLabel="change password">
               <View
                 className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-gray-500'>
                 <Feather color="#fff" name="lock" size={20} />
@@ -59,7 +61,9 @@ const profile = () => {
                   // handle onPress
                   router.push("/account/delete_account")
                 }}
-                className='flex-row items-center justify-start pr-4 h-12'>
+                className='flex-row items-center justify-start pr-4 h-12'
+                accessibilityRole="link"
+                accessibilityLabel="delete account">
                 <View
                   className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-red-500'>
                   <Feather color="#fff" name="trash-2" size={20} />
@@ -100,11 +104,14 @@ const profile = () => {
                   className='w-30 h-30 p-1 rounded justify-items-center align-middle ml-4 mr-4 bg-blue-600'>
                   <Feather color="#fff" name="moon" size={20} />
                 </View>
-
                 <Text className="font-normal text-lg text-dark dark:text-light">Dark Mode</Text>
                 <View className='flex-grow flex-shrink' />
-
-                <Switch value={colorScheme === 'dark'} onChange={toggleColorScheme}></Switch>
+                <Switch
+                  value={colorScheme === 'dark'}
+                  onChange={toggleColorScheme}
+                  accessibilityRole="switch"
+                  accessibilityLabel="dark mode switch"
+                />
               </View>
             </View>
           </SafeAreaView>

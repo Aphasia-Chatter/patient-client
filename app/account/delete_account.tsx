@@ -14,7 +14,7 @@ import FormField from "../../components/FormField";
 import { useAuthContext } from '../../context/AuthContext';
 import { saveValue } from "../../utils/SecureStore";
 
-const deleteAccount = () => {
+const DeleteAccount = () => {
   const { appUser, setAppUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
@@ -203,6 +203,8 @@ const deleteAccount = () => {
               placeholder="Enter your password"
               otherStyles="mt-7"
               keyboardType="default"
+              accessibilityRole="search"
+              accessibilityLabel="password"
             />
           </View>
         </TouchableWithoutFeedback>
@@ -215,6 +217,8 @@ const deleteAccount = () => {
             backgroundColor="#DC2626"
             containerStyles={[{ width: '100%' }]}
             isLoading={isSubmitting}
+            accessibilityRole="button"
+            accessibilityLabel="delete account"
           />
         </View>
       </ScrollView>
@@ -223,4 +227,4 @@ const deleteAccount = () => {
   )
 }
 
-export default deleteAccount
+export default DeleteAccount

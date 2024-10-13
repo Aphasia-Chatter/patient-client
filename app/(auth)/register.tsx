@@ -6,7 +6,7 @@ import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
-const register = () => {
+const Register = () => {
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -161,6 +161,8 @@ const register = () => {
                 handleChangeText={(e) => setForm({ ...form, username: e })}
                 placeholder="Enter your username"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
+                accessibilityRole="search"
+                accessibilityLabel="username"
               />
 
               <FormField
@@ -169,6 +171,8 @@ const register = () => {
                 handleChangeText={(e) => setForm({ ...form, password: e })}
                 placeholder="Enter your password"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
+                accessibilityRole="search"
+                accessibilityLabel="password"
               />
 
               <FormField
@@ -177,6 +181,8 @@ const register = () => {
                 handleChangeText={(e) => setForm({ ...form, confirmPassword: e })}
                 placeholder="Re-enter your password"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
+                accessibilityRole="search"
+                accessibilityLabel="confirm password"
               />
 
               <FormField
@@ -186,6 +192,8 @@ const register = () => {
                 placeholder="Enter the enrollment code"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 keyboardType="default"
+                accessibilityRole="search"
+                accessibilityLabel="enrollment code"
               />
 
               {/* Register */}
@@ -195,6 +203,8 @@ const register = () => {
                 backgroundColor="#0072B2"
                 containerStyles={[{ width: '100%' }, { marginTop: 18 }]}
                 isLoading={isSubmitting}
+                accessibilityRole="button"
+                accessibilityLabel="register"
               />
 
               {/* Redirect to Login Page*/}
@@ -210,4 +220,4 @@ const register = () => {
   )
 }
 
-export default register
+export default Register

@@ -110,7 +110,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       />
 
       {/* RESULTS DRAWER ITEM */}
-      <DrawerItem
+      {/* <DrawerItem
         icon={({color, size}) => (
           <View
           className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-teal-500'>
@@ -126,7 +126,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
         onPress={() => {
           router.push('/(drawer)/result')
         }}
-      />
+      /> */}
 
       {/* PROFILE DRAWER ITEM */}
       <DrawerItem
@@ -203,7 +203,7 @@ const DrawerLayout = () => {
         }}
       >
         <Drawer.Screen name="tasks" options={{headerShown: true, headerTitle: "Tasks"}} />
-        <Drawer.Screen name="result" options={{headerShown: true, headerTitle: "Results"}} />
+        {/* <Drawer.Screen name="result" options={{headerShown: true, headerTitle: "Results"}} /> */}
         <Drawer.Screen name="profile" options={{headerShown: true, headerTitle: "Profile"}} />
         <Drawer.Screen name="help" options={{headerShown: true, headerTitle: "Help & Support"}} />
       </Drawer>

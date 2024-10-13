@@ -11,12 +11,12 @@ import DialogModal from '../../components/DialogModal';
 import TaskFilterModal from "../../components/TaskFilterModal";
 import { useAuthContext } from '../../context/AuthContext';
 
-type TaskFilterType = {
+export type TaskFilterType = {
   categoryOfTask?: number;
   statusOfTask?: number;
 };
 
-type TaskData = {
+export type TaskData = {
   word_retrieval_task: {
     taskID: string;
     imagePath: string;

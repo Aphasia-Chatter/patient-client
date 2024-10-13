@@ -14,7 +14,7 @@ import FormField from "../../components/FormField";
 import { useAuthContext } from '../../context/AuthContext';
 import { saveValue } from "../../utils/SecureStore";
 
-const change_password = () => {
+const ChangePassword = () => {
   const { appUser, setAppUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
@@ -222,6 +222,8 @@ const change_password = () => {
               placeholder="Enter your current password"
               otherStyles="mt-7"
               keyboardType="default"
+              accessibilityRole="search"
+              accessibilityLabel="current password"
             />
 
             <FormField
@@ -230,6 +232,8 @@ const change_password = () => {
               handleChangeText={(e) => setForm({ ...form, newPassword: e })}
               placeholder="Enter your new password"
               otherStyles="mt-4"
+              accessibilityRole="search"
+              accessibilityLabel="new password"
             />
 
             <FormField
@@ -238,6 +242,8 @@ const change_password = () => {
               handleChangeText={(e) => setForm({ ...form, confirmNewPassword: e })}
               placeholder="Enter your confirm password"
               otherStyles="mt-4"
+              accessibilityRole="search"
+              accessibilityLabel="confirm new password"
             />
           </View>
         </TouchableWithoutFeedback>
@@ -250,6 +256,8 @@ const change_password = () => {
             backgroundColor="#0072B2"
             containerStyles={[{ width: '100%' }]}
             isLoading={isSubmitting}
+            accessibilityRole="button"
+            accessibilityLabel="update password"
           />
         </View>
       </ScrollView>
@@ -258,4 +266,4 @@ const change_password = () => {
   )
 }
 
-export default change_password
+export default ChangePassword
