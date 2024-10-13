@@ -42,23 +42,9 @@ const Help = () => {
                                 isLooping={false}
                                 shouldPlay={false}
                                 resizeMode={ResizeMode.CONTAIN}
-                                onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}/>
-                            <View style={styles.buttons}>
-                                <Button title="Play from 5s" 
-                                    onPress={() => {
-                                        if (video.current != null) {
-                                        video.current.playFromPositionAsync(5000);
-                                        }
-                                    }}/>
-                                <Button
-                                title={status?.isLoaded && status.isLooping ? "Set to not loop" : "Set to loop"}
-                                onPress={() => {
-                                    if (video.current != null && status?.isLoaded) {
-                                    video.current.playFromPositionAsync(5000);
-                                    video.current.setIsLoopingAsync(!status.isLooping);
-                                    }
-                                }}/>
-                            </View>
+                                onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
+                                testID='help-video-player'
+                            />
                             <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
                                 <Text>Learn more</Text>
                             </ExternalLink>
