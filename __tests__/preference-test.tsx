@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, fireEvent, userEvent, renderHook } from '@testing-library/react-native';
+import { render, fireEvent, renderHook } from '@testing-library/react-native';
 import Preference from '@/app/(auth)/preference';
-import { AuthContext } from '@/context/AuthContext'; // Adjust context path
-import { renderRouter, screen } from 'expo-router/testing-library';
+import { AuthContext } from '@/context/AuthContext';
 
 describe('Preference Screen', () => {
   // Mock AuthContext with appUser and setAppUser
@@ -12,9 +11,9 @@ describe('Preference Screen', () => {
     setAppUser: mockSetAppUser,
   };
   
-  // Define mocks for colorScheme and toggleColorScheme
-const mockedColorScheme = jest.fn();  // For colorScheme
-const mockedToggleColorScheme = jest.fn();  // For toggleColorScheme
+    // Define mocks for colorScheme and toggleColorScheme
+  const mockedColorScheme = jest.fn();  // For colorScheme
+  const mockedToggleColorScheme = jest.fn();  // For toggleColorScheme
 
   // Mock the nativewind library and specifically the useColorScheme hook
   jest.mock("nativewind", () => ({

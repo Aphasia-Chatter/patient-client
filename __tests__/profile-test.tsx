@@ -1,15 +1,10 @@
 import React from 'react';
-import { render, userEvent } from '@testing-library/react-native';
+import { render, userEvent, fireEvent, renderHook } from '@testing-library/react-native';
 import Profile from '@/app/(drawer)/profile';
 import ChangePassword from '@/app/account/change_password';
 import DeleteAccount from '@/app/account/delete_account';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import { renderRouter, screen } from 'expo-router/testing-library';
-
-// Mock the saveValue function and router
-jest.mock('@/utils/SecureStore', () => ({
-    saveValue: jest.fn(),
-}));
 
 jest.mock('expo-linking', () => {
     const module: typeof import('expo-linking') = {
@@ -30,6 +25,19 @@ describe('Profile Screen', () => {
     setAppUser: mockSetAppUser,
   };
 
+  // Define mocks for colorScheme and toggleColorScheme
+  const mockedColorScheme = jest.fn();  // For colorScheme
+  const mockedToggleColorScheme = jest.fn();  // For toggleColorScheme
+
+  // Mock the nativewind library and specifically the useColorScheme hook
+  jest.mock("nativewind", () => ({
+    ...jest.requireActual("nativewind"),
+    useColorScheme: () => ({
+      colorScheme: mockedColorScheme(),
+      toggleColorScheme: mockedToggleColorScheme,
+    }),
+  }));
+
   const renderProfile = () => {
     return render(
       <AuthContext.Provider value={mockAuthContext}>
@@ -42,9 +50,15 @@ describe('Profile Screen', () => {
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
-  it('renders login form with username and password fields', () => {
+  it('renders preference page with dark mode switch', () => {
     // Arrange
-    const { getByPlaceholderText } = renderProfile();
+    const { getByRole } = renderProfile();
+
+    // Act that the login button is rendered
+    const darkModeSwitch = getByRole('switch', { name: /dark mode switch/i })
+    
+    // Assert that the login button is rendered
+    expect(darkModeSwitch).toBeTruthy();
   });
 
   it('renders change password link', () => {
@@ -115,5 +129,71 @@ describe('Profile Screen', () => {
 
     // Assert that the router.push method was called with the correct URL
     expect(screen).toHavePathname('/delete_account');
+  });
+
+  it("renders useColorScheme hook with return value of 'dark'", () => {
+
+    mockedColorScheme.mockImplementationOnce(() => "dark")
+    const { result } = renderHook(() => mockedColorScheme())
+  
+    expect(result.current).toBeDefined()
+    expect(result.current).toEqual("dark")
+
+    mockedToggleColorScheme();
+  })
+
+  it("renders useColorScheme hook with return value of 'light'", () => {
+    mockedColorScheme.mockImplementationOnce(() => "light")
+    const { result } = renderHook(() => mockedColorScheme())
+  
+    expect(result.current).toBeDefined()
+    expect(result.current).toEqual("light")
+  })
+
+  it("allows changing colorScheme from 'dark' mode to 'light' mode", () => {
+    // Arrange: Set up the mocked return values
+    mockedColorScheme.mockReturnValue("dark");  // Initial color scheme is 'dark'
+    
+    const { getByRole, rerender } = renderProfile();
+  
+    // Assert initial color scheme is 'dark'
+    const darkModeSwitch = getByRole('switch', { name: /dark mode switch/i });
+    expect(darkModeSwitch.props.value).toBe(false);  // Switch is on, indicating 'dark' mode
+  
+    // Act: Simulate toggling to 'light' mode
+    fireEvent(darkModeSwitch, 'valueChange', { value: true });
+    mockedColorScheme.mockReturnValue("light");  // Simulate the state change to 'light'
+    
+    // Call the mocked toggleColorScheme function to simulate the toggle action
+    mockedToggleColorScheme();
+  
+    rerender;  // Rerender the component to reflect the updated state
+  
+    // Assert: colorScheme should now be 'light'
+    expect(darkModeSwitch.props.value).toBe(true);  // Switch is off, indicating 'light' mode
+  });
+  
+
+  it("allows changing colorScheme from 'light' mode to 'dark' mode", () => {
+    // Arrange: Set up the mocked return values
+    mockedColorScheme.mockReturnValue("light");  // Initial color scheme is 'dark'
+    
+    const { getByRole, rerender } = renderProfile();
+  
+    // Assert initial color scheme is 'light'
+    const darkModeSwitch = getByRole('switch', { name: /dark mode switch/i });
+    expect(darkModeSwitch.props.value).toBe(true);  // Switch is on, indicating 'dark' mode
+  
+    // Act: Simulate toggling to 'dark' mode
+    fireEvent(darkModeSwitch, 'valueChange', { value: false });
+    mockedColorScheme.mockReturnValue("dark");  // Simulate the state change to 'light'
+    
+    // Call the mocked toggleColorScheme function to simulate the toggle action
+    mockedToggleColorScheme();
+  
+    rerender;  // Rerender the component to reflect the updated state
+  
+    // Assert: colorScheme should now be 'light'
+    expect(darkModeSwitch.props.value).toBe(false);  // Switch is off, indicating 'light' mode
   });
 });

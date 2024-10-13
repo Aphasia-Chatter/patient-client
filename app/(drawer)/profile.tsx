@@ -108,7 +108,7 @@ const profile = () => {
                 <View className='flex-grow flex-shrink' />
                 <Switch
                   value={colorScheme === 'dark'}
-                  onChange={toggleColorScheme}
+                  onValueChange={toggleColorScheme}
                   accessibilityRole="switch"
                   accessibilityLabel="dark mode switch"
                 />
