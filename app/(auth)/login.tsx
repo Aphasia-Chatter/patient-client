@@ -23,7 +23,7 @@ const Login = () => {
     password: "",
   });
 
-  const submit = async (options = {}) => {
+  const submit = async () => {
     const controller = new AbortController();
     const timeout = 10000;
     const signal = controller.signal;

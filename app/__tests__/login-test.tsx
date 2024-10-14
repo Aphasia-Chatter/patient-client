@@ -204,11 +204,18 @@ describe('Login Screen', () => {
     expect(screen).toHavePathname('/register');
   });
 
-  it('logs in successfully with valid credentials', async () => {
+  it('login account successfully with valid credentials', async () => {
+    // Mock the fetch response
     const mockResponse = {
       ok: true,
+      status: 201,
       json: jest.fn().mockResolvedValue({
-        data: { username: 'testuser', sessionToken: 'mockedToken123' },
+        status: 'LOGIN_SUCCESS',
+        message: 'Login successful, save the session token inside data!',
+        data: {
+          username: 'testuser',
+          sessionToken: 'mockedToken123'
+        },
       }),
     };
     
@@ -232,6 +239,7 @@ describe('Login Screen', () => {
     fireEvent.press(getByText('Login'));
     
     await waitFor(() => {
+      // Assert that the username and session saved into auth context
       expect(mockSetAppUser).toHaveBeenCalledWith({
         username: 'testuser',
         sessionToken: 'mockedToken123',
@@ -242,33 +250,7 @@ describe('Login Screen', () => {
     });
   });
 
-  it('shows error message when username is missing', async () => {
-    const { getByPlaceholderText, getByText, findByText } = renderLogin();
-
-    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
-    fireEvent.press(getByText('Login'));
-    
-    const errorHeader = await findByText('MISSING_USERNAME');
-    const errorMessage = await findByText('Please enter your username.');
-    
-    expect(errorHeader).toBeTruthy();
-    expect(errorMessage).toBeTruthy();
-  });
-
-  it('shows error message when password is missing', async () => {
-    const { getByPlaceholderText, getByText, findByText } = renderLogin();
-
-    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
-    fireEvent.press(getByText('Login'));
-    
-    const errorHeader = await findByText('MISSING_PASSWORD');
-    const errorMessage = await findByText('Please enter your password.');
-    
-    expect(errorHeader).toBeTruthy();
-    expect(errorMessage).toBeTruthy();
-  });
-
-  it('shows error message for network request timeout', async () => {
+  it('shows error message when login account unsuccessfully with network request timeout', async () => {
     // Suppress console.error for this test case
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -315,5 +297,112 @@ describe('Login Screen', () => {
     // Restore the original AbortController behavior and console.error
     abortControllerSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+  });
+
+  it('shows an error message when logging in account unsuccessfully with invalid credentials - invalid username', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'BAD_USERNAME',
+        message: 'User does not exist!',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'invalidtestuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Login'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(getByText('BAD_USERNAME')).toBeTruthy();
+      expect(getByText('User does not exist!')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message when logging in account unsuccessfully with invalid credentials - invalid password', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'BAD_PASSWORD',
+        message: 'Password mismatch!',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'invalidpassword');
+    
+    fireEvent.press(getByText('Login'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(getByText('BAD_PASSWORD')).toBeTruthy();
+      expect(getByText('Password mismatch!')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message when logging in account unsuccessfully with invalid credentials - server error', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'SERVER_ERROR',
+        message: 'Server encountered an error! Contact admin if persists!',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Login'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(getByText('SERVER_ERROR')).toBeTruthy();
+      expect(getByText('Server encountered an error! Contact admin if persists!')).toBeTruthy();
+    });
+  });
+
+  it('shows error message when username field is missing', async () => {
+    const { getByPlaceholderText, getByText, findByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.press(getByText('Login'));
+    
+    const errorHeader = await findByText('MISSING_USERNAME');
+    const errorMessage = await findByText('Please enter your username.');
+    
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+  });
+
+  it('shows error message when password field is missing', async () => {
+    const { getByPlaceholderText, getByText, findByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.press(getByText('Login'));
+    
+    const errorHeader = await findByText('MISSING_PASSWORD');
+    const errorMessage = await findByText('Please enter your password.');
+    
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
   });
 });

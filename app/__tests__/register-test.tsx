@@ -10,6 +10,14 @@ jest.mock('@/utils/SecureStore', () => ({
   saveValue: jest.fn(),
 }));
 
+jest.mock('expo-linking', () => {
+  const module: typeof import('expo-linking') = {
+      ...jest.requireActual('expo-linking'),
+      createURL: jest.fn(),
+  };
+  return module;
+});
+
 describe('Register Screen', () => {
   // Mock AuthContext with appUser and setAppUser
   const mockSetAppUser = jest.fn();
@@ -27,6 +35,7 @@ describe('Register Screen', () => {
   };
 
   beforeEach(() => {
+    global.fetch = jest.fn(); // Mocking the fetch function
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
@@ -121,18 +130,19 @@ describe('Register Screen', () => {
   });
 
   it('register account successfully with valid credentials', async () => {
-    global.fetch = jest.fn(() => 
-      Promise.resolve({
-        json: () => Promise.resolve({
-          username: 'testuser',
-          password: 'password123',
-          confirmPassword: 'password123',
-          enrolmentCode: 'abcdefg',
-        })
+    // Mock the fetch response
+    const mockResponse = {
+      ok: true,
+      status: 201,
+      json: jest.fn().mockResolvedValue({
+        status: 'REGISTRATION SUCCESS',
+        message: 'Patient account registered successfully',
       }),
-    ) as jest.Mock;
+    };
 
-    const { getByPlaceholderText, getByText } = renderRegister();
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText, findByText } = renderRegister();
 
     renderRouter(
       {
@@ -157,11 +167,150 @@ describe('Register Screen', () => {
     
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);
-      
+      expect(findByText('REGISTRATION SUCCESS')).toBeTruthy();
+      expect(findByText('Patient account registered successfully')).toBeTruthy();
     });
   });
 
-  it('shows an error message if username is empty', async () => {
+  it('shows error message when registering account unsuccessfully with network request timeout', async () => {
+    // Suppress console.error for this test case
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Create a spy on the AbortController constructor and its abort method
+    const abortControllerSpy = jest.spyOn(global, 'AbortController').mockImplementation(() => {
+      return {
+        signal: {
+          aborted: true,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          onabort: null,
+          dispatchEvent: jest.fn(),
+          throwIfAborted: jest.fn(),
+          reason: null,
+        },
+        abort: jest.fn(),
+      } as unknown as AbortController;
+    });
+
+    // Mock fetch to simulate a network timeout
+    global.fetch = jest.fn(() => {
+      return new Promise((_, reject) => {
+        reject(new DOMException('The operation was aborted.', 'AbortError')); // Simulate abort error
+      });
+    });
+  
+    const { getByPlaceholderText, getByText, findByText } = renderRegister();
+  
+    // Simulate user input
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+  
+    // Simulate pressing the login button
+    fireEvent.press(getByText('Register'));
+  
+    // Wait for the timeout error modal to appear
+    const errorHeader = await findByText('NETWORK REQUEST TIMED_OUT');
+    const errorMessage = await findByText('The request has been aborted due to timeout.');
+  
+    // Assertions
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+
+    // Restore the original AbortController behavior and console.error
+    abortControllerSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('shows an error message when registering account unsuccessfully with invalid credentials - invalid username', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'BAD_USERNAME',
+        message: 'Username already exist. Cannot register patient user!',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText, findByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'invalidtestuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+    
+    fireEvent.press(getByText('Register'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(findByText('BAD_USERNAME')).toBeTruthy();
+      expect(findByText('Username already exist. Cannot register patient user!')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message when registering account unsuccessfully with invalid credentials - invalid enrolment code', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'BAD_USERNAME_AND_CODE',
+        message: 'Please check that your username and enrolment code is correct.',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText, findByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'invalid code');
+    
+    fireEvent.press(getByText('Register'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(findByText('BAD_USERNAME_AND_CODE')).toBeTruthy();
+      expect(findByText('Please check that your username and enrolment code is correct.')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message when registering account unsuccessfully with invalid credentials - hashing error', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'HASHING_ERROR',
+        message: 'Failed to create patient user due to hashing issues.',
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText, findByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'invalidtestuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+    
+    fireEvent.press(getByText('Register'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(findByText('HASHING_ERROR')).toBeTruthy();
+      expect(findByText('Failed to create patient user due to hashing issues.')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message if username field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), '');
@@ -176,7 +325,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if password is empty', async () => {
+  it('shows an error message if password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
@@ -191,7 +340,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if confirm password is empty', async () => {
+  it('shows an error message if confirm password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
@@ -221,7 +370,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if enrollment code is empty', async () => {
+  it('shows an error message if enrollment code field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
