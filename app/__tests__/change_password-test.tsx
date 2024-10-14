@@ -104,7 +104,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('change account account successfully with valid credentials', async () => {
+  it('change account password successfully with valid credentials', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -156,7 +156,7 @@ describe('Change Password Screen', () => {
     expect(screen).toHavePathname('/login');
   });
 
-  it('change account account unsuccessfully with invalid credentials - invalid current password', async () => {
+  it('change account password unsuccessfully with invalid credentials - invalid current password', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -204,7 +204,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('change account account unsuccessfully with invalid credentials - hashing error', async () => {
+  it('change account password unsuccessfully with invalid credentials - hashing error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -252,7 +252,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('change account account unsuccessfully with invalid credentials - server error', async () => {
+  it('change account password unsuccessfully with invalid credentials - server error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -300,7 +300,64 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('shows an error message when current password field is empty', async () => {
+  it('shows error message when change account password unsuccessfully with network request timeout', async () => {
+    // Suppress console.error for this test case
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Create a spy on the AbortController constructor and its abort method
+    const abortControllerSpy = jest.spyOn(global, 'AbortController').mockImplementation(() => {
+      return {
+        signal: {
+          aborted: true,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          onabort: null,
+          dispatchEvent: jest.fn(),
+          throwIfAborted: jest.fn(),
+          reason: null,
+        },
+        abort: jest.fn(),
+      } as unknown as AbortController;
+    });
+
+    // Mock fetch to simulate a network timeout
+    global.fetch = jest.fn(() => {
+      return new Promise((_, reject) => {
+        reject(new DOMException('The operation was aborted.', 'AbortError')); // Simulate abort error
+      });
+    });
+  
+    const { getByPlaceholderText, getByText, findByText } = renderChangePassword();
+  
+    // Simulate user input
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    // Simulate pressing the login button
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+  
+    // Wait for the timeout error modal to appear
+    const errorHeader = await findByText('NETWORK REQUEST TIMED_OUT');
+    const errorMessage = await findByText('The request has been aborted due to timeout.');
+  
+    // Assertions
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+
+    // Restore the original AbortController behavior and console.error
+    abortControllerSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('shows error message when current password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderChangePassword();
 
     fireEvent.changeText(getByPlaceholderText('Enter your current password'), '');
@@ -314,7 +371,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('shows an error message when new password field is empty', async () => {
+  it('shows error message when new password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderChangePassword();
 
     fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
@@ -328,7 +385,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('shows an error message when confirm new password field is empty', async () => {
+  it('shows error message when confirm new password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderChangePassword();
 
     fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
@@ -342,7 +399,7 @@ describe('Change Password Screen', () => {
     });
   });
 
-  it('shows an error message when new passwords do not match', async () => {
+  it('shows error message when new passwords do not match', async () => {
     const { getByPlaceholderText, getByText } = renderChangePassword();
 
     fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');

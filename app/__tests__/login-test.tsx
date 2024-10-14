@@ -299,7 +299,7 @@ describe('Login Screen', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('shows an error message when logging in account unsuccessfully with invalid credentials - invalid username', async () => {
+  it('shows error message when logging in account unsuccessfully with invalid credentials - invalid username', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -326,7 +326,7 @@ describe('Login Screen', () => {
     });
   });
 
-  it('shows an error message when logging in account unsuccessfully with invalid credentials - invalid password', async () => {
+  it('shows error message when logging in account unsuccessfully with invalid credentials - invalid password', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -353,7 +353,7 @@ describe('Login Screen', () => {
     });
   });
 
-  it('shows an error message when logging in account unsuccessfully with invalid credentials - server error', async () => {
+  it('shows error message when logging in account unsuccessfully with invalid credentials - server error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,

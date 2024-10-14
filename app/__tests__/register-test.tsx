@@ -223,7 +223,7 @@ describe('Register Screen', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('shows an error message when registering account unsuccessfully with invalid credentials - invalid username', async () => {
+  it('shows error message when registering account unsuccessfully with invalid credentials - invalid username', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -252,7 +252,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message when registering account unsuccessfully with invalid credentials - invalid enrolment code', async () => {
+  it('shows error message when registering account unsuccessfully with invalid credentials - invalid enrolment code', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -281,7 +281,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message when registering account unsuccessfully with invalid credentials - hashing error', async () => {
+  it('shows error message when registering account unsuccessfully with invalid credentials - hashing error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -310,7 +310,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if username field is empty', async () => {
+  it('shows error message if username field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), '');
@@ -325,7 +325,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if password field is empty', async () => {
+  it('shows error message if password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
@@ -340,7 +340,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if confirm password field is empty', async () => {
+  it('shows error message if confirm password field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
@@ -355,7 +355,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if passwords do not match', async () => {
+  it('shows error message if passwords do not match', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
@@ -370,7 +370,7 @@ describe('Register Screen', () => {
     });
   });
 
-  it('shows an error message if enrollment code field is empty', async () => {
+  it('shows error message if enrollment code field is empty', async () => {
     const { getByPlaceholderText, getByText } = renderRegister();
 
     fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');

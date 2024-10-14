@@ -48,7 +48,7 @@ const DeleteAccount = () => {
     }
     else {
       setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("password is missing in the request body field.")
+      setErrorMessage("Please enter your password.")
       setErrorModalVisible(true);
     }
   };
@@ -78,65 +78,57 @@ const DeleteAccount = () => {
 
     setSubmitting(true);
 
-    if (form.password.length == 0) {
-      setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Please enter your password.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else{
-      try {
-          // Send POST request for patient login
-          // Use ipconfig to find ip address of your pc in the local network
-          const response = await fetch('https://aphasia.mooo.com/api/patient/delete-account', {
-              method: 'POST',
-              headers: {
-              'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  username: username,
-                  sessionToken: sessionToken,
-                  password: form.password,
-              }),
-              signal: signal
-          });
+    try {
+        // Send POST request for patient login
+        // Use ipconfig to find ip address of your pc in the local network
+        const response = await fetch('https://aphasia.mooo.com/api/patient/delete-account', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                sessionToken: sessionToken,
+                password: form.password,
+            }),
+            signal: signal
+        });
 
-          // Clear the timeout if the request is successful
-          clearTimeout(timeoutId);
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
 
-          const jsonResponse = await response.json();
+        const jsonResponse = await response.json();
 
-          if (response.ok) {
-            // Delete username and session token from local storage in device
-            setAppUser(null);
-            await saveValue("AppUser", null);
+        if (response.ok) {
+          // Delete username and session token from local storage in device
+          setAppUser(null);
+          await saveValue("AppUser", null);
 
-            // Show success modal
-            setSuccessHeaderMessage(jsonResponse.status);
-            setSuccessMessage(jsonResponse.message);
-            setSuccessModalVisible(true);
+          // Show success modal
+          setSuccessHeaderMessage(jsonResponse.status);
+          setSuccessMessage(jsonResponse.message);
+          setSuccessModalVisible(true);
 
-          } else {
-            // Handle errors
-            setErrorHeaderMessage(jsonResponse.status)
-            setErrorMessage(jsonResponse.message)
-            setErrorModalVisible(true);
-          }
-      } catch (error) {
-        console.error('Error:', error);
-        if (signal.aborted) {
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("The request has been aborted due to timeout.")
+        } else {
+          // Handle errors
+          setErrorHeaderMessage(jsonResponse.status)
+          setErrorMessage(jsonResponse.message)
           setErrorModalVisible(true);
         }
-        else if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST ERROR")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        }   
-      } finally {
-          setSubmitting(false);
+    } catch (error) {
+      console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
       }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }   
+    } finally {
+        setSubmitting(false);
     }
   };
 
