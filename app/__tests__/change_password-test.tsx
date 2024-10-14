@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, fireEvent, userEvent } from '@testing-library/react-native';
+import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import ChangePassword from '@/app/account/change_password';
+import Login from '@/app/(auth)/login';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import { renderRouter, screen } from 'expo-router/testing-library';
 
@@ -8,6 +9,14 @@ import { renderRouter, screen } from 'expo-router/testing-library';
 jest.mock('@/utils/SecureStore', () => ({
   saveValue: jest.fn(),
 }));
+
+jest.mock('expo-linking', () => {
+  const module: typeof import('expo-linking') = {
+      ...jest.requireActual('expo-linking'),
+      createURL: jest.fn(),
+  };
+  return module;
+});
 
 describe('Change Password Screen', () => {
   // Mock AuthContext with appUser and setAppUser
@@ -29,6 +38,7 @@ describe('Change Password Screen', () => {
   };
 
   beforeEach(() => {
+    global.fetch = jest.fn(); // Mocking the fetch function
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
@@ -76,5 +86,281 @@ describe('Change Password Screen', () => {
     expect(passwordInput.props.value).toBe('testUser');
     expect(newPasswordInput.props.value).toBe('password123');
     expect(confirmPasswordInput.props.value).toBe('password456');
+  });
+
+  it('show change account password dialog box when filled up the change password form', async () => {
+    // Mock the fetch response
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+  });
+
+  it('change account account successfully with valid credentials', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'CHANGE_ACCOUNT_PASSWORD_SUCCESS',
+        message: 'Patient account password update is successful. You will be logged out now.'
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    renderRouter(
+      {
+        changePassword: () => <ChangePassword/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('CHANGE_ACCOUNT_PASSWORD_SUCCESS')).toBeTruthy();
+      expect(getByText('Patient account password update is successful. You will be logged out now.')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Dismiss'));
+
+    expect(screen).toHavePathname('/login');
+  });
+
+  it('change account account unsuccessfully with invalid credentials - invalid current password', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'CHANGE_ACCOUNT_PASSWORD_FAILURE',
+        message: 'Incorrect current password! Unable to update patient account password.'
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    renderRouter(
+      {
+        changePassword: () => <ChangePassword/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('CHANGE_ACCOUNT_PASSWORD_FAILURE')).toBeTruthy();
+      expect(getByText('Incorrect current password! Unable to update patient account password.')).toBeTruthy();
+    });
+  });
+
+  it('change account account unsuccessfully with invalid credentials - hashing error', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'HASHING_ERROR',
+        message: 'Failed to update patient account new password due to hashing issues.'
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    renderRouter(
+      {
+        changePassword: () => <ChangePassword/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('HASHING_ERROR')).toBeTruthy();
+      expect(getByText('Failed to update patient account new password due to hashing issues.')).toBeTruthy();
+    });
+  });
+
+  it('change account account unsuccessfully with invalid credentials - server error', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 500,
+      json: jest.fn().mockResolvedValue({
+        status: 'SERVER_ERROR',
+        message: 'Server encountered an error! Contact admin if persists!'
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    renderRouter(
+      {
+        changePassword: () => <ChangePassword/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('SERVER_ERROR')).toBeTruthy();
+      expect(getByText('Server encountered an error! Contact admin if persists!')).toBeTruthy();
+    });
+  });
+
+  it('shows an error message when current password field is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), '');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password456');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password456');
+
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('Please enter your current password.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message when new password field is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), '');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password456');
+
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('Please enter your new password.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message when confirm new password field is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password456');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), '');
+
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('Please re-confirm your new password.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message when new passwords do not match', async () => {
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password456');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'abcdefg');
+
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('INCORRECT_NEW_PASSWORDS')).toBeTruthy();
+      expect(getByText('Please re-confirm your new passwords.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
   });
 });

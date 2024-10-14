@@ -46,10 +46,23 @@ const ChangePassword = () => {
       setDialogMessage("Are you sure you want to update your account password?")
       setDialogModalVisible(true);
     }
-    else {
+    else if (form.currentPassword.length == 0) {
       setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Passwords are missing in the request body field.")
+      setErrorMessage("Please enter your current password.")
       setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.newPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_NEW_PASSWORD")
+      setErrorMessage("Please enter your new password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.confirmNewPassword.length == 0) {
+      setErrorHeaderMessage("MISSING_CONFIRM_NEW_PASSWORD")
+      setErrorMessage("Please re-confirm your new password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
     }
   };
 
@@ -80,21 +93,9 @@ const ChangePassword = () => {
 
     setSubmitting(true);
 
-    if (form.currentPassword.length == 0) {
-      setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Please enter your current password.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.newPassword.length == 0) {
-      setErrorHeaderMessage("MISSING_NEW_PASSWORD")
-      setErrorMessage("Please enter your new password.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.confirmNewPassword.length == 0) {
-      setErrorHeaderMessage("MISSING_CONFIRM_NEW_PASSWORD")
-      setErrorMessage("Please re-confirm your new password.")
+    if (form.confirmNewPassword != form.newPassword) {
+      setErrorHeaderMessage("INCORRECT_NEW_PASSWORDS")
+      setErrorMessage("Please re-confirm your new passwords.")
       setErrorModalVisible(true);
       setSubmitting(false);
     }
