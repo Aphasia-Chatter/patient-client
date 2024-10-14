@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { render, fireEvent, userEvent, act } from '@testing-library/react-native';
 import Help from '@/app/(drawer)/help';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
-import { renderRouter, screen } from 'expo-router/testing-library';
-import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
 
 // Mock the saveValue function and router
 jest.mock('@/utils/SecureStore', () => ({
@@ -20,27 +18,6 @@ describe('Help Screen', () => {
     },
     setAppUser: mockSetAppUser,
   };
-
-
-
-  jest.mock('expo-av', () => {
-    return {
-      Video: jest.fn().mockImplementation(({ onPlaybackStatusUpdate }) => {
-        // Immediately call the onPlaybackStatusUpdate with the desired status
-        if (onPlaybackStatusUpdate) {
-          onPlaybackStatusUpdate({
-            isLoaded: true,
-            isPlaying: true,
-            positionMillis: 15000,
-            durationMillis: 30000,
-            rate: 1.0,
-            volume: 1.0,
-          });
-        }
-        return <div data-testid="help-video-player" />; // Change this as necessary
-      }),
-    };
-  });
 
   const renderHelp = () => {
     return render(
@@ -84,5 +61,27 @@ describe('Help Screen', () => {
     // Use findByRole to find the video element by accessibilityRole="image"
     const videoComponent = getByTestId('help-video-player');
     expect(videoComponent).toBeTruthy();
+  });
+
+  it('should update video playback status correctly', async () => {
+    const { getByText, getByTestId } = renderHelp();
+
+    // Optionally, you may need to trigger the opening of the Collapsible component
+    const toggleButton = getByText('How to start a practice task?'); // Replace with the actual toggle button text
+    fireEvent.press(toggleButton);
+  
+    // Access the video player component
+    const videoPlayer = getByTestId('help-video-player');
+  
+    // Simulate state updates with act
+    await act(async () => {
+      // Fire the event that triggers state updates (e.g., playback status update)
+      fireEvent(videoPlayer, 'onPlaybackStatusUpdate', {
+        isPlaying: true,
+        positionMillis: 1000,
+      });
+    });
+  
+    // Optionally, you can add assertions here to verify the behavior
   });
 });

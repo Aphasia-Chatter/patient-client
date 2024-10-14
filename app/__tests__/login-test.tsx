@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, fireEvent, userEvent } from '@testing-library/react-native';
+import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import Login from '@/app/(auth)/login';
 import Register from '@/app/(auth)/register';
 import Preference from '@/app/(auth)/preference';
+import Tasks, { TaskData } from '@/app/(drawer)/tasks';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import { renderRouter, screen } from 'expo-router/testing-library';
 
@@ -11,12 +12,53 @@ jest.mock('@/utils/SecureStore', () => ({
   saveValue: jest.fn(),
 }));
 
+jest.mock('expo-linking', () => {
+  const module: typeof import('expo-linking') = {
+      ...jest.requireActual('expo-linking'),
+      createURL: jest.fn(),
+  };
+  return module;
+});
+
 describe('Login Screen', () => {
   // Mock AuthContext with appUser and setAppUser
   const mockSetAppUser = jest.fn();
   const mockAuthContext = {
     appUser: null, // Assuming user is not logged in initially
     setAppUser: mockSetAppUser,
+  };
+
+  // Define mock TaskData
+  const mockTaskData: TaskData = {
+    word_retrieval_task: {
+      taskID: '1',
+      imagePath: '/path/to/image',
+      answer: 'sample answer',
+      inputRestriction: 'none'
+    },
+    task_editor: {
+      taskID: '1',
+      staffID: '123',
+      role: 'editor'
+    },
+    task: {
+      id: '1',
+      name: 'Sample Task',
+      description: 'This is a sample task description',
+      taskVisibility: 'public',
+      createdAt: new Date().toISOString(),
+    },
+    staff: {
+      id: '123',
+      username: 'staff1',
+      hashedPassword: 'hashed_password'
+    },
+    status: 'completed',
+    session: {
+      taskSessionID: 'session1',
+      startedAt: new Date(),
+      completedAt: new Date()
+    }
   };
 
   const renderLogin = () => {
@@ -28,6 +70,7 @@ describe('Login Screen', () => {
   };
 
   beforeEach(() => {
+    global.fetch = jest.fn(); // Mock fetch
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
@@ -160,4 +203,118 @@ describe('Login Screen', () => {
     // Assert that the router.push method was called with the correct URL
     expect(screen).toHavePathname('/register');
   });
+
+  it('logs in successfully with valid credentials', async () => {
+    const mockResponse = {
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        data: { username: 'testuser', sessionToken: 'mockedToken123' },
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderLogin();
+
+    renderRouter(
+      {
+        login: () => <Login/>,
+        Tasks: () => <Tasks {...mockTaskData} />
+      },
+      {
+        initialUrl: '/(drawer)/tasks',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Login'));
+    
+    await waitFor(() => {
+      expect(mockSetAppUser).toHaveBeenCalledWith({
+        username: 'testuser',
+        sessionToken: 'mockedToken123',
+      });
+
+      // Assert that the router.push method was called with the correct URL
+      expect(screen).toHavePathname('/(drawer)/tasks');
+    });
+  });
+
+  it('shows error message when username is missing', async () => {
+    const { getByPlaceholderText, getByText, findByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.press(getByText('Login'));
+    
+    const errorHeader = await findByText('MISSING_USERNAME');
+    const errorMessage = await findByText('Please enter your username.');
+    
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+  });
+
+  it('shows error message when password is missing', async () => {
+    const { getByPlaceholderText, getByText, findByText } = renderLogin();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.press(getByText('Login'));
+    
+    const errorHeader = await findByText('MISSING_PASSWORD');
+    const errorMessage = await findByText('Please enter your password.');
+    
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+  });
+
+  it('shows error message for network request timeout', async () => {
+    // Suppress console.error for this test case
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Create a spy on the AbortController constructor and its abort method
+    const abortControllerSpy = jest.spyOn(global, 'AbortController').mockImplementation(() => {
+      return {
+        signal: {
+          aborted: true,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          onabort: null,
+          dispatchEvent: jest.fn(),
+          throwIfAborted: jest.fn(),
+          reason: null,
+        },
+        abort: jest.fn(),
+      } as unknown as AbortController;
+    });
+
+    // Mock fetch to simulate a network timeout
+    global.fetch = jest.fn(() => {
+      return new Promise((_, reject) => {
+        reject(new DOMException('The operation was aborted.', 'AbortError')); // Simulate abort error
+      });
+    });
+  
+    const { getByPlaceholderText, getByText, findByText } = renderLogin();
+  
+    // Simulate user input
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+  
+    // Simulate pressing the login button
+    fireEvent.press(getByText('Login'));
+  
+    // Wait for the timeout error modal to appear
+    const errorHeader = await findByText('NETWORK REQUEST TIMED_OUT');
+    const errorMessage = await findByText('The request has been aborted due to timeout.');
+  
+    // Assertions
+    expect(errorHeader).toBeTruthy();
+    expect(errorMessage).toBeTruthy();
+
+    // Restore the original AbortController behavior and console.error
+    abortControllerSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+  
 });
