@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, userEvent } from '@testing-library/react-native';
+import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import Register from '@/app/(auth)/register';
 import Login from '@/app/(auth)/login';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
@@ -118,5 +118,121 @@ describe('Register Screen', () => {
 
     // Assert that the router.push method was called with the correct URL
     expect(screen).toHavePathname('/login');
+  });
+
+  it('register account successfully with valid credentials', async () => {
+    global.fetch = jest.fn(() => 
+      Promise.resolve({
+        json: () => Promise.resolve({
+          username: 'testuser',
+          password: 'password123',
+          confirmPassword: 'password123',
+          enrolmentCode: 'abcdefg',
+        })
+      }),
+    ) as jest.Mock;
+
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    renderRouter(
+      {
+        register: () => <Register/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+    
+    fireEvent.press(getByText('Register'));
+    
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+      
+    });
+  });
+
+  it('shows an error message if username is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), '');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+
+    fireEvent.press(getByText('Register'));
+
+    await waitFor(() => {
+      expect(getByText('Please enter your username.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message if password is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), '');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+
+    fireEvent.press(getByText('Register'));
+
+    await waitFor(() => {
+      expect(getByText('Please enter your password.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message if confirm password is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), '');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+
+    fireEvent.press(getByText('Register'));
+
+    await waitFor(() => {
+      expect(getByText('Please re-confirm your password.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message if passwords do not match', async () => {
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'differentPassword');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), 'abcdefg');
+
+    fireEvent.press(getByText('Register'));
+
+    await waitFor(() => {
+      expect(getByText('Please re-confirm your passwords.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows an error message if enrollment code is empty', async () => {
+    const { getByPlaceholderText, getByText } = renderRegister();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Re-enter your password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter the enrollment code'), '');
+
+    fireEvent.press(getByText('Register'));
+
+    await waitFor(() => {
+      expect(getByText('Please enter the enrolment code given.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
   });
 });

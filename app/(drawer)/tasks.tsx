@@ -343,10 +343,6 @@ const Tasks: React.FC<TaskData> = () => {
           setSubmitting(false);
         }
         
-      } else if (currentTaskCategory === 2) {
-
-      } else if (currentTaskCategory === 3) {
-
       } else {
         setErrorHeaderMessage("INVALID_INPUT")
         setErrorMessage("Please select a valid category of task.")

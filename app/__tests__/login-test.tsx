@@ -316,5 +316,4 @@ describe('Login Screen', () => {
     abortControllerSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
-  
 });

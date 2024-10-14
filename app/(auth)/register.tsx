@@ -60,6 +60,12 @@ const Register = () => {
       setErrorModalVisible(true);
       setSubmitting(false);
     }
+    else if (form.confirmPassword != form.password) {
+      setErrorHeaderMessage("INCORRECT_PASSWORD")
+      setErrorMessage("Please re-confirm your passwords.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
     else if (form.enrolmentCode.length == 0){
       setErrorHeaderMessage("MISSING_ENROLMENT")
       setErrorMessage("Please enter the enrolment code given.")
