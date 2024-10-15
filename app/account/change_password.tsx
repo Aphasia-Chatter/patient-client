@@ -46,6 +46,24 @@ const ChangePassword = () => {
       setDialogMessage("Are you sure you want to update your account password?")
       setDialogModalVisible(true);
     }
+    else if (username?.length == 0 && sessionToken?.length == 0) {
+      setErrorHeaderMessage("MISSING_USERNAME_SESSION")
+      setErrorMessage("Invalid username and session token.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (username?.length == 0) {
+      setErrorHeaderMessage("MISSING_USERNAME")
+      setErrorMessage("Invalid username.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (sessionToken?.length == 0) {
+      setErrorHeaderMessage("MISSING_SESSION")
+      setErrorMessage("Invalid session token.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
     else if (form.currentPassword.length == 0) {
       setErrorHeaderMessage("MISSING_PASSWORD")
       setErrorMessage("Please enter your current password.")
@@ -61,6 +79,12 @@ const ChangePassword = () => {
     else if (form.confirmNewPassword.length == 0) {
       setErrorHeaderMessage("MISSING_CONFIRM_NEW_PASSWORD")
       setErrorMessage("Please re-confirm your new password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.confirmNewPassword != form.newPassword) {
+      setErrorHeaderMessage("INCORRECT_NEW_PASSWORDS")
+      setErrorMessage("Please re-confirm your new passwords.")
       setErrorModalVisible(true);
       setSubmitting(false);
     }
@@ -93,66 +117,58 @@ const ChangePassword = () => {
 
     setSubmitting(true);
 
-    if (form.confirmNewPassword != form.newPassword) {
-      setErrorHeaderMessage("INCORRECT_NEW_PASSWORDS")
-      setErrorMessage("Please re-confirm your new passwords.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else {
-      try {
-        // Send POST request for patient login
-        // Use ipconfig to find ip address of your pc in the local network
-        const response = await fetch('https://aphasia.mooo.com/api/patient/change-account-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              username: username,
-              sessionToken: sessionToken,
-              currentPassword: form.currentPassword,
-              newPassword: form.newPassword,
-              confirmNewPassword: form.confirmNewPassword,
-          }),
-          signal: signal
-        });
+    try {
+      // Send POST request for patient login
+      // Use ipconfig to find ip address of your pc in the local network
+      const response = await fetch('https://aphasia.mooo.com/api/patient/change-account-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            sessionToken: sessionToken,
+            currentPassword: form.currentPassword,
+            newPassword: form.newPassword,
+            confirmNewPassword: form.confirmNewPassword,
+        }),
+        signal: signal
+      });
 
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
+      // Clear the timeout if the request is successful
+      clearTimeout(timeoutId);
 
-        const jsonResponse = await response.json();
+      const jsonResponse = await response.json();
 
-        if (response.ok) {
-          // Delete username and session token from local storage in device
-          setAppUser(null);
-          await saveValue("AppUser", null);
+      if (response.ok) {
+        // Delete username and session token from local storage in device
+        setAppUser(null);
+        await saveValue("AppUser", null);
 
-          // Show success modal
-          setSuccessHeaderMessage(jsonResponse.status);
-          setSuccessMessage(jsonResponse.message);
-          setSuccessModalVisible(true);
-        } else {
-          // Show error message
-          setErrorHeaderMessage(jsonResponse.status);
-          setErrorMessage(jsonResponse.message);
-          setErrorModalVisible(true);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        if (signal.aborted) {
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("The request has been aborted due to timeout.")
-          setErrorModalVisible(true);
-        }
-        else if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST ERROR")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        }
-      } finally {
-        setSubmitting(false);
+        // Show success modal
+        setSuccessHeaderMessage(jsonResponse.status);
+        setSuccessMessage(jsonResponse.message);
+        setSuccessModalVisible(true);
+      } else {
+        // Show error message
+        setErrorHeaderMessage(jsonResponse.status);
+        setErrorMessage(jsonResponse.message);
+        setErrorModalVisible(true);
       }
+    } catch (error) {
+      console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
