@@ -41,28 +41,19 @@ const ChangePassword = () => {
   };
 
   const handleDialogModalOpen = () => {
-    if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
-      setDialogHeaderMessage("Change Account Password")
-      setDialogMessage("Are you sure you want to update your account password?")
-      setDialogModalVisible(true);
-    }
-    else if (username?.length == 0 && sessionToken?.length == 0) {
-      setErrorHeaderMessage("MISSING_USERNAME_SESSION")
+    console.log(username)
+    console.log(sessionToken)
+
+    if (username == undefined || sessionToken == undefined) {
+      setErrorHeaderMessage("INVALID_USERNAME_SESSION")
       setErrorMessage("Invalid username and session token.")
       setErrorModalVisible(true);
       setSubmitting(false);
-    }
-    else if (username?.length == 0) {
-      setErrorHeaderMessage("MISSING_USERNAME")
-      setErrorMessage("Invalid username.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (sessionToken?.length == 0) {
-      setErrorHeaderMessage("MISSING_SESSION")
-      setErrorMessage("Invalid session token.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
+    } 
+    else if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
+      setDialogHeaderMessage("Change Account Password")
+      setDialogMessage("Are you sure you want to update your account password?")
+      setDialogModalVisible(true);
     }
     else if (form.currentPassword.length == 0) {
       setErrorHeaderMessage("MISSING_PASSWORD")
