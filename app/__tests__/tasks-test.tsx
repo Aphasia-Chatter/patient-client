@@ -816,7 +816,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - invalid session token', async () => {
+  it('create a task session unsuccessfully by pressing on "Not Started" status button - invalid user-session token', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,

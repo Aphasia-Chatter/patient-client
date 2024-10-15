@@ -156,6 +156,131 @@ describe('Change Password Screen', () => {
     expect(screen).toHavePathname('/login');
   });
 
+  it('change account password unsuccessfully with invalid credentials - empty username and session token in context', () => {
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "",
+        sessionToken: ""
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <ChangePassword />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+  });
+
+  it('change account password unsuccessfully with invalid credentials - empty username in context', () => {
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "",
+        sessionToken: "testSession123"
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <ChangePassword />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
+  });
+
+  it('change account password unsuccessfully with invalid credentials - empty session token in context', () => {
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "testuser",
+        sessionToken: ""
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <ChangePassword />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
+  });
+
+  it('change account password unsuccessfully with invalid credentials - invalid user-session token', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      json: jest.fn().mockResolvedValue({
+        status: 'BAD_SESSION_TOKEN',
+        message: 'Session token for user does not exist!'
+      }),
+    };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    renderRouter(
+      {
+        changePassword: () => <ChangePassword/>,
+        login: () => (
+            <AuthContext.Provider value={mockAuthContext}>
+                <Login />
+            </AuthContext.Provider>
+        ),
+      },
+      {
+        initialUrl: '/login',
+      },
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'testUser');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+    
+    fireEvent.press(getByText('Update Password'));
+    
+    await waitFor(() => {
+      expect(getByText('Change Account Password')).toBeTruthy();
+      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getByText('BAD_SESSION_TOKEN')).toBeTruthy();
+      expect(getByText('Session token for user does not exist!')).toBeTruthy();
+    });
+  });
+
   it('change account password unsuccessfully with invalid credentials - invalid current password', async () => {
     // Mock the fetch response
     const mockResponse = {
@@ -409,15 +534,23 @@ describe('Change Password Screen', () => {
     fireEvent.press(getByText('Update Password'));
 
     await waitFor(() => {
-      expect(getByText('Change Account Password')).toBeTruthy();
-      expect(getByText('Are you sure you want to update your account password?')).toBeTruthy();
-    });
-
-    fireEvent.press(getByText('Confirm'));
-
-    await waitFor(() => {
       expect(getByText('INCORRECT_NEW_PASSWORDS')).toBeTruthy();
       expect(getByText('Please re-confirm your new passwords.')).toBeTruthy(); // Adjust error message based on your implementation
+    });
+  });
+
+  it('shows error message when new passwords are the same as the current password', async () => {
+    const { getByPlaceholderText, getByText } = renderChangePassword();
+
+    fireEvent.changeText(getByPlaceholderText('Enter your current password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your new password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('Enter your confirm password'), 'password123');
+
+    fireEvent.press(getByText('Update Password'));
+
+    await waitFor(() => {
+      expect(getByText('INVALID_NEW_PASSWORDS')).toBeTruthy();
+      expect(getByText('Please check that your new password is not the same as old password.')).toBeTruthy(); // Adjust error message based on your implementation
     });
   });
 });

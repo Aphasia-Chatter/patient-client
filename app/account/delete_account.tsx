@@ -41,21 +41,21 @@ const DeleteAccount = () => {
   };
 
   const handleDialogModalOpen = () => {
-    if (username == undefined || sessionToken == undefined) {
-      setErrorHeaderMessage("MISSING_USERNAME_SESSION")
-      setErrorMessage("Invalid username and session token.")
+    if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+      setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+      setErrorMessage("Invalid username and/or session token.")
       setErrorModalVisible(true);
       setSubmitting(false);
+    }
+    else if (form.password.length == 0) {
+      setErrorHeaderMessage("MISSING_PASSWORD")
+      setErrorMessage("Please enter your password.")
+      setErrorModalVisible(true);
     }
     else if (form.password.length > 0) {
       setDialogHeaderMessage("Delete Account")
       setDialogMessage("Are you sure you want to delete this account? The action cannot be reverted.")
       setDialogModalVisible(true);
-    }
-    else {
-      setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Please enter your password.")
-      setErrorModalVisible(true);
     }
   };
 

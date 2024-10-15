@@ -142,6 +142,81 @@ describe('Delete Account Screen', () => {
     expect(screen).toHavePathname('/login');
   });
 
+  it('change account account successfully with valid credentials - empty username and session token in context', () => {
+    // Mock the fetch response
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "",
+        sessionToken: ""
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <DeleteAccount />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Delete Account Permanently'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
+  });
+
+  it('change account account successfully with valid credentials - empty username in context', () => {
+    // Mock the fetch response
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "testuser",
+        sessionToken: ""
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <DeleteAccount />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Delete Account Permanently'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
+  });
+
+  it('change account account successfully with valid credentials - empty session token in context', () => {
+    // Mock the fetch response
+    const mockSetAppUser = jest.fn();
+    const mockInvalidAuthContext = {
+      appUser: {
+        username: "",
+        sessionToken: "testSession123"
+      },
+      setAppUser: mockSetAppUser,
+    };
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthContext.Provider value={mockInvalidAuthContext}>
+        <DeleteAccount />
+      </AuthContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'password123');
+    
+    fireEvent.press(getByText('Delete Account Permanently'));
+    
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
+  });
+
   it('change account account successfully with valid credentials - invalid current password', async () => {
     // Mock the fetch response
     const mockResponse = {

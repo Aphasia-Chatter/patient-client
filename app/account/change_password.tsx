@@ -41,19 +41,11 @@ const ChangePassword = () => {
   };
 
   const handleDialogModalOpen = () => {
-    console.log(username)
-    console.log(sessionToken)
-
-    if (username == undefined || sessionToken == undefined) {
+    if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
       setErrorHeaderMessage("INVALID_USERNAME_SESSION")
-      setErrorMessage("Invalid username and session token.")
+      setErrorMessage("Invalid username and/or session token.")
       setErrorModalVisible(true);
       setSubmitting(false);
-    } 
-    else if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
-      setDialogHeaderMessage("Change Account Password")
-      setDialogMessage("Are you sure you want to update your account password?")
-      setDialogModalVisible(true);
     }
     else if (form.currentPassword.length == 0) {
       setErrorHeaderMessage("MISSING_PASSWORD")
@@ -78,6 +70,17 @@ const ChangePassword = () => {
       setErrorMessage("Please re-confirm your new passwords.")
       setErrorModalVisible(true);
       setSubmitting(false);
+    }
+    else if ((form.newPassword == form.currentPassword) || (form.confirmNewPassword == form.currentPassword)) {
+      setErrorHeaderMessage("INVALID_NEW_PASSWORDS")
+      setErrorMessage("Please check that your new password is not the same as old password.")
+      setErrorModalVisible(true);
+      setSubmitting(false);
+    }
+    else if (form.currentPassword.length > 0 && form.newPassword.length > 0 && form.confirmNewPassword.length > 0) {
+      setDialogHeaderMessage("Change Account Password")
+      setDialogMessage("Are you sure you want to update your account password?")
+      setDialogModalVisible(true);
     }
   };
 
