@@ -336,7 +336,7 @@ describe('Tasks Screen', () => {
 
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - empty username and session token in context', async () => {
+  it('retrieve tasks unsuccessfully with invalid session - empty username and session token in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -352,12 +352,11 @@ describe('Tasks Screen', () => {
       </AuthContext.Provider>
     );
 
-    await waitFor(() => {
-      expect(getByText('There was a problem with the network request.')).toBeTruthy();
-    });
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - empty username in context', async () => {
+  it('retrieve tasks unsuccessfully with invalid session - empty username in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -373,12 +372,11 @@ describe('Tasks Screen', () => {
       </AuthContext.Provider>
     );
 
-    await waitFor(() => {
-      expect(getByText('There was a problem with the network request.')).toBeTruthy();
-    });
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
   
-  it('retrieve tasks unsuccessfully with invalid session - empty session token in context', async () => {
+  it('retrieve tasks unsuccessfully with invalid session - empty session token in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -394,9 +392,8 @@ describe('Tasks Screen', () => {
       </AuthContext.Provider>
     );
 
-    await waitFor(() => {
-      expect(getByText('There was a problem with the network request.')).toBeTruthy();
-    });
+    expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
 
   it('retrieve tasks unsuccessfully with invalid session - invalid session token', async () => {

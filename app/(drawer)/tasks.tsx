@@ -109,19 +109,15 @@ const Tasks: React.FC<TaskData> = () => {
     setRetrieving(true);
 
     try {
-      if (appUser?.sessionToken == undefined) {
-        // Introduce a 5-second delay before setting the error message to make user believe that fetching from api occurs
-        setTimeout(() => {
-          // Display error model
-          setErrorHeaderMessage("SESSION DATA ERROR")
-          setErrorMessage("There was a problem with the session data.")
-          setErrorModalVisible(true);
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        // Display error model
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
 
-          // Set error message
-          setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
-          setRetrieving(false);
-
-        }, timeout);
+        // Set error message
+        setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
+        setRetrieving(false);
       }
       else {
         const params = new URLSearchParams();

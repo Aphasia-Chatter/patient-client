@@ -179,6 +179,7 @@ describe('Change Password Screen', () => {
     fireEvent.press(getByText('Update Password'));
     
     expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
+    expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
 
   it('change account password unsuccessfully with invalid credentials - empty username in context', () => {
