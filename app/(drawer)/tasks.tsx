@@ -78,8 +78,7 @@ const Tasks: React.FC<TaskData> = () => {
   const [ taskFilterModalVisible, setTaskFilterModalVisible ] = useState(false);
   const [ taskFilterHeaderMessage, setTaskFilterHeaderMessage ] = useState('');
   const [ taskFilterMessage, setTaskFilterMessage ] = useState('');
-
-  const maxTasks = 5; // Maximum number of tasks to keep in memory
+  
   const flatListRef = useRef<FlatList<TaskData>>(null);
 
   useEffect(() => {
@@ -161,22 +160,22 @@ const Tasks: React.FC<TaskData> = () => {
           if (response.ok) {
             let tasks = jsonResponse.data.tasks;
 
-            if (additionalParams.statusOfTask == 2) {
-              // Keep only tasks with status "Not Started"
-              tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
-              
-            } else if (additionalParams.statusOfTask == 3) {
-              // Keep only tasks with status "In Progress"
-              tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
-
-            } else if (additionalParams.statusOfTask == 4) {
-              // Keep only tasks with status "Completed"
-              tasks = tasks.filter((task: TaskData) => task.status === "Completed");
-            }
-
             if (tasks.length == 0) {
               setDataStatusMessage("No tasks are found.");
             } else {
+              if (additionalParams.statusOfTask == 2) {
+                // Keep only tasks with status "Not Started"
+                tasks = tasks.filter((task: TaskData) => task.status === "Not Started");
+                
+              } else if (additionalParams.statusOfTask == 3) {
+                // Keep only tasks with status "In Progress"
+                tasks = tasks.filter((task: TaskData) => task.status === "In Progress");
+  
+              } else if (additionalParams.statusOfTask == 4) {
+                // Keep only tasks with status "Completed"
+                tasks = tasks.filter((task: TaskData) => task.status === "Completed");
+              }
+
               // Sort the tasks by createdAt before setting them
               const sortedTasks = tasks.sort((a: TaskData, b: TaskData) => {
                 const dateA = new Date(a.task.createdAt);
@@ -194,7 +193,6 @@ const Tasks: React.FC<TaskData> = () => {
               setTasks(sortedTasks);
             }
           } else {
-            console.log("No word retrieval tasks found.");
             setDataStatusMessage("No word retrieval tasks found.");
           }
         } 
@@ -241,7 +239,6 @@ const Tasks: React.FC<TaskData> = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
       
       if (signal.aborted) {
         setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
@@ -308,8 +305,6 @@ const Tasks: React.FC<TaskData> = () => {
             fetchAllTasks();
 
             // Redirect to chatbot page
-            // router.push(`/chatbot/chatbot/sessionID:${jsonResponse.data.taskSessionID}`);
-
             router.push({
               pathname: "/chatbot/chatbot",
               params: {
@@ -495,7 +490,9 @@ const Tasks: React.FC<TaskData> = () => {
               setTaskFilterHeaderMessage("Filter Task")
               setTaskFilterMessage("Please filter the task to your liking.")
               setTaskFilterModalVisible(true);
-            }}>
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="filter">
             <MaterialCommunityIcons name="filter-variant" size={24} color='#fff'/>
             </Pressable>
           )
@@ -549,11 +546,10 @@ const Tasks: React.FC<TaskData> = () => {
                 onRefresh={onRefresh}
               />
             }
+            windowSize={5}
+            initialNumToRender={5}
+            testID='task-list'
           />
-        ) : tasks.length > 0 && currentTaskCategory == 2 ? (
-          <></>
-        ) : tasks.length > 0 && currentTaskCategory == 3 ? (
-          <></>
         ) : (
           <></>
         )
