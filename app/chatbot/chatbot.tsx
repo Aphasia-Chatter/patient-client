@@ -67,11 +67,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
   
-        // Get word retrieval chat history at launch
+        // Get word retrieval chat history
         fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
-      console.error('Invalid task category, task id or filePath');
+      setErrorHeaderMessage("INVALID_PARAMS")
+      setErrorMessage("An error has occurred.\nPlease refresh or try again later.")
+      setErrorModalVisible(true);
     }
   }, []);
 
@@ -89,6 +91,125 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }, 600);
   }, []);
 
+  const fetchWordRetrievalTask = async () => {
+    const controller = new AbortController();
+    const timeout = 10000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
+    try {
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
+      }
+      else {
+        const params = new URLSearchParams();
+        params.append('taskID', taskID?.toString() ?? '');
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
+        
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+        
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          const data = jsonResponse.data;
+          const name = data.task.name;
+          const description = data.task.description;
+          setTaskName(name);
+          setTaskDescription(description);
+        }
+      }
+    } catch(error) {
+      console.error('Error:', error);
+
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }   
+    }
+  }
+
+  const fetchWordRetrievalTaskImage = async (imagePath: string) => {
+    const controller = new AbortController();
+    const timeout = 10000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
+    try {
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
+      }
+      else {
+        const params = new URLSearchParams();
+      
+        if (appUser?.username) {
+          params.append('username', appUser.username);
+        }
+  
+        if (appUser?.sessionToken) {
+          params.append('sessionToken', appUser.sessionToken);
+        }
+  
+        params.append('filePath', imagePath);
+  
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          signal: signal
+        });
+  
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+  
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          setWordRetrievalImageData(jsonResponse);
+
+        } else {
+          setErrorHeaderMessage("FETCH_IMAGE_FAILED")
+          setErrorMessage(jsonResponse)
+          setErrorModalVisible(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }      
+    }
+  };
+
   const fetchAllWordRetrievalSessionChatHistory = async () => {
     const controller = new AbortController();
     const timeout = 10000;
@@ -99,8 +220,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
       }
       else {
         const response = await fetch(`https://aphasia.mooo.com/api/patient/chat-histories/`, {
@@ -145,121 +267,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setErrorMessage("There was a problem with the network request.")
         setErrorModalVisible(true);
       }
-    }
-  };
-
-  const fetchWordRetrievalTask = async () => {
-    const controller = new AbortController();
-    const timeout = 10000;
-    const signal = controller.signal;
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, timeout);
-
-    try {
-      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
-      }
-      else {
-        const params = new URLSearchParams();
-        params.append('taskID', taskID?.toString() ?? '');
-        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            signal: signal
-          });
-        
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-        
-        const jsonResponse = await response.json();
-  
-        if (response.ok) {
-          const data = jsonResponse.data;
-          const name = data.task.name;
-          const description = data.task.description;
-          setTaskName(name);
-          setTaskDescription(description);
-        }
-      }
-    } catch(error) {
-      console.error('Error:', error);
-      if (signal.aborted) {
-        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-        setErrorMessage("The request has been aborted due to timeout.")
-        setErrorModalVisible(true);
-      }
-      else if (error instanceof TypeError) { // Error such as Network request failed
-        setErrorHeaderMessage("NETWORK REQUEST ERROR")
-        setErrorMessage("There was a problem with the network request.")
-        setErrorModalVisible(true);
-      }   
-    }
-  }
-
-  const fetchWordRetrievalTaskImage = async (imagePath: string) => {
-    const controller = new AbortController();
-    const timeout = 10000;
-    const signal = controller.signal;
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, timeout);
-
-    try {
-      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
-      }
-      else {
-        const params = new URLSearchParams();
-      
-        if (appUser?.username) {
-          params.append('username', appUser.username);
-        }
-  
-        if (appUser?.sessionToken) {
-          params.append('sessionToken', appUser.sessionToken);
-        }
-  
-        params.append('filePath', imagePath);
-  
-        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
-  
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-  
-        const jsonResponse = await response.json();
-  
-        if (response.ok) {
-          setWordRetrievalImageData(jsonResponse);
-        } else {
-          setErrorHeaderMessage("FETCH_IMAGE_FAILED")
-          setErrorMessage(jsonResponse)
-          setErrorModalVisible(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-
-      if (signal.aborted) {
-        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-        setErrorMessage("The request has been aborted due to timeout.")
-        setErrorModalVisible(true);
-      }
-      else if (error instanceof TypeError) { // Error such as Network request failed
-        setErrorHeaderMessage("NETWORK REQUEST ERROR")
-        setErrorMessage("There was a problem with the network request.")
-        setErrorModalVisible(true);
-      }      
     }
   };
 
@@ -421,8 +428,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const startRecording = async () => {
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
       } 
       else {
         if (!permissionResponse || permissionResponse.status !== 'granted') {
@@ -458,8 +466,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const stopRecording = async () => {
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
       } 
       else {
         if (recording) {
@@ -493,8 +502,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const clearRecording = async () => {
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        console.error('INVALID_USERNAME_SESSION');
-        console.error('Invalid username and/or session token.');
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
       } 
       else {
         if (recording) {
