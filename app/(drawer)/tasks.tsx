@@ -267,7 +267,17 @@ const Tasks: React.FC<TaskData> = () => {
     setDialogModalVisible(false);
     setSubmitting(true);
 
-    if (currentTaskCategory == null) {
+    if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        // Display error model
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
+        setErrorMessage("Invalid username and/or session token.")
+        setErrorModalVisible(true);
+
+        // Set error message
+        setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
+        setRetrieving(false);
+    }
+    else if (currentTaskCategory == null) {
       setErrorHeaderMessage("MISSING_INPUT")
       setErrorMessage("Please select a task category")
       setErrorModalVisible(true);

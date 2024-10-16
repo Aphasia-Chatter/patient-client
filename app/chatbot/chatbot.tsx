@@ -98,35 +98,94 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }, timeout);
 
     try {
-      const response = await fetch(`https://aphasia.mooo.com/api/patient/chat-histories/`, {
-        body: JSON.stringify({
-          "username": username,
-          "sessionToken": sessionToken,
-          "taskSessionID": taskSessionID,
-          "taskCategory": taskCategory,
-        }),
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: signal
-      })
-
-      // Clear the timeout if the request is successful
-      clearTimeout(timeoutId);
-
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        // Set chat history messages
-        setMessages(jsonResponse.data.messages);
-      } else {
-        setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
-        setErrorMessage(jsonResponse['message'])
-        setErrorModalVisible(false);
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
+      }
+      else {
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/chat-histories/`, {
+          body: JSON.stringify({
+            "username": username,
+            "sessionToken": sessionToken,
+            "taskSessionID": taskSessionID,
+            "taskCategory": taskCategory,
+          }),
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          signal: signal
+        })
+  
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+  
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          // Set chat history messages
+          setMessages(jsonResponse.data.messages);
+        } else {
+          setErrorHeaderMessage("FETCH_CHAT_HISTORY_FAILED")
+          setErrorMessage(jsonResponse['message'])
+          setErrorModalVisible(false);
+        }
       }
     }
     catch (error) {
+      console.error('Error:', error);
+
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }
+    }
+  };
+
+  const fetchWordRetrievalTask = async () => {
+    const controller = new AbortController();
+    const timeout = 10000;
+    const signal = controller.signal;
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeout);
+
+    try {
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
+      }
+      else {
+        const params = new URLSearchParams();
+        params.append('taskID', taskID?.toString() ?? '');
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: signal
+          });
+        
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+        
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          const data = jsonResponse.data;
+          const name = data.task.name;
+          const description = data.task.description;
+          setTaskName(name);
+          setTaskDescription(description);
+        }
+      }
+    } catch(error) {
       console.error('Error:', error);
       if (signal.aborted) {
         setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
@@ -139,52 +198,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         setErrorModalVisible(true);
       }   
     }
-  };
-
-  const fetchWordRetrievalTask = async () => {
-    const controller = new AbortController();
-    const timeout = 10000;
-    const signal = controller.signal;
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, timeout);
-
-     try {
-        const params = new URLSearchParams();
-        params.append('taskID', taskID?.toString() ?? '');
-        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-by-id?${params.toString()}`, {
-           method: 'GET',
-           headers: {
-              'Content-Type': 'application/json',
-           },
-           signal: signal
-          });
-        
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-        
-        const jsonResponse = await response.json();
-
-        if (response.ok) {
-          const data = jsonResponse.data;
-          const name = data.task.name;
-          const description = data.task.description;
-          setTaskName(name);
-          setTaskDescription(description);
-        }
-     } catch(error) {
-        console.error('Error:', error);
-        if (signal.aborted) {
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("The request has been aborted due to timeout.")
-          setErrorModalVisible(true);
-        }
-        else if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST ERROR")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        }   
-     }
   }
 
   const fetchWordRetrievalTaskImage = async (imagePath: string) => {
@@ -196,39 +209,47 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }, timeout);
 
     try {
-      const params = new URLSearchParams();
-
-      if (appUser?.username) {
-        params.append('username', appUser.username);
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
       }
-      if (appUser?.sessionToken) {
-        params.append('sessionToken', appUser.sessionToken);
-      }
-
-      params.append('filePath', imagePath);
-
-      const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: signal
-      });
-
-      // Clear the timeout if the request is successful
-      clearTimeout(timeoutId);
-
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        setWordRetrievalImageData(jsonResponse);
-      } else {
-        setErrorHeaderMessage("FETCH_IMAGE_FAILED")
-        setErrorMessage(jsonResponse)
-        setErrorModalVisible(false);
+      else {
+        const params = new URLSearchParams();
+      
+        if (appUser?.username) {
+          params.append('username', appUser.username);
+        }
+  
+        if (appUser?.sessionToken) {
+          params.append('sessionToken', appUser.sessionToken);
+        }
+  
+        params.append('filePath', imagePath);
+  
+        const response = await fetch(`https://aphasia.mooo.com/api/patient/get-word-retrieval-task-image?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          signal: signal
+        });
+  
+        // Clear the timeout if the request is successful
+        clearTimeout(timeoutId);
+  
+        const jsonResponse = await response.json();
+  
+        if (response.ok) {
+          setWordRetrievalImageData(jsonResponse);
+        } else {
+          setErrorHeaderMessage("FETCH_IMAGE_FAILED")
+          setErrorMessage(jsonResponse)
+          setErrorModalVisible(false);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
+
       if (signal.aborted) {
         setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
         setErrorMessage("The request has been aborted due to timeout.")
@@ -399,39 +420,16 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
   const startRecording = async () => {
     try {
-      if (!permissionResponse || permissionResponse.status !== 'granted') {
-        console.log('Requesting permission..');
-        await requestPermission();
-      }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        playThroughEarpieceAndroid: true,
-        interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-        shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
-      });
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
+      } 
+      else {
+        if (!permissionResponse || permissionResponse.status !== 'granted') {
+          console.log('Requesting permission..');
+          await requestPermission();
+        }
 
-      console.log('Starting recording..');
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
-      setRecording(recording);
-
-      console.log('Recording started');
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Failed to start recording', err);
-    }
-  };
-
-  const stopRecording = async () => {
-    try {
-      if (recording) {
-        console.log('Stopping recording..');
-        await recording.stopAndUnloadAsync();
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
@@ -441,15 +439,51 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
           shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
         });
+  
+        console.log('Starting recording..');
+        const { recording } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY
+        );
+  
+        setRecording(recording);
+  
+        console.log('Recording started');
+        setIsRecording(true);
+      }
+    } catch (err) {
+      console.error('Failed to start recording', err);
+    }
+  };
 
-        const recordingUri = recording.getURI();
-        console.log('Recording stopped and stored at', recordingUri);
-
-        sendRecording(recordingUri);
-
-        setIsRecording(false);
-      } else {
-        console.log('No recording to stop');
+  const stopRecording = async () => {
+    try {
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
+      } 
+      else {
+        if (recording) {
+          console.log('Stopping recording..');
+          await recording.stopAndUnloadAsync();
+          await Audio.setAudioModeAsync({
+            allowsRecordingIOS: true,
+            interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: false,
+            playThroughEarpieceAndroid: true,
+            interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
+            shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
+          });
+  
+          const recordingUri = recording.getURI();
+          console.log('Recording stopped and stored at', recordingUri);
+  
+          sendRecording(recordingUri);
+  
+          setIsRecording(false);
+        } else {
+          console.log('No recording to stop');
+        }
       }
     } catch (err) {
       console.error('Failed to stop recording', err);
@@ -458,18 +492,24 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
   const clearRecording = async () => {
     try {
-      if (recording) {
-        console.log('Stopping recording..');
-        await recording.stopAndUnloadAsync();
-
-        const recordingUri = recording.getURI();
-        console.log('Recording stopped and stored at', recordingUri);
-
-        setRecording(undefined);
-
-        setIsRecording(false);
-      } else {
-        console.log('No recording to stop');
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+        console.error('INVALID_USERNAME_SESSION');
+        console.error('Invalid username and/or session token.');
+      } 
+      else {
+        if (recording) {
+          console.log('Stopping recording..');
+          await recording.stopAndUnloadAsync();
+  
+          const recordingUri = recording.getURI();
+          console.log('Recording stopped and stored at', recordingUri);
+  
+          setRecording(undefined);
+  
+          setIsRecording(false);
+        } else {
+          console.log('No recording to stop');
+        }
       }
     } catch (err) {
       console.error('Failed to stop recording', err);
@@ -537,6 +577,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         }
       } catch (error) {
         console.error('Error:', error);
+
         if (signal.aborted) {
           setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
           setErrorMessage("The request has been aborted due to timeout.")
@@ -594,9 +635,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             {/* Centered Container */}
             <View className="flex justify-center items-center w-full mt-3 my-3">
               {/* Chatbot Image Message Bubble */}
-              <Pressable onPress={() => {
-                setTaskDetailsModalVisible(true);
-              }} className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600">
+              <Pressable 
+                className="p-2 flex rounded-2xl bg-gray-200 dark:bg-gray-600"
+                onPress={() => {
+                  setTaskDetailsModalVisible(true);
+                }}
+                accessibilityRole="image"
+                accessibilityLabel="word retrieval task image">
                 <ImageBackground 
                   className="rounded-xl max-h-64 max-w-64 bg-white aspect-square p-4"
                   resizeMode="cover"

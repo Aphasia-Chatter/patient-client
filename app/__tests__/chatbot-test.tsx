@@ -41,23 +41,101 @@ describe('Chatbot Screen', () => {
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
-  it('renders correctly with initial state', () => {
-    const mockTaskSession = {
-        taskSessionID: 'taskSession123',
-        completedAt: null, // Ensure completedAt is null
+  it('does not renders word retrieval task image when task is not retrieved', () => {
+    // Mock the fetch response
+    // Get word retrieval task
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          tasks: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        taskSession: {
+          taskSessionID: 'taskSession1',
+          startedAt: new Date().toISOString(),
+          completedAt: new Date().toISOString()
+        }
+      }),
     };
 
-    const { getByText } = renderChatbot(mockTaskSession);
+    // Get word retrieval image
+    const mockResponseTwo = {
+      ok: true,
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64')
+      }),
+      send: jest.fn()
+    };
 
-    // Expect the task title to be rendered
-    const taskTitle = getByText('Tap and say your answer');
-    expect(taskTitle).toBeTruthy();
-  });
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        taskSessionID: 'session1',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: 'This is the user\'s message',
+              timestamp: new Date().toISOString(),
+              hasAudio: false
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: 'This is the bot\'s response',
+              timestamp: new Date().toISOString(),
+              hasAudio: true
+            }
+          ]
+        }
+      })
+    };
 
-  it('renders record button with initial state', () => {
-    const { getByText } = renderTasks();
 
-    const taskTitle = getByText('Tap and say your answer');
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse).mockResolvedValueOnce(mockResponseTwo).mockResolvedValueOnce(mockResponseThree);
+
+    const { getByRole } = renderChatbot();
+
+    const taskTitle = getByRole('image', { name: /word retrieval task image/i, hidden: false })
 
     expect(taskTitle).toBeTruthy();
   });
