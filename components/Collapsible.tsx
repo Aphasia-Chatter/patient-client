@@ -1,10 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useColorScheme } from 'nativewind';
 
-export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
-  const [ isOpen, setIsOpen ] = useState(false);
+export function Collapsible({ children, title, isOpen, onPress }: PropsWithChildren & { title: string; isOpen: boolean; onPress: () => void; }) {
   const { colorScheme } = useColorScheme();
 
   return (
@@ -12,10 +11,10 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       {/* Button that toggles the collapsible content */}
       <TouchableOpacity 
         className='flex-row items-center'
-        onPress={() => setIsOpen((value) => !value)}
+        onPress={onPress} // Use the parent's onPress function
         activeOpacity={0.8}
       >
-        <Text className={`flex-1 ml-2 mr-3 text-sm ${isOpen ? ' font-bold text-gray-950 dark:text-gray-50' : 'text-dark dark:text-light'}`}>
+        <Text className={`flex-1 ml-2 mr-3 text-sm ${isOpen ? 'font-bold text-gray-950 dark:text-gray-50' : 'text-dark dark:text-light'}`}>
           {title}
         </Text>
         <Feather

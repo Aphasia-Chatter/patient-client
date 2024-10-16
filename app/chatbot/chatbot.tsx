@@ -67,7 +67,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         // Get word retrieval image
         fetchWordRetrievalTaskImage(filePath);
   
-        // TODO: Get word retrieval chat history at launch
+        // Get word retrieval chat history at launch
         fetchAllWordRetrievalSessionChatHistory();
       }
     } else {
@@ -78,7 +78,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(async () => {
-      // TODO: Refresh word retrieval chat history
+      // Refresh word retrieval chat history
       await fetchAllWordRetrievalSessionChatHistory();
 
       if (flatListRef.current) {
