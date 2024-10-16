@@ -456,6 +456,26 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
   };
 
+  const clearRecording = async () => {
+    try {
+      if (recording) {
+        console.log('Stopping recording..');
+        await recording.stopAndUnloadAsync();
+
+        const recordingUri = recording.getURI();
+        console.log('Recording stopped and stored at', recordingUri);
+
+        setRecording(undefined);
+
+        setIsRecording(false);
+      } else {
+        console.log('No recording to stop');
+      }
+    } catch (err) {
+      console.error('Failed to stop recording', err);
+    }
+  };
+
   const sendRecording = async (recordingUri: string | null) => {
     if (recordingUri != null) {
       // Encode recording content as a Base64 string
@@ -654,7 +674,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 style={({ pressed }) => [
                   pressed ? { opacity: 0.5 } : {},
                 ]}
-                onPress={stopRecording}
+                onPress={clearRecording}
                 accessibilityRole="button"
                 accessibilityLabel="clear recording">
                 <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
