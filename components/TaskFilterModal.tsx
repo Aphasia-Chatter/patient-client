@@ -28,7 +28,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
 
     const taskStatusItems = [
       {label: "All", value: "1"},
-      {label: "Not started", value: "2"},
+      {label: "Not Started", value: "2"},
       {label: "In Progress", value: "3"},
       {label: "Completed", value: "4"}
     ]
@@ -93,7 +93,7 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
           {/* - Hide this when the task category above is open  */}
           {
             !isTaskCategoryOpen && (
-              <View className='pb-3'>
+              <View className='pb-3' accessibilityLabel='task filter model'>
                 <DropDownPicker
                   items={taskStatusItems}
                   open={isTaskStatusOpen}

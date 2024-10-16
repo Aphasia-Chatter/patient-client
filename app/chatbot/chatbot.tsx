@@ -14,13 +14,13 @@ import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
 
-type PatientWordRetrievalTaskImageData = {
+export type PatientWordRetrievalTaskImageData = {
   path: string;
   data: string;
 };
 
 // Define types for messages
-type Message = {
+export type Message = {
   author: 'bot' | 'user';
   content: string;
   isTTSPlaying?: boolean;
@@ -30,6 +30,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const { taskCategory, filePath, taskSessionID, taskID, completedAt } = useLocalSearchParams()
 
   const { appUser } = useAuthContext();
+  const [ username ] = useState(appUser?.username);
+  const [ sessionToken ] = useState(appUser?.sessionToken);
   const { colorScheme } = useColorScheme();
 
   const [ refreshing, setRefreshing ] = useState(false);
@@ -98,8 +100,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     try {
       const response = await fetch(`https://aphasia.mooo.com/api/patient/chat-histories/`, {
         body: JSON.stringify({
-          "username": appUser?.username,
-          "sessionToken": appUser?.sessionToken,
+          "username": username,
+          "sessionToken": sessionToken,
           "taskSessionID": taskSessionID,
           "taskCategory": taskCategory,
         }),
@@ -465,8 +467,8 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       const formData = new FormData();
       formData.append('audioFileData', recordingBlob);
       formData.append('audioFilePath', recordingUri);
-      formData.append('username', appUser?.username || '');
-      formData.append('sessionToken', appUser?.sessionToken || '');
+      formData.append('username', username || '');
+      formData.append('sessionToken', sessionToken || '');
       formData.append('taskSessionID', taskSessionID?.toString() || '');
 
       const controller = new AbortController();
@@ -625,30 +627,36 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-8' : 'pb-2'} bg-light dark:bg-dark`}>
           <Text className='text-sm font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
           {isRecording ? (
-            <Pressable
+            <Pressable // Stop Recording Button
               style={({ pressed }) => [
                 pressed ? { opacity: 0.5 } : {},
               ]}
-              onPress={stopRecording}>
+              onPress={stopRecording}
+              accessibilityRole="button"
+              accessibilityLabel="stop recording">
               <Ionicons name="stop-circle-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
           ) : (
-            <Pressable
+            <Pressable // Start Recording Button
               style={({ pressed }) => [
                 pressed ? { opacity: 0.5 } : {},
               ]}
-              onPress={startRecording}>
+              onPress={startRecording}
+              accessibilityRole="button"
+              accessibilityLabel="start recording">
               <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
           )}
       
-          {isRecording ? ( // Clear Recording Button
+          {isRecording ? ( 
             <View className='absolute right-10'>
-              <Pressable
+              <Pressable // Clear Recording Button
                 style={({ pressed }) => [
                   pressed ? { opacity: 0.5 } : {},
                 ]}
-                onPress={stopRecording}>
+                onPress={stopRecording}
+                accessibilityRole="button"
+                accessibilityLabel="clear recording">
                 <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
                   <Text className='text-base font-semibold text-light dark:text-light'> Clear </Text>
                 </View>  

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, within } from '@testing-library/react-native';
 import Tasks, { TaskData } from '@/app/(drawer)/tasks';
 import Chatbot from '@/app/chatbot/chatbot';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
@@ -138,7 +138,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('does not render filter button when retrieved tasks is not called', async () => {
+  it('does not render filter button when retrieved word retrieval tasks is not called', async () => {
     const { queryByRole } = renderTasks();
 
     await waitFor(() => {
@@ -146,7 +146,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('retrieve tasks successfully with valid session', async () => {
+  it('retrieve word retrieval tasks successfully with valid session', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -236,7 +236,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('retrieve tasks successfully with valid session after refreshed when pulled down', async () => {    
+  it('retrieve word retrieval tasks successfully with valid session after refreshed when pulled down', async () => {    
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -336,7 +336,7 @@ describe('Tasks Screen', () => {
 
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - empty username and session token in context', () => {
+  it('retrieve word retrieval word retrieval tasks unsuccessfully with invalid session - empty username and session token in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -356,7 +356,7 @@ describe('Tasks Screen', () => {
     expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - empty username in context', () => {
+  it('retrieve word retrieval tasks unsuccessfully with invalid session - empty username in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -376,7 +376,7 @@ describe('Tasks Screen', () => {
     expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
   
-  it('retrieve tasks unsuccessfully with invalid session - empty session token in context', () => {
+  it('retrieve word retrieval word retrieval tasks unsuccessfully with invalid session - empty session token in context', () => {
     const mockSetAppUser = jest.fn();
     const mockInvalidAuthContext = {
       appUser: {
@@ -396,7 +396,7 @@ describe('Tasks Screen', () => {
     expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - invalid session token', async () => {
+  it('retrieve word retrieval tasks unsuccessfully with invalid session - invalid session token', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -417,7 +417,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - invalid username', async () => {
+  it('retrieve word retrieval tasks unsuccessfully with invalid session - invalid username', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -438,7 +438,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('retrieve tasks unsuccessfully with invalid session - server error', async () => {
+  it('retrieve word retrieval tasks unsuccessfully with invalid session - server error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: false,
@@ -480,7 +480,547 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session successfully by pressing on "Not Started" status button', async () => {
+  it('retrieve only "Not Started" word retrieval tasks successfully with valid session when filtering', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Not Started',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '2',
+                imagePath: '/path/to/image',
+                answer: 'sample answer2',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '2',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '2',
+                name: 'Sample Task 2',
+                description: 'This is a sample task description 2',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'In Progress',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '3',
+                imagePath: '/path/to/image',
+                answer: 'sample answer3',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '3',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '3',
+                name: 'Sample Task 3',
+                description: 'This is a sample task description 3',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Completed',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            }
+          ],
+        },
+      }),
+    };
+
+    // Mock the fetch response
+    const mockResponseSorted = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Not Started',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+          ],
+        },
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse).mockResolvedValueOnce(mockResponseSorted);
+
+    const { getByRole, getByText, getAllByText, queryByText, getByLabelText } = renderTasks();
+
+    await waitFor(() => {
+      expect(getByRole('button', { name: /filter/i, hidden: false })).toBeTruthy();
+    });
+
+    fireEvent.press(getByRole('button', { name: /filter/i, hidden: false }));
+    expect(getByText('Word Retrieval Task')).toBeTruthy();
+    expect(getByText('All')).toBeTruthy();
+
+    fireEvent.press(getByText('All'));
+    const dropdownMenu = getByLabelText('task filter model');
+    const notStartedTasks = within(dropdownMenu).getAllByText('Not Started', { hidden: false }); // Scope search to dropdown
+    expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
+    fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getAllByText('Not Started')).toBeTruthy();
+      expect(queryByText('In Progress')).toBeNull();
+      expect(queryByText('Completed')).toBeNull();
+    });
+  });
+
+  it('retrieve only "In Progress" word retrieval tasks successfully with valid session when filtering', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Not Started',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '2',
+                imagePath: '/path/to/image',
+                answer: 'sample answer2',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '2',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '2',
+                name: 'Sample Task 2',
+                description: 'This is a sample task description 2',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'In Progress',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '3',
+                imagePath: '/path/to/image',
+                answer: 'sample answer3',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '3',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '3',
+                name: 'Sample Task 3',
+                description: 'This is a sample task description 3',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Completed',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            }
+          ],
+        },
+      }),
+    };
+
+    // Mock the fetch response
+    const mockResponseSorted = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'In Progress',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+          ],
+        },
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse).mockResolvedValueOnce(mockResponseSorted);
+
+    const { getByRole, getByText, getAllByText, queryByText, getByLabelText } = renderTasks();
+
+    await waitFor(() => {
+      expect(getByRole('button', { name: /filter/i, hidden: false })).toBeTruthy();
+    });
+
+    fireEvent.press(getByRole('button', { name: /filter/i, hidden: false }));
+    expect(getByText('Word Retrieval Task')).toBeTruthy();
+    expect(getByText('All')).toBeTruthy();
+
+    fireEvent.press(getByText('All'));
+    const dropdownMenu = getByLabelText('task filter model');
+    const notStartedTasks = within(dropdownMenu).getAllByText('In Progress', { hidden: false }); // Scope search to dropdown
+    expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
+    fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getAllByText('In Progress')).toBeTruthy();
+      expect(queryByText('Not Started')).toBeNull();
+      expect(queryByText('Completed')).toBeNull();
+    });
+  });
+
+  it('retrieve only "Completed" word retrieval tasks successfully with valid session when filtering', async () => {
+    // Mock the fetch response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Not Started',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '2',
+                imagePath: '/path/to/image',
+                answer: 'sample answer2',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '2',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '2',
+                name: 'Sample Task 2',
+                description: 'This is a sample task description 2',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'In Progress',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+            {
+              word_retrieval_task: {
+                taskID: '3',
+                imagePath: '/path/to/image',
+                answer: 'sample answer3',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '3',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '3',
+                name: 'Sample Task 3',
+                description: 'This is a sample task description 3',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Completed',
+              session: {
+                taskSessionID: 'session2',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            }
+          ],
+        },
+      }),
+    };
+
+    // Mock the fetch response
+    const mockResponseSorted = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'Word retrieval tasks successfully retrieved',
+        data: {
+          tasks: [
+            {
+              word_retrieval_task: {
+                taskID: '1',
+                imagePath: '/path/to/image',
+                answer: 'sample answer',
+                inputRestriction: 'none'
+              },
+              task_editor: {
+                taskID: '1',
+                staffID: '123',
+                role: 'editor'
+              },
+              task: {
+                id: '1',
+                name: 'Sample Task',
+                description: 'This is a sample task description',
+                taskVisibility: 'public',
+                createdAt: new Date().toISOString(),
+              },
+              staff: {
+                id: '123',
+                username: 'doctor123',
+                hashedPassword: 'hashed_password123'
+              },
+              status: 'Completed',
+              session: {
+                taskSessionID: 'session1',
+                startedAt: new Date(),
+                completedAt: new Date()
+              }
+            },
+          ],
+        },
+      }),
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse).mockResolvedValueOnce(mockResponseSorted);
+
+    const { getByRole, getByText, getAllByText, queryByText, getByLabelText } = renderTasks();
+
+    await waitFor(() => {
+      expect(getByRole('button', { name: /filter/i, hidden: false })).toBeTruthy();
+    });
+
+    fireEvent.press(getByRole('button', { name: /filter/i, hidden: false }));
+    expect(getByText('Word Retrieval Task')).toBeTruthy();
+    expect(getByText('All')).toBeTruthy();
+
+    fireEvent.press(getByText('All'));
+    const dropdownMenu = getByLabelText('task filter model');
+    const notStartedTasks = within(dropdownMenu).getAllByText('Completed', { hidden: false }); // Scope search to dropdown
+    expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
+    fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+
+    fireEvent.press(getByText('Confirm'));
+
+    await waitFor(() => {
+      expect(getAllByText('Completed')).toBeTruthy();
+      expect(queryByText('Not Started')).toBeNull();
+      expect(queryByText('In Progress')).toBeNull();
+    });
+  });
+
+  it('create a word retrieval task session successfully by pressing on "Not Started" status button', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -573,7 +1113,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - empty username in context', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - empty username in context', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -653,7 +1193,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - empty session token in context', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - empty session token in context', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -733,7 +1273,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - empty task id', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - empty task id', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -813,7 +1353,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - invalid user-session token', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - invalid user-session token', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -893,7 +1433,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - task does not exist', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - task does not exist', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -973,7 +1513,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - task session already exist', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - task session already exist', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -1053,7 +1593,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('create a task session unsuccessfully by pressing on "Not Started" status button - server error', async () => {
+  it('create a word retrieval task session unsuccessfully by pressing on "Not Started" status button - server error', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -1133,7 +1673,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('enter an existing task session by pressing on "In Progress" status button', async () => {
+  it('enter an existing word retrieval task session by pressing on "In Progress" status button', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
@@ -1207,7 +1747,7 @@ describe('Tasks Screen', () => {
     });
   });
 
-  it('enter an existing task session by pressing on "Completed" status button', async () => {
+  it('enter an existing word retrieval task session by pressing on "Completed" status button', async () => {
     // Mock the fetch response
     const mockResponse = {
       ok: true,
