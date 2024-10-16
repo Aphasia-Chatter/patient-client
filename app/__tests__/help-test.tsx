@@ -38,7 +38,7 @@ describe('Help Screen', () => {
     const { getByText, queryByText } = renderHelp();
     
     // Test "How to start a practice task?" collapsible
-    const collapsibleTitle = getByText('How to start a practice task?');
+    const collapsibleTitle = getByText('How do I start a practice task?');
     fireEvent.press(collapsibleTitle);
 
     await waitFor(() => {
@@ -53,11 +53,31 @@ describe('Help Screen', () => {
     });
   });
 
+  it('should collapse other sections when collapse a collapsible section', async () => {
+    const { getByText, queryByTestId } = renderHelp();
+    
+    // Test "How to start a practice task?" collapsible
+    const collapsibleTitle = getByText('How do I start a practice task?');
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(getByText('Word Retrieval Practice Task')).toBeTruthy();
+    });
+
+    // Collapse it back
+    const collapsibleTitleTwo = getByText('How do I update my account password?');
+    fireEvent.press(collapsibleTitleTwo);
+
+    await waitFor(() => {
+      expect(queryByTestId('start-practice-task-video-player')).toBeNull();
+    });
+  });
+
   it('renders the video player for "how to start a practice task?"', async () => {
     const { getByText, getByTestId  } = renderHelp();
 
     // Optionally, you may need to trigger the opening of the Collapsible component
-    const toggleButton = getByText('How to start a practice task?'); // Replace with the actual toggle button text
+    const toggleButton = getByText('How do I start a practice task?'); // Replace with the actual toggle button text
     fireEvent.press(toggleButton);
 
     await waitFor(() => {
@@ -65,10 +85,8 @@ describe('Help Screen', () => {
     });
 
     // Use findByRole to find the video element by accessibilityRole="image"
-    const videoComponent = getByTestId('help-video-player');
-
     await waitFor(() => {
-      expect(videoComponent).toBeTruthy();
+      expect(getByTestId('start-practice-task-video-player')).toBeTruthy();
     });
   });
 });

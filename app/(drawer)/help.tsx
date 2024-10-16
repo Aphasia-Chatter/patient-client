@@ -53,7 +53,7 @@ const Help = () => {
                                 shouldPlay={false}
                                 resizeMode={ResizeMode.CONTAIN}
                                 onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
-                                testID='help-video-player'
+                                testID='start-practice-task-video-player'
                             />
                             <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
                                 <Text>Learn more</Text>
@@ -62,7 +62,7 @@ const Help = () => {
                     </Collapsible>
                     {/* Tutorial - How do I update my password? */}
                     <Collapsible
-                        title="How do I update my password?"
+                        title="How do I update my account password?"
                         isOpen={activeIndex === 1}
                         onPress={() => handlePress(1)}>
                         <View className='flex-1 items-center justify-center'>
