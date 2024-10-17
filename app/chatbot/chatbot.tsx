@@ -487,41 +487,114 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
   };
 
-  const stopRecording = async () => {
+  const stopRecordingAndSend = async () => {
     try {
-      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
-        setErrorHeaderMessage("INVALID_USERNAME_SESSION")
-        setErrorMessage("Invalid username and/or session token.")
+      if (!username || !sessionToken || username.length === 0 || sessionToken.length === 0) {
+        setErrorHeaderMessage("INVALID_USERNAME_SESSION");
+        setErrorMessage("Invalid username and/or session token.");
         setErrorModalVisible(true);
-      } 
-      else {
-        if (recording) {
-          console.log('Stopping recording..');
-          await recording.stopAndUnloadAsync();
-          await Audio.setAudioModeAsync({
-            allowsRecordingIOS: true,
-            interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: false,
-            playThroughEarpieceAndroid: true,
-            interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-            shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
+        return;
+      }
+  
+      if (recording) {
+        console.log('Stopping recording..');
+        await recording.stopAndUnloadAsync();
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          playThroughEarpieceAndroid: true,
+          interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix
+          shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
+        });
+  
+        const recordingUri = recording.getURI();
+        console.log('Recording stopped and stored at', recordingUri);
+  
+        if (recordingUri != null) {
+          const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
+            encoding: FileSystem.EncodingType.Base64,
           });
-  
-          const recordingUri = recording.getURI();
-          console.log('Recording stopped and stored at', recordingUri);
-  
-          sendRecording(recordingUri);
-  
+
+          // Recording has stopped. Proceed to do transcription
           setIsRecording(false);
-        } else {
-          console.log('No recording to stop');
+  
+          const formData = new FormData();
+          formData.append('audioFileData', recordingBlob);
+          formData.append('audioFilePath', recordingUri);
+          formData.append('username', username || '');
+          formData.append('sessionToken', sessionToken || '');
+          formData.append('taskSessionID', taskSessionID?.toString() || '');
+  
+          const controller = new AbortController();
+          const timeout = 10000;
+          const signal = controller.signal;
+          const timeoutId = setTimeout(() => {
+            controller.abort();
+          }, timeout);
+  
+          setRecordingSubmitting(true);
+  
+          try {
+            const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+              body: formData,
+              signal: signal,
+            });
+  
+            clearTimeout(timeoutId);
+  
+            const result = await response.json();
+  
+            if (response.ok) {
+              console.log("transcription from backend:", result.data.transcription);
+  
+              const newMessages = [...messages];
+              newMessages.push(
+                { author: 'user', content: result.data.transcription },
+                { author: 'bot', content: result.data.message }
+              );
+  
+              setMessages(newMessages);
+  
+              if (result.data.completed) {
+                setIsTaskCompleted("true");
+                Alert.alert('Task Completed!');
+              }
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              console.error('Error:', error);
+              setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT");
+              setErrorMessage("The request has been aborted due to timeout.");
+              setErrorModalVisible(true);
+            }
+  
+            if (signal.aborted) {
+              setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT");
+              setErrorMessage("The request has been aborted due to timeout.");
+              setErrorModalVisible(true);
+            } else if (error instanceof TypeError) {
+              setErrorHeaderMessage("NETWORK REQUEST ERROR");
+              setErrorMessage("There was a problem with the network request.");
+              setErrorModalVisible(true);
+            }
+          } finally {
+            setRecordingSubmitting(false);
+          }
         }
+      } else {
+        console.log('No recording to stop');
       }
     } catch (err) {
       console.error('Failed to stop recording', err);
     }
   };
+  
 
   const clearRecording = async () => {
     try {
@@ -550,84 +623,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
   };
 
-  const sendRecording = async (recordingUri: string | null) => {
-    if (recordingUri != null) {
-      // Encode recording content as a Base64 string
-      const recordingBlob = await FileSystem.readAsStringAsync(recordingUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      })
-
-      // Attach the Base64 string to the key 'audioFile'
-      const formData = new FormData();
-      formData.append('audioFileData', recordingBlob);
-      formData.append('audioFilePath', recordingUri);
-      formData.append('username', username || '');
-      formData.append('sessionToken', sessionToken || '');
-      formData.append('taskSessionID', taskSessionID?.toString() || '');
-
-      const controller = new AbortController();
-      const timeout = 10000;
-      const signal = controller.signal;
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, timeout);
-
-      setRecordingSubmitting(true);
-      
-      try {
-        const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data', // Indicate request body contains form data that includes files (due to large blocks of data)
-          },
-          body: formData,
-          signal: signal
-        });
-
-        // Clear the timeout if the request is successful
-        clearTimeout(timeoutId);
-
-        const result = await response.json();
-
-        if (response.ok) {
-          // Get chatbot response from the backend
-          console.log("transcription from backend:", result.data.transcription);
-
-          // Update chat history
-          const newMessages = [...messages];
-          newMessages.push({
-            author: 'user',
-            content: result.data.transcription,
-          }, {
-            author: 'bot',
-            content: result.data.message,
-          });
-          setMessages(newMessages);
-
-          if (result.data.completed) {
-            setIsTaskCompleted("true");
-            Alert.alert('Task Completed!')
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-
-        if (signal.aborted) {
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("The request has been aborted due to timeout.")
-          setErrorModalVisible(true);
-        }
-        else if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST ERROR")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        } 
-      } finally {
-        setRecordingSubmitting(false);
-      }
-    }
-  };
-
   useEffect(() => {
     // Cleanup function
     return () => {
@@ -639,7 +634,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         recording.stopAndUnloadAsync(); // Stop and unload the recording
       }
     };
-  }, [recording]); // Include recording in the dependency array
+  }, [recording]);
 
   useEffect(() => {
     if (flatListRef.current && messages.length !== previousMessageCount.current) {
@@ -730,7 +725,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               style={({ pressed }) => [
                 pressed ? { opacity: 0.5 } : {},
               ]}
-              onPress={stopRecording}
+              onPress={stopRecordingAndSend}
               accessibilityRole="button"
               accessibilityLabel="stop recording"
               accessibilityState={
