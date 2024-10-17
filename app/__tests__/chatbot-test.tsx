@@ -3,6 +3,8 @@ import { render, userEvent, fireEvent, waitFor } from '@testing-library/react-na
 import Chatbot from '@/app/chatbot/chatbot';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import { renderRouter, screen, } from 'expo-router/testing-library';
+
+// Import the module
 import { Audio } from 'expo-av';
 
 // Mock the saveValue function and expo-linking
@@ -31,6 +33,32 @@ jest.mock('expo-router', () => ({
   ...jest.requireActual('expo-router'),
   useLocalSearchParams: () => mockSearchParams
 }));
+
+// Mock the expo-av module
+jest.mock('expo-av', () => {
+  const actualExpoAv = jest.requireActual('expo-av'); // Import actual module
+  return {
+    ...actualExpoAv, // Spread the actual module to preserve anything else you might use
+    Audio: {
+      ...actualExpoAv.Audio, // Spread the actual Audio object to preserve anything else in Audio
+      usePermissions: jest.fn(() => [
+        {
+          granted: true,
+          status: 'granted',
+          canAskAgain: true,
+          expires: 'never',
+        },
+        jest.fn(), // requestPermission function mock
+        jest.fn()  // getPermissions function mock
+      ]),
+      setAudioModeAsync: jest.fn(), // Mock setAudioModeAsync
+      Recording: {
+        createAsync: jest.fn(() => Promise.resolve({ recording: {} })), // Mock createAsync
+      },
+    },
+  };
+});
+
 
 describe('Chatbot Screen', () => {
   // Mock AuthContext with appUser and setAppUser
@@ -1031,31 +1059,6 @@ describe('Chatbot Screen', () => {
       .mockResolvedValueOnce(mockResponse)   // First fetch (task)
       .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
       .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
-
-    // Mock the Audio module
-    jest.mock('expo-av', () => ({
-      Audio: {
-        requestPermissionsAsync: jest.fn().mockResolvedValue({
-          status: 'granted',
-        }),
-        setAudioModeAsync: jest.fn().mockResolvedValue({
-          allowsRecordingIOS: true,
-          interruptionModeIOS: 1, // InterruptionModeIOS.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          playThroughEarpieceAndroid: true,
-          interruptionModeAndroid: 1, // InterruptionModeAndroid.DoNotMix; If this option is set, your experience's audio interrupts audio from other apps.
-          shouldDuckAndroid: true, // Prevent audio from other apps to pause your audio
-        }),
-        Recording: {
-          createAsync: jest.fn().mockResolvedValue({
-            recording: {
-              stopAndUnloadAsync: jest.fn(),
-            },
-          }),
-        },
-      },
-    }));
 
     // Render the chatbot component
     const { getByRole, queryByText, queryByRole, getByLabelText } = renderChatbot();
