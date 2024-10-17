@@ -56,6 +56,12 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   // TTS Status
   const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);
 
+  // Recording
+  const [ isRecording, setIsRecording ] = useState(false);
+  const [ recording, setRecording ] = useState<Audio.Recording>();
+  const [ permissionResponse, requestPermission ] = Audio.usePermissions();
+  const [ isRecordingSubmitting, setRecordingSubmitting ] = useState(false);
+
   useEffect(() => {
     console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
 
@@ -283,7 +289,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
 
             // Start TTS
             Speech.speak(msg.content, {
-              rate: 0.7,
+              rate: 0.3,
               pitch: 1,
               voice:"com.apple.voice.compact.en-US.Samantha",
               onStart:() => setIsTTSPlaying(true), 
@@ -340,12 +346,20 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             <Image
               className="w-9 h-9 rounded-full border-2 mr-2 border-gray-200 dark:border-white"
               source={images.chatbot}
-            />
+              accessibilityLabel="bot icon image"/>
+
             {/* Chatbot Message Bubble */}
-            <View className="rounded-xl p-2 mr-5 bg-gray-200 dark:bg-gray-600">
+            <View
+              className="rounded-xl p-2 mr-5 bg-gray-200 dark:bg-gray-600"
+              accessibilityLabel="bot message bubble">
+
               {/* Chatbot Message Content */}
-              <Text className='text-base text-dark dark:text-light'>{item.content}</Text>
-  
+              <Text
+                className='text-base text-dark dark:text-light'
+                accessibilityLabel="bot message content">
+              {item.content}
+              </Text>
+
               {/* Chatbot Message TTS Button */}
               <Pressable 
                 key={index}
@@ -368,7 +382,9 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                     toggleTTS();
                   } 
                 }}
-                disabled={isRecording}> 
+                disabled={isRecording}
+                accessibilityRole="button"
+                accessibilityLabel="bot message tts"> 
                 {
                   (item.isTTSPlaying || isRecording) ? (
                     <MaterialCommunityIcons name="text-to-speech-off" size={24} color='#fff'/>
@@ -400,17 +416,31 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     } else {
       // Patient Input
       return (
-        // Patient Message Bubble
         <>
           {
             item.content.length == 0 ? (
-              <View key={index} className="rounded-xl p-2 ml-14 mt-3 flex-row items-center w-10/12 flex justify-center bg-blue-700 dark:bg-blue-800">
-                <Text className='text-base mr-2 text-gray-300'>Invalid input. Please try again</Text>
+              // System Message Bubble
+              <View
+                key={index}
+                className="rounded-xl p-2 ml-14 mt-3 flex-row items-center w-10/12 flex justify-center bg-blue-700 dark:bg-blue-800"
+                accessibilityLabel="system message bubble">
+                <Text
+                  className='text-base mr-2 text-gray-300'
+                  accessibilityLabel="system message content"
+                  >Invalid input. Please try again
+                </Text>
                 <MaterialIcons name="error" size={24} color='orange' style={{ marginTop: 1 }}/>
               </View>
             ) : (
-              <View key={index} className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600">
-                <Text className='text-base text-light'>{item.content}</Text>
+              // Patient Message Bubble
+              <View 
+                key={index}
+                className="rounded-xl p-2 ml-20 mt-3 bg-blue-500 dark:bg-blue-600"
+                accessibilityLabel="user message bubble">
+                <Text
+                  className='text-base text-light'
+                  accessibilityLabel="user message content"
+                  >{item.content}</Text>
               </View>
             )
           }
@@ -418,12 +448,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       );
     }
   };
-  
-  // Recording
-  const [ isRecording, setIsRecording ] = useState(false);
-  const [ recording, setRecording ] = useState<Audio.Recording>();
-  const [ permissionResponse, requestPermission ] = Audio.usePermissions();
-  const [ isRecordingSubmitting, setRecordingSubmitting ] = useState(false);
 
   const startRecording = async () => {
     try {
@@ -691,7 +715,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                   />
                 ) : undefined
               }
-              
+              testID='chat-history-list'
             />
           </View>
       ) : (
@@ -708,7 +732,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               ]}
               onPress={stopRecording}
               accessibilityRole="button"
-              accessibilityLabel="stop recording">
+              accessibilityLabel="stop recording"
+              accessibilityState={
+                {
+                  "disabled": false,
+                }
+              }
+              accessible={true}>
               <Ionicons name="stop-circle-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
           ) : (
@@ -718,7 +748,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               ]}
               onPress={startRecording}
               accessibilityRole="button"
-              accessibilityLabel="start recording">
+              accessibilityLabel="start recording"
+              accessibilityState={
+                {
+                  "disabled": false,
+                }
+              }
+              accessible={true}>
               <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
             </Pressable>
           )}
@@ -731,7 +767,13 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 ]}
                 onPress={clearRecording}
                 accessibilityRole="button"
-                accessibilityLabel="clear recording">
+                accessibilityLabel="clear recording"
+                accessibilityState={
+                  {
+                    "disabled": false,
+                  }
+                }
+                accessible={true}>
                 <View className="rounded-3xl px-3 py-2 bg-neutral-400 dark:bg-neutral-500">
                   <Text className='text-base font-semibold text-light dark:text-light'> Clear </Text>
                 </View>  
