@@ -88,46 +88,49 @@ describe('Tasks Screen', () => {
     const mockResponse = {
       ok: true,
       status: 200,
-      json: jest.fn().mockResolvedValue({
-        status: 'SUCCESS',
-        message: 'Word retrieval tasks successfully retrieved',
-        data: {
-          tasks: [
-            {
-              word_retrieval_task: {
-                taskID: '1',
-                imagePath: '/path/to/image',
-                answer: 'sample answer',
-                inputRestriction: 'none'
-              },
-              task_editor: {
-                taskID: '1',
-                staffID: '123',
-                role: 'editor'
-              },
-              task: {
-                id: '1',
-                name: 'Sample Task',
-                description: 'This is a sample task description',
-                taskVisibility: 'public',
-                createdAt: new Date().toISOString(),
-              },
-              staff: {
-                id: '123',
-                username: 'doctor123',
-                hashedPassword: 'hashed_password123'
-              },
-              status: 'Not Started',
-              session: {
-                taskSessionID: 'session1',
-                startedAt: new Date(),
-                completedAt: new Date()
+      json: jest.fn().mockReturnValue(
+        Promise.resolve({
+          status: 'SUCCESS',
+          message: 'Word retrieval tasks successfully retrieved',
+          data: {
+            tasks: [
+              {
+                word_retrieval_task: {
+                  taskID: '1',
+                  imagePath: '/path/to/image',
+                  answer: 'sample answer',
+                  inputRestriction: 'none'
+                },
+                task_editor: {
+                  taskID: '1',
+                  staffID: '123',
+                  role: 'editor'
+                },
+                task: {
+                  id: '1',
+                  name: 'Sample Task',
+                  description: 'This is a sample task description',
+                  taskVisibility: 'public',
+                  createdAt: new Date().toISOString(),
+                },
+                staff: {
+                  id: '123',
+                  username: 'doctor123',
+                  hashedPassword: 'hashed_password123'
+                },
+                status: 'Not Started',
+                session: {
+                  taskSessionID: 'session1',
+                  startedAt: new Date(),
+                  completedAt: new Date()
+                }
               }
-            }
-          ],
-        },
-      }),
+            ],
+          },
+        })
+      ),
     };
+    
 
     (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 

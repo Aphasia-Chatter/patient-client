@@ -13,6 +13,7 @@ import ErrorModal from "../../components/ErrorModal";
 import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
+import SuccessModal from '@/components/SuccessModal';
 
 export type PatientWordRetrievalTaskImageData = {
   path: string;
@@ -41,6 +42,10 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ errorModalVisible, setErrorModalVisible ] = useState(false);
   const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
   const [ errorMessage, setErrorMessage ] = useState('');
+  
+  const [ successModalVisible, setSuccessModalVisible ] = useState(false);
+  const [ successHeaderMessage, setSuccessHeaderMessage ] = useState('');
+  const [ successMessage, setSuccessMessage ] = useState('');
 
   const [ taskDetailsModalVisible, setTaskDetailsModalVisible ] = useState(false);
   const [ taskName, setTaskName ] = useState('');
@@ -60,7 +65,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ isRecording, setIsRecording ] = useState(false);
   const [ recording, setRecording ] = useState<Audio.Recording>();
   const [ permissionResponse, requestPermission ] = Audio.usePermissions();
-  const [ isRecordingSubmitting, setRecordingSubmitting ] = useState(false);
+  const [ isRecordingSubmitting, setIsRecordingSubmitting ] = useState(false);
 
   useEffect(() => {
     console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
@@ -534,7 +539,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             controller.abort();
           }, timeout);
   
-          setRecordingSubmitting(true);
+          setIsRecordingSubmitting(true);
   
           try {
             const response = await fetch('https://aphasia.mooo.com/api/patient/chat-session-audio', {
@@ -561,19 +566,23 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   
               setMessages(newMessages);
   
-              if (result.data.completed) {
+              // Display different message depending on patient's attempt
+              if (result.data.completed && result.data.isCorrectAnswer) {
                 setIsTaskCompleted("true");
-                Alert.alert('Task Completed!');
+                setSuccessHeaderMessage("Task Completed");
+                setSuccessMessage("Good job! Thank you for attempting! Your session has been successfully recorded.");
+                setSuccessModalVisible(true);
+              }
+              else if (result.data.completed && !result.data.isCorrectAnswer) {
+                setIsTaskCompleted("true");
+                setSuccessHeaderMessage("Task Completed!");
+                setSuccessMessage("Nice try! Thank you for attempting! Your session has been successfully recorded.");
+                setSuccessModalVisible(true);
               }
             }
           } catch (error) {
-            if (error instanceof Error) {
-              console.error('Error:', error);
-              setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT");
-              setErrorMessage("The request has been aborted due to timeout.");
-              setErrorModalVisible(true);
-            }
-  
+            console.error('Error:', error);
+
             if (signal.aborted) {
               setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT");
               setErrorMessage("The request has been aborted due to timeout.");
@@ -584,7 +593,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               setErrorModalVisible(true);
             }
           } finally {
-            setRecordingSubmitting(false);
+            setIsRecordingSubmitting(false);
           }
         }
       } else {
@@ -595,7 +604,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
     }
   };
   
-
   const clearRecording = async () => {
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
@@ -650,6 +658,14 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
         errorMessage={errorMessage}
         modalVisible={errorModalVisible}
         setModalVisible={setErrorModalVisible}
+      />
+      <SuccessModal 
+        headerMessage={successHeaderMessage}
+        successMessage={successMessage}
+        modalVisible={successModalVisible}
+        onDismiss={() => {
+          setSuccessModalVisible(false);
+        }}
       />
       <TaskDetailsModal
         name={taskName}
@@ -734,14 +750,21 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 }
               }
               accessible={true}>
-              <Ionicons name="stop-circle-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
+              <Ionicons name="stop-circle-sharp" size={96} color={('#F44336')}/>
             </Pressable>
           ) : (
             <Pressable // Start Recording Button
               style={({ pressed }) => [
                 pressed ? { opacity: 0.5 } : {},
               ]}
-              onPress={startRecording}
+              disabled={
+                // Disable clicking of recording button when submitting
+                isRecordingSubmitting ? true : false
+              }
+              onPress={
+                // Disable recording functionality being called when submitting
+                isRecordingSubmitting ? null : startRecording
+              }
               accessibilityRole="button"
               accessibilityLabel="start recording"
               accessibilityState={
@@ -750,7 +773,11 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 }
               }
               accessible={true}>
-              <Ionicons name="radio-button-on-sharp" size={96} color={(colorScheme === 'dark' ? '#F44336' : '#F44336')}/>
+              <Ionicons name="radio-button-on-sharp" size={96} color={
+                isRecordingSubmitting ?
+                'grey' : // Color grey when recording is not submitting
+                '#F44336'  // Color red when recording is not submitting
+              }/>
             </Pressable>
           )}
       
