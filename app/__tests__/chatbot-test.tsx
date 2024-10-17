@@ -59,6 +59,21 @@ jest.mock('expo-av', () => {
   };
 });
 
+// Mock the 'expo-file-system' module
+jest.mock('expo-file-system', () => {
+  const actualExpoFileSystem = jest.requireActual('expo-file-system'); // Import actual module
+  return {
+    ...actualExpoFileSystem, // Spread the actual module to preserve anything else you might use
+    readAsStringAsync: jest.fn((uri, options) => {
+      // Mock the implementation of readAsStringAsync
+      if (options && options.encoding === 'base64') {
+        return Promise.resolve('mockedBase64String'); // Return a mocked Base64 string
+      }
+      return Promise.reject(new Error('Unsupported encoding'));
+    }),
+  };
+});
+
 
 describe('Chatbot Screen', () => {
   // Mock AuthContext with appUser and setAppUser
@@ -1444,7 +1459,7 @@ describe('Chatbot Screen', () => {
       }),
     };
 
-    // Fourth fetch call: updated chat history retrieval response
+    // Fourth fetch call: transcribe user's response
     const mockResponseFour = {
       ok: true,
       status: 200,
@@ -1467,7 +1482,7 @@ describe('Chatbot Screen', () => {
       .mockResolvedValueOnce(mockResponse)   // First fetch (task)
       .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
       .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
-      .mockResolvedValueOnce(mockResponseFour); // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
 
     // Render the chatbot component
     const { getByText, getByRole, queryByText, queryByRole } = renderChatbot();
@@ -1497,6 +1512,7 @@ describe('Chatbot Screen', () => {
     fireEvent.press(getByRole('button', { name: /stop recording/i }));
 
     await waitFor(() => {
+      expect(getByRole('button', { name: /stop recording/i })).toBeUndefined;
       expect(getByRole('button', { name: /clear recording/i })).toBeUndefined;
 
       expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
@@ -1505,6 +1521,177 @@ describe('Chatbot Screen', () => {
       expect(getByText("NEW USER MESSAGE")).toBeTruthy();
       expect(getByText("NEW BOT MESSAGE")).toBeTruthy();
     });
+  });
+
+  it('unable to send new recording to backend until processed', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "NEW USER MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "NEW BOT MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Fourth fetch call: transcribe user's response
+    const mockResponseFour = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          botMessageID: 'botMsg2_id',
+          userMessageID: 'userMsg2_id',
+          message: 'message',
+          transcription: 'transcription',
+          completed: false,
+          isCorrectAnswer: false,
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
+
+    // Render the chatbot component
+    const { getByText, getByRole, queryByText, queryByRole } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    // Simulate a click on the "Clear Recording" button
+    fireEvent.press(getByRole('button', { name: /stop recording/i }));
+
+    await waitFor(() => {
+      expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+      expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+
+      expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
+      expect(startRecordingButton).toBeTruthy(); // Ensure "Start Recording" button appears
+    });
+
+    // Attempt to simulate a click on the "Start Recording" button quickly before API call is being processed
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Assert that stop and clear recording button did not appear
+    expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+    expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
   });
 
   it('retrieve selected word retrieval task unsuccessfully with invalid session - empty username and session token in context', () => {
