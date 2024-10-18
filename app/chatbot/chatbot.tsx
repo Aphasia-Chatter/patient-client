@@ -451,6 +451,10 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           }
         </>
       );
+    } else {
+      return (
+        <></>
+      )
     }
   };
 
