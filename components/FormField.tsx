@@ -44,7 +44,8 @@ const FormField: React.FC<FormFieldProps> = ({ title, value, placeholder, handle
               style={({ pressed }) => [,
                 pressed ? { opacity: 0.5 } : {},
               ]} 
-              onPress={() => setShowPassword(!showPassword)}>
+              onPress={() => setShowPassword(!showPassword)}
+              testID="toggle-password-visibility">
                 <FontAwesome5
                   name={showPassword === true ? "eye" : "eye-slash"}
                   size={24}

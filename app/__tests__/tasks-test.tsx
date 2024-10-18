@@ -649,7 +649,7 @@ describe('Tasks Screen', () => {
     expect(getByText('All')).toBeTruthy();
 
     fireEvent.press(getByText('All'));
-    const dropdownMenu = getByLabelText('task filter model');
+    const dropdownMenu = getByLabelText('task status dropdown');
     const notStartedTasks = within(dropdownMenu).getAllByText('Not Started', { hidden: false }); // Scope search to dropdown
     expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
     fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
@@ -829,7 +829,7 @@ describe('Tasks Screen', () => {
     expect(getByText('All')).toBeTruthy();
 
     fireEvent.press(getByText('All'));
-    const dropdownMenu = getByLabelText('task filter model');
+    const dropdownMenu = getByLabelText('task status dropdown');
     const notStartedTasks = within(dropdownMenu).getAllByText('In Progress', { hidden: false }); // Scope search to dropdown
     expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
     fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
@@ -1009,7 +1009,7 @@ describe('Tasks Screen', () => {
     expect(getByText('All')).toBeTruthy();
 
     fireEvent.press(getByText('All'));
-    const dropdownMenu = getByLabelText('task filter model');
+    const dropdownMenu = getByLabelText('task status dropdown');
     const notStartedTasks = within(dropdownMenu).getAllByText('Completed', { hidden: false }); // Scope search to dropdown
     expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
     fireEvent.press(notStartedTasks[0]); // Press the first and only visible element

@@ -23,7 +23,6 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
 
     const taskCategoryItems = [
       {label: "Word Retrieval Task", value: "1"},
-
     ]
 
     const taskStatusItems = [
@@ -67,7 +66,8 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
         <Text className='text-lg mb-4'>{taskFilterMessage}</Text>
         <View style={styles.column}>
           {/* Task Type */}
-          <View className='pb-3'>
+          <View className='pb-3'
+            accessibilityLabel='task type dropdown'>
             <DropDownPicker
               items={taskCategoryItems}
               open={isTaskCategoryOpen}
@@ -93,7 +93,8 @@ const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFi
           {/* - Hide this when the task category above is open  */}
           {
             !isTaskCategoryOpen && (
-              <View className='pb-3' accessibilityLabel='task filter model'>
+              <View className='pb-3'
+                accessibilityLabel='task status dropdown'>
                 <DropDownPicker
                   items={taskStatusItems}
                   open={isTaskStatusOpen}

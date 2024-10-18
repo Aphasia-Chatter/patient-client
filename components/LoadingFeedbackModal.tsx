@@ -1,4 +1,4 @@
-import { Alert, Modal, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { Modal, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import React from 'react';
 
 interface LoadingFeedbackModalProps {
@@ -12,11 +12,12 @@ const LoadingFeedbackModal: React.FC<LoadingFeedbackModalProps> = ({ modalVisibl
       animationType="fade"
       transparent={true}
       visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
+      onRequestClose={() => {}}>
       <View style={styles.modalBody}>
-        <ActivityIndicator size="large" color="#bcbcbc" />
+        <ActivityIndicator
+          testID="loading-indicator"
+          size="large"
+          color="#bcbcbc" />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     </Modal>

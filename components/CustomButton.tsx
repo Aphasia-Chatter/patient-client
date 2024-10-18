@@ -32,6 +32,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, handlePress, contain
       onPress={handlePress}
       activeOpacity={0.7}
       disabled={isLoading}
+      testID="custom-button"
       {...props}
     >
       <Text
@@ -53,6 +54,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, handlePress, contain
           color="#fff"
           size="small"
           style={{ marginLeft: 5 }} // Example margin left
+          testID="loading-indicator"
         />
       )}
     </Pressable>
