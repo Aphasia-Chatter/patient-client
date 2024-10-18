@@ -267,7 +267,8 @@ const Tasks: React.FC<TaskData> = () => {
     setDialogModalVisible(false);
     setSubmitting(true);
 
-    if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
+    try {
+      if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
         // Display error model
         setErrorHeaderMessage("INVALID_USERNAME_SESSION")
         setErrorMessage("Invalid username and/or session token.")
@@ -276,16 +277,14 @@ const Tasks: React.FC<TaskData> = () => {
         // Set error message
         setDataStatusMessage("An error has occurred.\nPlease refresh or try again later.");
         setRetrieving(false);
-    }
-    else if (currentTaskCategory == null) {
-      setErrorHeaderMessage("MISSING_INPUT")
-      setErrorMessage("Please select a task category")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else {
-      if (currentTaskCategory === 1) {
-        try {
+      }
+      else if (currentTaskCategory == null) {
+        setErrorHeaderMessage("MISSING_INPUT")
+        setErrorMessage("Please select a task category")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      } else {
+        if (currentTaskCategory === 1) {
           // Send POST request for patient login
           // Use ipconfig to find ip address of your pc in the local network
           const response = await fetch('https://aphasia.mooo.com/api/patient/create-word-retrieval-task-session', {
@@ -303,13 +302,13 @@ const Tasks: React.FC<TaskData> = () => {
     
           // Clear the timeout if the request is successful
           clearTimeout(timeoutId);
-
+  
           const jsonResponse = await response.json();
     
           if (response.ok) {
             // Clear data
             fetchAllTasks();
-
+  
             // Redirect to chatbot page
             router.push({
               pathname: "/chatbot/chatbot",
@@ -319,37 +318,37 @@ const Tasks: React.FC<TaskData> = () => {
                 taskSessionID: jsonResponse.data.taskSessionID,
                 taskID: jsonResponse.data.taskID,
                 completedAt: "null"
-               }
+              }
             });
-
+            
           } else {
             // Show error message
             setErrorHeaderMessage(jsonResponse.status);
             setErrorMessage(jsonResponse.message);
             setErrorModalVisible(true);
           }
-        } catch (error) {
-          console.error('Error:', error);
-          if (signal.aborted) {
-            setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-            setErrorMessage("The request has been aborted due to timeout.")
-            setErrorModalVisible(true);
-          }
-          else if (error instanceof TypeError) { // Error such as Network request failed
-            setErrorHeaderMessage("NETWORK REQUEST ERROR")
-            setErrorMessage("There was a problem with the network request.")
-            setErrorModalVisible(true);
-          }        
-        } finally {
+  
+        } else {
+          setErrorHeaderMessage("INVALID_INPUT")
+          setErrorMessage("Please select a valid category of task.")
+          setErrorModalVisible(true);
           setSubmitting(false);
         }
-        
-      } else {
-        setErrorHeaderMessage("INVALID_INPUT")
-        setErrorMessage("Please select a valid category of task.")
-        setErrorModalVisible(true);
-        setSubmitting(false);
       }
+    } catch (error) {
+      console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }        
+    } finally {
+      setSubmitting(false);
     }
   }
 

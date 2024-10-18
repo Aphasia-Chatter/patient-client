@@ -42,38 +42,38 @@ const Register = () => {
 
     setSubmitting(true);
 
-    if (form.username.length == 0) {
-      setErrorHeaderMessage("MISSING_USERNAME")
-      setErrorMessage("Please enter your username.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.password.length == 0) {
-      setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Please enter your password.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.confirmPassword.length == 0) {
-      setErrorHeaderMessage("MISSING_PASSWORD")
-      setErrorMessage("Please re-confirm your password.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.confirmPassword != form.password) {
-      setErrorHeaderMessage("INCORRECT_PASSWORD")
-      setErrorMessage("Please re-confirm your passwords.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else if (form.enrolmentCode.length == 0){
-      setErrorHeaderMessage("MISSING_ENROLMENT")
-      setErrorMessage("Please enter the enrolment code given.")
-      setErrorModalVisible(true);
-      setSubmitting(false);
-    }
-    else {
-      try {
+    try {
+      if (form.username.length == 0) {
+        setErrorHeaderMessage("MISSING_USERNAME")
+        setErrorMessage("Please enter your username.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+      else if (form.password.length == 0) {
+        setErrorHeaderMessage("MISSING_PASSWORD")
+        setErrorMessage("Please enter your password.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+      else if (form.confirmPassword.length == 0) {
+        setErrorHeaderMessage("MISSING_PASSWORD")
+        setErrorMessage("Please re-confirm your password.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+      else if (form.confirmPassword != form.password) {
+        setErrorHeaderMessage("INCORRECT_PASSWORD")
+        setErrorMessage("Please re-confirm your passwords.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+      else if (form.enrolmentCode.length == 0){
+        setErrorHeaderMessage("MISSING_ENROLMENT")
+        setErrorMessage("Please enter the enrolment code given.")
+        setErrorModalVisible(true);
+        setSubmitting(false);
+      }
+      else {
         // Send POST request for patient registration
         // Use ipconfig to find ip address of your pc in the local network
         const response = await fetch('https://aphasia.mooo.com/api/patient/register', {
@@ -106,21 +106,21 @@ const Register = () => {
           setErrorMessage(jsonResponse.message)
           setErrorModalVisible(true);
         }
-      } catch (error) {
-        console.error('Error:', error);
-        if (signal.aborted) {
-          setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
-          setErrorMessage("The request has been aborted due to timeout.")
-          setErrorModalVisible(true);
-        }
-        else if (error instanceof TypeError) { // Error such as Network request failed
-          setErrorHeaderMessage("NETWORK REQUEST ERROR")
-          setErrorMessage("There was a problem with the network request.")
-          setErrorModalVisible(true);
-        }        
-      } finally {
-        setSubmitting(false);
       }
+    } catch (error) {
+      console.error('Error:', error);
+      if (signal.aborted) {
+        setErrorHeaderMessage("NETWORK REQUEST TIMED_OUT")
+        setErrorMessage("The request has been aborted due to timeout.")
+        setErrorModalVisible(true);
+      }
+      else if (error instanceof TypeError) { // Error such as Network request failed
+        setErrorHeaderMessage("NETWORK REQUEST ERROR")
+        setErrorMessage("There was a problem with the network request.")
+        setErrorModalVisible(true);
+      }        
+    } finally {
+      setSubmitting(false);
     }
   };
 
