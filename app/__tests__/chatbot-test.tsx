@@ -3,6 +3,7 @@ import { render, userEvent, fireEvent, waitFor } from '@testing-library/react-na
 import Chatbot from '@/app/chatbot/chatbot';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import { renderRouter, screen, } from 'expo-router/testing-library';
+import * as Speech from 'expo-speech';
 
 // Mock the saveValue function and expo-linking
 jest.mock('@/utils/SecureStore', () => ({
@@ -74,6 +75,23 @@ jest.mock('expo-file-system', () => {
   };
 });
 
+// Mock the 'expo-speech' module
+// jest.mock('expo-speech', () => {
+//   const actualExpoSpeech = jest.requireActual('expo-speech'); // Import actual module
+//   return {
+//     ...actualExpoSpeech, // Spread the actual module to preserve anything else you might use
+//     speak: jest.fn((text, options) => {
+//       // Simulate calling the callback functions provided in options
+//       if (options) {
+//         if (options.onStart) options.onStart();
+//         if (options.onDone) options.onDone();
+//         if (options.onError) options.onError();
+//       }
+//     }),
+//     stop: jest.fn(), // Mock the stop function
+//   };
+// });
+
 
 describe('Chatbot Screen', () => {
   // Mock AuthContext with appUser and setAppUser
@@ -93,6 +111,7 @@ describe('Chatbot Screen', () => {
       </AuthContext.Provider>
     );
   };
+
 
   // Setting values for the variables
   beforeEach(() => {
@@ -543,7 +562,7 @@ describe('Chatbot Screen', () => {
       .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
 
     // Render the chatbot component
-    const { getByText, getByTestId, getByLabelText, getByRole} = renderChatbot();
+    const { getByTestId, getByLabelText, getByRole} = renderChatbot();
 
     // Wait for the task image to be rendered
     await waitFor(() => {
@@ -560,6 +579,135 @@ describe('Chatbot Screen', () => {
       expect(getByLabelText('user message content')).toBeTruthy();
     });
   });
+
+  it('should be able to transcribe given chatbot text to speech format using tts functionality', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            }
+          ],
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
+
+    // Create a spy on Speech.speak for TTS starts
+    const speakSpy = jest.spyOn(Speech, 'speak').mockImplementation(() => {});
+
+    // Render the chatbot component
+    const { getByTestId, getByLabelText, getByRole} = renderChatbot();
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      const taskChatHistory = getByTestId('chat-history-list');
+      expect(taskChatHistory).toBeDefined();
+
+      const ttsButton = getByRole('button', { name: /bot message tts/i, hidden: false })
+      expect(ttsButton).toBeTruthy();
+
+      fireEvent.press(ttsButton)
+      
+      // Assert that the TTS has started 
+      expect(speakSpy).toHaveBeenCalledWith(
+        expect.any(String), // This will be the bot's message content
+        expect.objectContaining({
+          rate: 0.3,
+          pitch: 1,
+          voice: "com.apple.voice.compact.en-US.Samantha",
+        })
+      );
+
+      // Assert that the TTS is not started, suggesting TTS button is disabled 
+      expect(speakSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // TODO: should be able to stop transcribing given chatbot text to speech format when pressed button again
+
 
   it('renders empty word retrieval task chat history when press upon task image after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses
@@ -1100,6 +1248,291 @@ describe('Chatbot Screen', () => {
     });
   });
 
+  it('should not able to start a text-to-speech transcription while recording', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
+
+    // Create a spy on Speech.speak for TTS starts
+    const speakSpy = jest.spyOn(Speech, 'speak').mockImplementation(() => {});
+
+    // Render the chatbot component
+    const { getByRole, queryByText, queryByRole, getByTestId } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+      const taskChatHistory = getByTestId('chat-history-list');
+
+      expect(taskChatHistory).toBeDefined();
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    const ttsButton = getByRole('button', { name: /bot message tts/i, hidden: false })
+    expect(ttsButton).toBeTruthy();
+
+    fireEvent.press(ttsButton)
+    
+    // Assert that the TTS is not started, suggesting TTS button is disabled 
+    expect(speakSpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should not able to start any text-to-speech transcriptions while recording', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+            {
+              id: 'msg3',
+              author: 'user',
+              content: "This is the user's message 2",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg4',
+              author: 'bot',
+              content: "This is the bot's response 2",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
+
+    // Create a spy on Speech.speak for TTS starts
+    const speakSpy = jest.spyOn(Speech, 'speak').mockImplementation(() => {});
+
+    // Render the chatbot component
+    const { getByRole, getAllByRole, queryByText, queryByRole, getByTestId } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+      const taskChatHistory = getByTestId('chat-history-list');
+
+      expect(taskChatHistory).toBeDefined();
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    const ttsButtons = getAllByRole('button', { name: /bot message tts/i, hidden: false })
+    expect(ttsButtons).toBeTruthy();
+
+    fireEvent.press(ttsButtons[0]);
+
+    // Assert that the TTS is not started, suggesting 1st TTS button is disabled 
+    expect(speakSpy).toHaveBeenCalledTimes(0);
+
+    fireEvent.press(ttsButtons[1]);
+
+    // Assert that the TTS is not started, suggesting 2nd TTS button is disabled 
+    expect(speakSpy).toHaveBeenCalledTimes(0);
+  });
+
   it('renders start recording button when pressed stop recording button after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses
 
@@ -1508,7 +1941,7 @@ describe('Chatbot Screen', () => {
       expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
     });
 
-    // Simulate a click on the "Clear Recording" button
+    // Simulate a click on the "Stop Recording" button
     fireEvent.press(getByRole('button', { name: /stop recording/i }));
 
     await waitFor(() => {
@@ -1523,7 +1956,7 @@ describe('Chatbot Screen', () => {
     });
   });
 
-  it('unable to send new recording to backend until processed', async () => {
+  it('should not send new recording to backend until processed', async () => {
     // Mock the fetch responses
 
     // First fetch call: task retrieval response
@@ -1675,7 +2108,7 @@ describe('Chatbot Screen', () => {
       expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
     });
 
-    // Simulate a click on the "Clear Recording" button
+    // Simulate a click on the "Stop Recording" button
     fireEvent.press(getByRole('button', { name: /stop recording/i }));
 
     await waitFor(() => {
@@ -1692,6 +2125,690 @@ describe('Chatbot Screen', () => {
     // Assert that stop and clear recording button did not appear
     expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
     expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+  });
+
+  it('render success message when the word retrieval task has been completed and answer provided is correct', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "NEW USER MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "NEW BOT MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Fourth fetch call: transcribe user's response
+    const mockResponseFour = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          botMessageID: 'botMsg2_id',
+          userMessageID: 'userMsg2_id',
+          message: 'message',
+          transcription: 'transcription',
+          completed: true,
+          isCorrectAnswer: true,
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
+
+    // Render the chatbot component
+    const { getByText, getByRole, queryByText, queryByRole } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    // Simulate a click on the "Stop Recording" button
+    fireEvent.press(getByRole('button', { name: /stop recording/i }));
+
+    await waitFor(() => {
+      expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+      expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+
+      expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
+      expect(startRecordingButton).toBeTruthy(); // Ensure "Start Recording" button appears
+    });
+
+    // Assert that the success messages has been displayed
+    expect(getByText('Task Completed')).toBeTruthy();
+    expect(getByText('Good job! Thank you for attempting! Your session has been successfully recorded.')).toBeTruthy();
+  });
+
+  it('render success message when the word retrieval task has been completed but answer provided is incorrect', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "NEW USER MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "NEW BOT MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Fourth fetch call: transcribe user's response
+    const mockResponseFour = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          botMessageID: 'botMsg2_id',
+          userMessageID: 'userMsg2_id',
+          message: 'message',
+          transcription: 'transcription',
+          completed: true,
+          isCorrectAnswer: false,
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
+
+    // Render the chatbot component
+    const { getByText, getByRole, queryByText, queryByRole } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    // Simulate a click on the "Stop Recording" button
+    fireEvent.press(getByRole('button', { name: /stop recording/i }));
+
+    await waitFor(() => {
+      expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+      expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+
+      expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
+      expect(startRecordingButton).toBeTruthy(); // Ensure "Start Recording" button appears
+    });
+
+    // Assert that the success messages has been displayed
+    expect(getByText('Task Completed')).toBeTruthy();
+    expect(getByText('Nice try! Thank you for attempting! Your session has been successfully recorded.')).toBeTruthy();
+  });
+
+  it('should be able to start a text-to-speech transcription even after word retrieval task has been completed', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            // NOTE: REMOVE BOT RESPONSE, AS mockResponseFour FETCHES A BOT RESPONSE
+          ],
+        },
+      }),
+    };
+
+    // Fourth fetch call: transcribe user's response
+    // NOTE: THIS IS A BOT RESPONSE, WHICH COUNTS AS ONE BOT RESPONSE
+    const mockResponseFour = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          botMessageID: 'botMsg2_id',
+          userMessageID: 'userMsg2_id',
+          message: 'message',
+          transcription: 'transcription',
+          completed: true,
+          isCorrectAnswer: false,
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
+
+    // Create a spy on Speech.speak for TTS starts
+    const speakSpy = jest.spyOn(Speech, 'speak').mockImplementation(() => {});
+
+    // Render the chatbot component
+    const { getByText, getByRole, queryByText, queryByRole } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    // Simulate a click on the "Stop Recording" button
+    fireEvent.press(getByRole('button', { name: /stop recording/i }));
+
+    await waitFor(() => {
+      expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+      expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+
+      expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
+      expect(startRecordingButton).toBeTruthy(); // Ensure "Start Recording" button appears
+    });
+
+    // Assert that the success messages has been displayed
+    expect(getByText('Task Completed')).toBeTruthy();
+    expect(getByText('Nice try! Thank you for attempting! Your session has been successfully recorded.')).toBeTruthy();
+
+    fireEvent.press(getByText('Dismiss'));
+
+    const ttsButton = getByRole('button', { name: /bot message tts/i, hidden: false })
+    expect(ttsButton).toBeTruthy();
+
+    fireEvent.press(ttsButton);
+
+    // Assert that the TTS has started
+    expect(speakSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should be able to start any text-to-speech transcriptions even after word retrieval task has been completed', async () => {
+    // Mock the fetch responses
+
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+            {
+              id: 'msg3',
+              author: 'user',
+              content: "NEW USER MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg4',
+              author: 'bot',
+              content: "NEW BOT MESSAGE",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Fourth fetch call: transcribe user's response
+    const mockResponseFour = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          botMessageID: 'botMsg2_id',
+          userMessageID: 'userMsg2_id',
+          message: 'message',
+          transcription: 'transcription',
+          completed: true,
+          isCorrectAnswer: false,
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree) // Third fetch (chat history)
+      .mockResolvedValueOnce(mockResponseFour); // Fourth fetch (transcribe user's response)
+
+    // Create a spy on Speech.speak for TTS starts
+    const speakSpy = jest.spyOn(Speech, 'speak').mockImplementation(() => {});
+
+    // Render the chatbot component
+    const { getByText, getByRole, getAllByRole, queryByText, queryByRole } = renderChatbot();
+
+    const startRecordingMessage = queryByText('Tap and say your answer')
+    const startRecordingButton = queryByRole('button', { name: /start recording/i, hidden: false })
+
+    // Wait for the task image to be rendered
+    await waitFor(() => {
+      expect(startRecordingMessage).toBeTruthy();
+      expect(startRecordingButton).toBeTruthy();
+    });
+
+    // Simulate a click on the "Start Recording" button
+    fireEvent.press(getByRole('button', { name: /start recording/i }));
+
+    // Wait for the component to rerender and the "Stop Recording" and "Clear Recording" buttons to appear
+    await waitFor(() => {
+      const stopRecordingButton = getByRole('button', { name: /stop recording/i });
+      const clearRecordingButton = getByRole('button', { name: /clear recording/i });
+
+      expect(stopRecordingButton).toBeTruthy();  // Ensure "Stop Recording" button appears
+      expect(clearRecordingButton).toBeTruthy(); // Ensure "Clear Recording" button appears
+    });
+
+    // Simulate a click on the "Stop Recording" button
+    fireEvent.press(getByRole('button', { name: /stop recording/i }));
+
+    await waitFor(() => {
+      expect(queryByRole('button', { name: /stop recording/i })).toBeNull();
+      expect(queryByRole('button', { name: /clear recording/i })).toBeNull();
+
+      expect(startRecordingMessage).toBeTruthy(); // Ensure "Start Recording" message appears
+      expect(startRecordingButton).toBeTruthy(); // Ensure "Start Recording" button appears
+    });
+
+    // Assert that the success messages has been displayed
+    expect(getByText('Task Completed')).toBeTruthy();
+    expect(getByText('Nice try! Thank you for attempting! Your session has been successfully recorded.')).toBeTruthy();
+
+    fireEvent.press(getByText('Dismiss'));
+
+    const ttsButtons = getAllByRole('button', { name: /bot message tts/i, hidden: false })
+    expect(ttsButtons).toBeTruthy();
+
+    fireEvent.press(ttsButtons[0]);
+
+    // Assert that the 1st TTS has started
+    expect(speakSpy).toHaveBeenCalledTimes(1);
+
+    fireEvent.press(ttsButtons[1]);
+
+    // Assert that the 2nd TTS has started
+    expect(speakSpy).toHaveBeenCalledTimes(2);
   });
 
   it('retrieve selected word retrieval task unsuccessfully with invalid session - empty username and session token in context', () => {
@@ -1750,4 +2867,6 @@ describe('Chatbot Screen', () => {
     expect(getByText('INVALID_USERNAME_SESSION')).toBeTruthy();
     expect(getByText('Invalid username and/or session token.')).toBeTruthy();
   });
+
+
 });

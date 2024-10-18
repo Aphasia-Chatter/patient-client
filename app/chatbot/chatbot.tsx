@@ -418,7 +418,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
           )}
         </>
       );
-    } else {
+    } else if (item.author === "user") {
       // Patient Input
       return (
         <>
@@ -575,7 +575,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
               }
               else if (result.data.completed && !result.data.isCorrectAnswer) {
                 setIsTaskCompleted("true");
-                setSuccessHeaderMessage("Task Completed!");
+                setSuccessHeaderMessage("Task Completed");
                 setSuccessMessage("Nice try! Thank you for attempting! Your session has been successfully recorded.");
                 setSuccessModalVisible(true);
               }
