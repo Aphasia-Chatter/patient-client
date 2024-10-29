@@ -4,17 +4,16 @@ import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import { AntDesign } from '@expo/vector-icons';
 import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
-import { videos } from "../../constants";
 
 const { height, width } = Dimensions.get('window');
 
 const Help = () => {
     const video = useRef<Video | null>(null);
     const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
-    const [activeIndex, setActiveIndex] = useState<number | null>(null); // Track the currently active collapsible
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
     
     const handlePress = (index: number) => {
-        setActiveIndex(activeIndex === index ? null : index); // Toggle the collapsible
+        setActiveIndex(activeIndex === index ? null : index);
     };
 
     return (
@@ -41,10 +40,7 @@ const Help = () => {
                         isOpen={activeIndex === 0}
                         onPress={() => handlePress(0)}>
                         <View className='flex-1 items-center justify-center'>
-                            <Text style={{alignSelf: 'stretch'}} className={`${Platform.OS === 'ios' && 'mb-2'} leading-5 text-dark dark:text-light `}>
-                                Word Retrieval Practice Task
-                            </Text>
-                            <Video className='h-60 w-screen'
+                            <Video className='h-60 w-screen bg-black'
                                 ref={video}
                                 style={styles.videoPortrait}
                                 source={{uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4"}}
@@ -55,9 +51,6 @@ const Help = () => {
                                 onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
                                 testID='start-practice-task-video-player'
                             />
-                            <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
-                                <Text>Learn more</Text>
-                            </ExternalLink>
                         </View>
                     </Collapsible>
                     {/* Tutorial - How do I update my password? */}
@@ -65,7 +58,7 @@ const Help = () => {
                         title="How do I update my account password?"
                         isOpen={activeIndex === 1}
                         onPress={() => handlePress(1)}>
-                        <View className='flex-1 items-center justify-center'>
+                        <View className='flex-1 items-center justify-center bg-black'>
                             <Video className='h-60 w-screen'
                                 ref={video}
                                 style={styles.videoPortrait}
@@ -74,16 +67,9 @@ const Help = () => {
                                 isLooping={false}
                                 shouldPlay={false}
                                 resizeMode={ResizeMode.CONTAIN}
-                                
                                 onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
-                                testID='help-video-player'
+                                testID='update-account-password-video-player'
                             />
-                            <Text style={{alignSelf: 'stretch'}} className={`${Platform.OS === 'ios' && 'mb-2'} leading-5 text-dark dark:text-light `}>
-                                Word Retrieval Practice Task
-                            </Text>
-                            <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
-                                <Text>Learn more</Text>
-                            </ExternalLink>
                         </View>
                     </Collapsible>
                     {/* Tutorial - How do I delete my account? */}
@@ -91,7 +77,7 @@ const Help = () => {
                         title="How do I delete my account?"
                         isOpen={activeIndex === 2}
                         onPress={() => handlePress(2)}>
-                        <View className='flex-1 items-center justify-center'>
+                        <View className='flex-1 items-center justify-center bg-black'>
                             <Video className='h-60 w-screen'
                                 ref={video}
                                 style={styles.videoPortrait}
@@ -101,14 +87,8 @@ const Help = () => {
                                 shouldPlay={false}
                                 resizeMode={ResizeMode.CONTAIN}
                                 onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
-                                testID='help-video-player'
+                                testID='delete-account-video-player'
                             />
-                            <Text style={{alignSelf: 'stretch'}} className={`${Platform.OS === 'ios' && 'mb-2'} leading-5 text-dark dark:text-light `}>
-                                Word Retrieval Practice Task
-                            </Text>
-                            <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
-                                <Text>Learn more</Text>
-                            </ExternalLink>
                         </View>
                     </Collapsible>
                 </View>
@@ -120,35 +100,32 @@ const Help = () => {
                         title="What is AphasiaChatter?"
                         isOpen={activeIndex === 3}
                         onPress={() => handlePress(3)}>
-                        <Text className='leading-5 text-dark dark:text-light'>
-                            AphasiaChatter is an app specifically designed by NUHs to help individuals with aphasia practice conversations, improve word retrieval, and strengthen their communication skills.
+                        <Text className='leading-5 text-dark dark:text-light text-justify'>
+                            AphasiaChatter is a mobile application specifically designed to help individuals with aphasia practice conversations, improve word retrieval, and strengthen their communication skills.
                             The app provides an interactive chatbot and therapy tools for practicing speaking, listening, and comprehension exercises.
                         </Text>
-                        <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
-                            <Text>Learn more</Text>
-                        </ExternalLink>
                     </Collapsible>
                     {/* FAQ - Who created AphasiaChatter? */}
                     <Collapsible
                         title="Who created AphasiaChatter?"
                         isOpen={activeIndex === 4}
                         onPress={() => handlePress(4)}>
-                        <Text className='leading-5 text-dark dark:text-light'>
-                            AphasiaChatter is an app specifically designed by NUHs to help individuals with aphasia practice conversations, improve word retrieval, and strengthen their communication skills.
-                            The app provides an interactive chatbot and therapy tools for practicing speaking, listening, and comprehension exercises.
+                        <Text className='leading-5 text-dark dark:text-light text-justify'>
+                            AphasiaChatter was developed by a team of year three software engineering students from Singapore Institute of Technology, in collaboration with National University Hospital Singapore (NUHs),
+                            focused on improving accessibility and communication tools for individuals with aphasia.
                         </Text>
-                        <ExternalLink className='mt-2 text-blue-600 ' href="https://docs.expo.dev/router/introduction">
-                            <Text>Learn more</Text>
-                        </ExternalLink>
                     </Collapsible>
                     {/* FAQ - How does AphasiaChatter help with speech therapy? */}
                     <Collapsible
                         title="How does AphasiaChatter help with speech therapy?"
                         isOpen={activeIndex === 5}
                         onPress={() => handlePress(5)}>
-                        <Text className='leading-5 text-dark dark:text-light'>
+                        <Text className='leading-5 text-dark dark:text-light text-justify'>
                             AphasiaChatter offers personalized speech therapy exercises, including guided conversation practice, vocabulary retrieval tasks, and communication strategies.
-                            It uses AI to simulate real-life conversations, giving users a safe space to practice their speaking skills.
+                            This initiative aimed to create a supportive platform that leverages technology, including automatic speech recognition and feedback mechanism powered by Artificial Intelligence (AI), that adapts to the unique needs of each user.
+                            {'\n\n'}
+                            By using AI to analyze and respond to individual speech patterns, AphasiaChatter provides dynamic, real-time assistance that encourages consistent practice and improvement.
+                            The app's technology supports users in building confidence and independence in communication, making speech therapy accessible and engaging for those working through the challenges of aphasia.
                         </Text>
                     </Collapsible>
                     {/* FAQ - Is AphasiaChatter suitable for all types of aphasia? */}
@@ -156,25 +133,12 @@ const Help = () => {
                         title="Is AphasiaChatter suitable for all types of aphasia?"
                         isOpen={activeIndex === 6}
                         onPress={() => handlePress(6)}>
-                        <Text className='leading-5 text-dark dark:text-light'>
-                            AphasiaChatter supports individuals with different subtypes of aphasia, including Broca’s, Wernicke’s, and anomic aphasia.
-                            The exercises can be customized to match the specific challenges faced by each user, focusing on word retrieval, sentence formulation, and comprehension.
+                        <Text className='leading-5 text-dark dark:text-light text-justify'>
+                            AphasiaChatter supports individuals with different subtypes of aphasia, including Broca's, Wernicke's, and anomic aphasia.
+                            Currently, your doctor(s) can prepare word retrieval exercises— a form of speech therapy for you to practice.
+                            These exercises are designed to help you strengthen word retrieval abilities and sentence formation.
+                            Do approach your doctors on this!
                         </Text>
-                        <ExternalLink className='mt-2 text-blue-600 ' href="https://reactnative.dev/docs/images">
-                            <Text>Learn more</Text>
-                        </ExternalLink>
-                    </Collapsible>
-                    {/* FAQ - Is AphasiaChatter free to use? */}
-                    <Collapsible
-                        title="Is AphasiaChatter free to use?"
-                        isOpen={activeIndex === 7}
-                        onPress={() => handlePress(7)}>
-                        <Text className='leading-5 text-dark dark:text-light'>
-                            AphasiaChatter is a free with basic speech therapy exercises.
-                        </Text>
-                        <ExternalLink className=' mt-2 text-blue-600 ' href="https://docs.expo.dev/develop/user-interface/color-themes/">
-                            <Text>Learn more</Text>
-                        </ExternalLink>
                     </Collapsible>
                 </View>
             </ScrollView>

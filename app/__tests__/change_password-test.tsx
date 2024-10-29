@@ -2,13 +2,8 @@ import React from 'react';
 import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import ChangePassword from '@/app/account/change_password';
 import Login from '@/app/(auth)/login';
-import { AuthContext } from '@/context/AuthContext'; // Adjust context path
+import { AuthContext } from '@/context/AuthContext';
 import { renderRouter, screen } from 'expo-router/testing-library';
-
-// Mock the saveValue function and router
-jest.mock('@/utils/SecureStore', () => ({
-  saveValue: jest.fn(),
-}));
 
 jest.mock('expo-linking', () => {
   const module: typeof import('expo-linking') = {

@@ -36,7 +36,7 @@ const InformativeModal: React.FC<InformativeModalProps> = ({ headerMessage, info
           onPress={() => {
             setModalVisible(false)
           }}>
-          <Text style={styles.actionText}>Dimiss</Text>
+          <Text style={styles.actionText}>Dismiss</Text>
         </Pressable>
         </View>
     </View>

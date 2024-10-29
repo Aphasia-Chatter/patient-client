@@ -101,10 +101,10 @@ describe('Profile Screen', () => {
     );
 
     // Simulate a click on the preference button
-    userEvent.press(changePasswordLink);
+    fireEvent.press(changePasswordLink);
 
     // Assert that the navigation function is called with the expected route
-    expect(screen).toHavePathname('/change_password');
+    expect(screen).toHavePathname('/account/change_password');
   });
 
   it('allows navigating to delete account page when delete account link is clicked', () => {
@@ -125,10 +125,10 @@ describe('Profile Screen', () => {
     );
 
     // Simulate clicking the register link
-    userEvent.press(deleteAccountLink);
+    fireEvent.press(deleteAccountLink);
 
     // Assert that the router.push method was called with the correct URL
-    expect(screen).toHavePathname('/delete_account');
+    expect(screen).toHavePathname('/account/delete_account');
   });
 
   it("renders useColorScheme hook with return value of 'dark'", () => {

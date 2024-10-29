@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, userEvent, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import Chatbot from '@/app/chatbot/chatbot';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
-import { renderRouter, screen, } from 'expo-router/testing-library';
 import * as Speech from 'expo-speech';
 
 // Mock the saveValue function and expo-linking

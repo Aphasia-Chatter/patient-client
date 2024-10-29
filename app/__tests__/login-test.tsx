@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Login from '@/app/(auth)/login';
 import Register from '@/app/(auth)/register';
 import Preference from '@/app/(auth)/preference';
@@ -174,7 +174,7 @@ describe('Login Screen', () => {
     );
 
     // Simulate a click on the preference button
-    userEvent.press(preferenceButton);
+    fireEvent.press(preferenceButton);
 
     // Assert that the navigation function is called with the expected route
     expect(screen).toHavePathname('/preference');
@@ -198,7 +198,7 @@ describe('Login Screen', () => {
     );
 
     // Simulate clicking the register link
-    userEvent.press(registerLink);
+    fireEvent.press(registerLink);
 
     // Assert that the router.push method was called with the correct URL
     expect(screen).toHavePathname('/register');

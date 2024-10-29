@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, userEvent } from '@testing-library/react-native';
 import { Collapsible } from '../Collapsible'; // Assuming this is the path of your component
 import { Feather } from '@expo/vector-icons';
 import { Text } from "react-native";

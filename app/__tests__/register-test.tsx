@@ -123,7 +123,7 @@ describe('Register Screen', () => {
     );
 
     // Simulate clicking the register link
-    userEvent.press(loginLink);
+    fireEvent.press(loginLink);
 
     // Assert that the router.push method was called with the correct URL
     expect(screen).toHavePathname('/login');

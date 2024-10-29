@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Help from '@/app/(drawer)/help';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 
@@ -34,26 +34,18 @@ describe('Help Screen', () => {
     expect(getByText('FAQs')).toBeTruthy();
   });
 
-  it('should expand and collapse the collapsible sections', async () => {
-    const { getByText, queryByText } = renderHelp();
-    
-    // Test "How to start a practice task?" collapsible
-    const collapsibleTitle = getByText('How do I start a practice task?');
-    fireEvent.press(collapsibleTitle);
+  it('renders the video player for "how to start a practice task?"', async () => {
+    const { getByText, queryByTestId } = renderHelp();
+
+    const toggleButton = getByText('How do I start a practice task?');
+    fireEvent.press(toggleButton);
 
     await waitFor(() => {
-      expect(getByText('Word Retrieval Practice Task')).toBeTruthy();
-    });
-
-    // Collapse it back
-    fireEvent.press(collapsibleTitle);
-
-    await waitFor(() => {
-      expect(queryByText('Word Retrieval Practice Task')).toBeNull();
+      expect(queryByTestId('start-practice-task-video-player')).toBeTruthy();
     });
   });
 
-  it('should collapse other sections when collapse a collapsible section', async () => {
+  it('should expand and collapse the "How do I start a practice task?" section', async () => {
     const { getByText, queryByTestId } = renderHelp();
     
     // Test "How to start a practice task?" collapsible
@@ -61,7 +53,64 @@ describe('Help Screen', () => {
     fireEvent.press(collapsibleTitle);
 
     await waitFor(() => {
-      expect(getByText('Word Retrieval Practice Task')).toBeTruthy();
+      expect(queryByTestId('start-practice-task-video-player')).toBeTruthy();
+    });
+
+    // Collapse it back
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('start-practice-task-video-player')).toBeNull();
+    });
+  });
+
+  it('should expand and collapse the "How do I update my account password?" section', async () => {
+    const { getByText, queryByTestId } = renderHelp();
+    
+    // Collapse the section
+    const collapsibleTitle = getByText('How do I update my account password?');
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('update-account-password-video-player')).toBeTruthy();
+    });
+
+    // Collapse it back
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('update-account-password-video-player')).toBeNull();
+    });
+  });
+
+  it('should expand and collapse the "How do I delete my account?" section', async () => {
+    const { getByText, queryByTestId } = renderHelp();
+    
+    // Collapse the section
+    const collapsibleTitle = getByText('How do I delete my account?');
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('delete-account-video-player')).toBeTruthy();
+    });
+
+    // Collapse it back
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('delete-account-video-player')).toBeNull();
+    });
+  });
+
+  it('should collapse other sections when collapse a collapsible section', async () => {
+    const { getByText, queryByTestId } = renderHelp();
+    
+    // Collapse the section
+    const collapsibleTitle = getByText('How do I start a practice task?');
+    fireEvent.press(collapsibleTitle);
+
+    await waitFor(() => {
+      expect(queryByTestId('start-practice-task-video-player')).toBeTruthy();
     });
 
     // Collapse it back
@@ -70,23 +119,6 @@ describe('Help Screen', () => {
 
     await waitFor(() => {
       expect(queryByTestId('start-practice-task-video-player')).toBeNull();
-    });
-  });
-
-  it('renders the video player for "how to start a practice task?"', async () => {
-    const { getByText, getByTestId  } = renderHelp();
-
-    // Optionally, you may need to trigger the opening of the Collapsible component
-    const toggleButton = getByText('How do I start a practice task?'); // Replace with the actual toggle button text
-    fireEvent.press(toggleButton);
-
-    await waitFor(() => {
-      expect(getByText('Word Retrieval Practice Task')).toBeTruthy();
-    });
-
-    // Use findByRole to find the video element by accessibilityRole="image"
-    await waitFor(() => {
-      expect(getByTestId('start-practice-task-video-player')).toBeTruthy();
     });
   });
 });

@@ -21,12 +21,12 @@ describe('InformativeModal Component', () => {
     
     expect(getByText('Test Header')).toBeTruthy(); // Check header
     expect(getByText('This is a test message.')).toBeTruthy(); // Check message
-    expect(getByText('Dimiss')).toBeTruthy(); // Check dismiss button
+    expect(getByText('Dismiss')).toBeTruthy(); // Check dismiss button
   });
 
   it('should call setModalVisible with false when dismiss button is pressed', () => {
     const { getByText } = render(<InformativeModal {...defaultProps} />);
-    const dismissButton = getByText('Dimiss');
+    const dismissButton = getByText('Dismiss');
 
     fireEvent.press(dismissButton); // Simulate press
     expect(mockSetModalVisible).toHaveBeenCalledWith(false); // Check if setModalVisible was called with false
@@ -43,7 +43,7 @@ describe('InformativeModal Component', () => {
     const { getByText } = render(<InformativeModal {...defaultProps} />);
     
     // Simulate closing the modal (note: this may not have visual effects in the test environment)
-    fireEvent(getByText('Dimiss'), 'onRequestClose'); // This may vary based on your testing setup
+    fireEvent(getByText('Dismiss'), 'onRequestClose'); // This may vary based on your testing setup
     // Verify Alert is triggered in the console if necessary (not usually tested in unit tests)
   });
 });
