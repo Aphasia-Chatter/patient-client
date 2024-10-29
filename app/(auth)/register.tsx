@@ -7,13 +7,13 @@ import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 
 const Register = () => {
-  const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [ errorModalVisible, setErrorModalVisible ] = useState(false);
+  const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
+  const [ errorMessage, setErrorMessage ] = useState('');
 
-  const [successModalVisible, setSuccessModalVisible] = useState(false);
-  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [ successModalVisible, setSuccessModalVisible ] = useState(false);
+  const [ successHeaderMessage, setSuccessHeaderMessage ] = useState('');
+  const [ successMessage, setSuccessMessage ] = useState('');
   
   const handleSuccessModalDismiss = () => {
     setSuccessModalVisible(false);

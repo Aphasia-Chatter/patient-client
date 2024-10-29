@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind'; // Ensure this is imported correctly
 
 const Preference = () => {
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const {colorScheme, toggleColorScheme} = useColorScheme();
 
   return (
     <View className='flex-1 flex-grow flex-shrink px-4 py-4 bg-light dark:bg-dark'>

@@ -11,9 +11,8 @@ import TaskDetailsModal from '@/components/TaskDetailsModal';
 import SuccessModal from '@/components/SuccessModal';
 import ErrorModal from "../../components/ErrorModal";
 
-import { images } from "../../constants";
 import { useAuthContext } from '../../context/AuthContext';
-
+import { images } from "../../constants";
 
 export type PatientWordRetrievalTaskImageData = {
   path: string;
@@ -55,7 +54,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ messages, setMessages ] = useState<Message[]>(initialMessages);
   const flatListRef = useRef<FlatList<Message>>(null);
   const previousMessageCount = useRef(messages.length);
-  const [scrollEnabled, setScrollEnabled] = useState(true)
+  const [ scrollEnabled, setScrollEnabled ] = useState(true)
 
   // TTS Status
   const [ isTTSPlaying, setIsTTSPlaying ] = useState(false);

@@ -9,8 +9,8 @@ const { height, width } = Dimensions.get('window');
 
 const Help = () => {
     const video = useRef<Video | null>(null);
-    const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
-    const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const [ status, setStatus ] = useState<AVPlaybackStatus | null>(null);
+    const [ activeIndex, setActiveIndex ] = useState<number | null>(null);
     
     const handlePress = (index: number) => {
         setActiveIndex(activeIndex === index ? null : index);

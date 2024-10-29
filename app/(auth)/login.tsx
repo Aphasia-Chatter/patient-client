@@ -14,13 +14,13 @@ import { saveValue } from "../../utils/SecureStore";
 const Login = () => {
   const { setAppUser } = useAuthContext();
 
-  const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [ errorModalVisible, setErrorModalVisible ] = useState(false);
+  const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
+  const [ errorMessage, setErrorMessage ] = useState('');
 
-  const [isFocused, setIsFocused] = useState(false);
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
+  const [ isFocused, setIsFocused ] = useState(false);
+  const [ isSubmitting, setSubmitting ] = useState(false);
+  const [ form, setForm ] = useState({
     username: "",
     password: "",
   });

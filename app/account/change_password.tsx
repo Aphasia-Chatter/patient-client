@@ -18,17 +18,17 @@ const ChangePassword = () => {
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
   
-  const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [errorHeaderMessage, setErrorHeaderMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [ errorModalVisible, setErrorModalVisible ] = useState(false);
+  const [ errorHeaderMessage, setErrorHeaderMessage ] = useState('');
+  const [ errorMessage, setErrorMessage ] = useState('');
 
-  const [successModalVisible, setSuccessModalVisible] = useState(false);
-  const [successHeaderMessage, setSuccessHeaderMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [ successModalVisible, setSuccessModalVisible ] = useState(false);
+  const [ successHeaderMessage, setSuccessHeaderMessage ] = useState('');
+  const [ successMessage, setSuccessMessage ] = useState('');
 
-  const [dialogModalVisible, setDialogModalVisible] = useState(false);
-  const [dialogHeaderMessage, setDialogHeaderMessage] = useState('');
-  const [dialogMessage, setDialogMessage] = useState('');
+  const [ dialogModalVisible, setDialogModalVisible ] = useState(false);
+  const [ dialogHeaderMessage, setDialogHeaderMessage ] = useState('');
+  const [ dialogMessage, setDialogMessage ] = useState('');
 
   const handleSuccessModalDismiss = () => {
     setSuccessModalVisible(false);

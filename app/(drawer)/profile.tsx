@@ -7,12 +7,11 @@ import { useColorScheme } from 'nativewind';
 import { useAuthContext } from '../../context/AuthContext';
 import { images } from "../../constants";
 
-
 const profile = () => {
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
 
-  const {colorScheme, toggleColorScheme} = useColorScheme();
+  const { colorScheme, toggleColorScheme } = useColorScheme();
 
   return (
     <View className='flex-1 flex-grow flex-shrink px-4 bg-light dark:bg-dark'>

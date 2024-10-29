@@ -17,33 +17,19 @@ export type TaskFilterType = {
 
 export type TaskData = {
   word_retrieval_task: {
-    taskID: string;
     imagePath: string;
-    answer: string;
-    inputRestriction: string
-  };
-  task_editor: {
-    taskID: string;
-    staffID: string;
-    role: string;
   };
   task: {
     id: string;
     name: string;
-    description: string;
-    taskVisibility: string;
     createdAt: string;
   };
   staff: {
-    id: string;
     username: string;
-    hashedPassword: string;
   };
   status: string;
   session: {
     taskSessionID: string;
-    startedAt: Date;
-    completedAt: Date | null;
   }
 }
 
