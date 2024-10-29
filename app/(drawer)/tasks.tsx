@@ -89,8 +89,7 @@ const Tasks: React.FC<TaskData> = () => {
     setTimeout(async () => {
       const categoryOfTask = currentTaskCategory;
       const statusOfTask = currentTaskStatus;
-
-      // Refresh Button
+      
       await fetchAllTasks({ categoryOfTask, statusOfTask });
 
       setRefreshing(false);
@@ -229,7 +228,7 @@ const Tasks: React.FC<TaskData> = () => {
               setTasks(sortedTasks);
             }
           } else {
-            setDataStatusMessage("No word retrieval tasks found.");
+            setDataStatusMessage("No tasks are found.");
           }
         }
       }
@@ -307,8 +306,10 @@ const Tasks: React.FC<TaskData> = () => {
           const jsonResponse = await response.json();
     
           if (response.ok) {
-            // Clear data
+            // Set data to default
             fetchAllTasks();
+            setCurrentTaskCategory(1);
+            setCurrentTaskStatus(1);
   
             // Redirect to chatbot page
             router.push({
@@ -513,7 +514,7 @@ const Tasks: React.FC<TaskData> = () => {
             {
               !isRetrieving && (
                 <>
-                  <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>{dataStatusMessage}</Text>
+                  <Text className='font-bold text-xl mb-4 text-center text-dark dark:text-light'>No tasks are found.</Text>
                     <Pressable
                       style={({ pressed }) => [
                         pressed ? { opacity: 0.7 } : {}, {...styles.actions, backgroundColor:"#02A9E0"}

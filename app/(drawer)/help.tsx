@@ -43,7 +43,7 @@ const Help = () => {
                             <Video className='h-60 w-screen bg-black'
                                 ref={video}
                                 style={styles.videoPortrait}
-                                source={{uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4"}}
+                                source={require("../../assets/videos/How do I start a practice task - portrait.mp4")}
                                 useNativeControls={true}
                                 isLooping={false}
                                 shouldPlay={false}
@@ -111,7 +111,7 @@ const Help = () => {
                         isOpen={activeIndex === 4}
                         onPress={() => handlePress(4)}>
                         <Text className='leading-5 text-dark dark:text-light text-justify'>
-                            AphasiaChatter was developed by a team of year three software engineering students from Singapore Institute of Technology, in collaboration with National University Hospital Singapore (NUHs),
+                            AphasiaChatter is developed by a team of year three software engineering students from Singapore Institute of Technology, Information and Communications Technology, in collaboration with National University Hospital Singapore (NUHs),
                             focused on improving accessibility and communication tools for individuals with aphasia.
                         </Text>
                     </Collapsible>

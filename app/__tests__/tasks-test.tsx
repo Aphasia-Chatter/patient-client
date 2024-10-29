@@ -416,7 +416,7 @@ describe('Tasks Screen', () => {
     const { getByText } = renderTasks();
 
     await waitFor(() => {
-      expect(getByText('No word retrieval tasks found.')).toBeTruthy();
+      expect(getByText('No tasks are found.')).toBeTruthy();
     });
   });
 
@@ -437,7 +437,7 @@ describe('Tasks Screen', () => {
     const { getByText } = renderTasks();
 
     await waitFor(() => {
-      expect(getByText('No word retrieval tasks found.')).toBeTruthy();
+      expect(getByText('No tasks are found.')).toBeTruthy();
     });
   });
 
@@ -458,7 +458,7 @@ describe('Tasks Screen', () => {
     const { getByText } = renderTasks();
 
     await waitFor(() => {
-      expect(getByText('No word retrieval tasks found.')).toBeTruthy();
+      expect(getByText('No tasks are found.')).toBeTruthy();
     });
   });
 
@@ -479,7 +479,7 @@ describe('Tasks Screen', () => {
     const { getByText } = renderTasks();
 
     await waitFor(() => {
-      expect(getByText('No word retrieval tasks found.')).toBeTruthy();
+      expect(getByText('No tasks are found.')).toBeTruthy();
     });
   });
 
