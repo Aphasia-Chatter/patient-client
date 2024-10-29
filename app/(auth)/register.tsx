@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link, router } from "expo-router";
 import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Link, router } from "expo-router";
 import ErrorModal from "../../components/ErrorModal";
 import SuccessModal from "../../components/SuccessModal";
 import CustomButton from "../../components/CustomButton";

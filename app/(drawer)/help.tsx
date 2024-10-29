@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View, Text, Platform, ScrollView, Dimensions } from 'react-native';
-import { Collapsible } from '@/components/Collapsible';
-import { AntDesign } from '@expo/vector-icons';
 import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
+import { AntDesign } from '@expo/vector-icons';
+
+import { Collapsible } from '@/components/Collapsible';
 
 const { height, width } = Dimensions.get('window');
 

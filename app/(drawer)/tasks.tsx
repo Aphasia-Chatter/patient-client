@@ -1,7 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
-import { router } from "expo-router";
 import { Text, View, FlatList, ListRenderItem, StyleSheet, Pressable, RefreshControl } from "react-native";
+import { router } from "expo-router";
 import { FontAwesome5, FontAwesome6, Fontisto, MaterialCommunityIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
@@ -107,6 +106,7 @@ const Tasks: React.FC<TaskData> = () => {
     }, timeout);
 
     setRetrieving(true);
+    setLoadingFeedbackModalVisible(true);
 
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
@@ -266,6 +266,7 @@ const Tasks: React.FC<TaskData> = () => {
 
     setDialogModalVisible(false);
     setSubmitting(true);
+    setLoadingFeedbackModalVisible(true);
 
     try {
       if ((username == undefined || sessionToken == undefined) || username.length == 0 || sessionToken.length == 0) {
@@ -349,6 +350,7 @@ const Tasks: React.FC<TaskData> = () => {
       }        
     } finally {
       setSubmitting(false);
+      setLoadingFeedbackModalVisible(false);
     }
   }
 

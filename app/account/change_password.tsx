@@ -1,8 +1,7 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState } from 'react'
+import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { router } from "expo-router";
 import { AntDesign } from '@expo/vector-icons';
-import { View, SafeAreaView, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 
 import ErrorModal from "../../components/ErrorModal";

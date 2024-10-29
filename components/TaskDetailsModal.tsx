@@ -10,7 +10,7 @@ interface TaskDetailsModalProps {
   setModalVisible: (visible: boolean) => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ name, description, status, modalVisible, setModalVisible}) => {
   const [nameOfTask, setNameOfTask] = useState(name);
@@ -118,7 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: height * 0.25,
   },
   modalContainer: {
     backgroundColor: "#f9fafb",

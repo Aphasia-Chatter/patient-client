@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Alert, Modal, StyleSheet, Text, Pressable, View, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface SuccessModalProps {
@@ -8,6 +8,8 @@ interface SuccessModalProps {
     modalVisible: boolean;
     onDismiss: () => void;
 }
+
+const { width, height } = Dimensions.get('window');
 
 const SuccessModal: React.FC<SuccessModalProps> = ({ headerMessage, successMessage, modalVisible, onDismiss }) => {
     // Modal Header

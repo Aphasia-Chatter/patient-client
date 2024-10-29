@@ -1,19 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { Audio } from "expo-av";
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, Button, RefreshControl, Alert, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { useColorScheme } from 'nativewind';
+import { Image, ImageBackground, Text, View, FlatList, ListRenderItem, StyleSheet, Platform, Pressable, RefreshControl } from "react-native";
+import { useLocalSearchParams } from 'expo-router'
+import { Audio } from "expo-av";
 import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
-import { useLocalSearchParams } from 'expo-router'
-
-import ErrorModal from "../../components/ErrorModal";
-import { images } from "../../constants";
-import { useAuthContext } from '../../context/AuthContext';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
 import SuccessModal from '@/components/SuccessModal';
+import ErrorModal from "../../components/ErrorModal";
+
+import { images } from "../../constants";
+import { useAuthContext } from '../../context/AuthContext';
+
 
 export type PatientWordRetrievalTaskImageData = {
   path: string;
@@ -33,7 +33,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const { appUser } = useAuthContext();
   const [ username ] = useState(appUser?.username);
   const [ sessionToken ] = useState(appUser?.sessionToken);
-  const { colorScheme } = useColorScheme();
 
   const [ refreshing, setRefreshing ] = useState(false);
 
@@ -706,7 +705,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
             <FlatList
               data={messages}
               renderItem={renderMessage}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(index) => index.toString()}
               showsVerticalScrollIndicator={false}
               ref={flatListRef}
               keyboardShouldPersistTaps="handled" // Change this to handled

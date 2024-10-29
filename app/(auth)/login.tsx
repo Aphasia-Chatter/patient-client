@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Link, router } from "expo-router";
 import { Feather } from '@expo/vector-icons';
-import { View, SafeAreaView, Text, Image, Pressable, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { images } from "../../constants";
+
 import ErrorModal from "../../components/ErrorModal";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
+
 import { useAuthContext } from '../../context/AuthContext';
 import { saveValue } from "../../utils/SecureStore";
 

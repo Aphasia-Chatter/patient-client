@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Alert, Modal, StyleSheet, Text, Pressable, View, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface DialogModalProps {
@@ -10,6 +10,8 @@ interface DialogModalProps {
     onConfirm: () => void;
     onDismiss: () => void;
 }
+
+const { width } = Dimensions.get('window');
 
 const DialogModal: React.FC<DialogModalProps> = ({ headerMessage, dialogMessage, modalVisible, onConfirm, onDismiss }) => {
     // Modal Header
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
       backgroundColor:"#f9fafb",
-      width:"80%",
+      width: width * 0.8,
       borderRadius:5
     },
     modalHeader:{

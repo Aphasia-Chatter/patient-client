@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Alert, Modal, StyleSheet, Text, Pressable, View, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface ErrorModalProps {
@@ -8,6 +8,8 @@ interface ErrorModalProps {
     modalVisible: boolean
     setModalVisible: (visible: boolean) => void;
 }
+
+const { width } = Dimensions.get('window');
 
 const ErrorModal: React.FC<ErrorModalProps> = ({ headerMessage, errorMessage, modalVisible, setModalVisible }) => {
     // Modal Header
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
       backgroundColor:"#f9fafb",
-      width:"80%",
+      width: width * 0.8,
       borderRadius:5
     },
     modalHeader:{
