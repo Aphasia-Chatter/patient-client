@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Platform, ScrollView, Dimensions, Button } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, View, Text, Platform, ScrollView, Dimensions } from 'react-native';
 import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
 import { AntDesign } from '@expo/vector-icons';
 import { Video, AVPlaybackStatus, ResizeMode } from 'expo-av';
 

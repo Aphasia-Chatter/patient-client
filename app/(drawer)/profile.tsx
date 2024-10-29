@@ -1,7 +1,6 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useContext, useState } from 'react';
-import { Link, router } from "expo-router";
-import { StyleSheet, SafeAreaView, View, ScrollView, Text, Pressable, Switch, Image } from 'react-native';
+import React, { useState } from 'react';
+import { router } from "expo-router";
+import { SafeAreaView, View, ScrollView, Text, Pressable, Switch, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 

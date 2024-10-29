@@ -1,5 +1,5 @@
-import { Modal, StyleSheet, Text, Pressable, View, TextInput, Button, Image, Dimensions} from "react-native";
 import React, { useEffect, useState } from "react";
+import { Modal, StyleSheet, Text, Pressable, View, Dimensions } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface TaskDetailsModalProps {

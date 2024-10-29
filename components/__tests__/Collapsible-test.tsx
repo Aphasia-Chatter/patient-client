@@ -1,12 +1,12 @@
 import React from 'react';
-import { render, fireEvent, userEvent } from '@testing-library/react-native';
+import { Text } from "react-native";
+import { render, fireEvent, } from '@testing-library/react-native';
 import { Collapsible } from '../Collapsible'; // Assuming this is the path of your component
 import { Feather } from '@expo/vector-icons';
-import { Text } from "react-native";
 
 // Mock Feather and useColorScheme
 jest.mock('@expo/vector-icons', () => ({
-  Feather: jest.fn(({ name, size, color }) => null),
+  Feather: jest.fn(() => null),
 }));
 
 describe('Collapsible Component', () => {

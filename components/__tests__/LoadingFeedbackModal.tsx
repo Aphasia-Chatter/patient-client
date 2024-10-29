@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import LoadingFeedbackModal from '../LoadingFeedbackModal'; // Adjust the import based on your file structure
 
 describe('LoadingFeedbackModal Component', () => {

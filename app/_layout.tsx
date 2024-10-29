@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from 'expo-font';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, within, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, within, waitFor, cleanup, act } from '@testing-library/react-native';
 import TaskFilterModal from '../TaskFilterModal'; // Adjust import based on your file structure
 
 describe('TaskFilterModal Component', () => {
@@ -7,6 +7,7 @@ describe('TaskFilterModal Component', () => {
   const mockOnConfirm = jest.fn();
 
   afterEach(() => {
+    cleanup();
     jest.clearAllMocks(); // Clear mock calls after each test
   });
 
@@ -46,7 +47,7 @@ describe('TaskFilterModal Component', () => {
     expect(mockSetModalVisible).toHaveBeenCalledWith(false); // Check if modal is closed
   });
 
-  it('should call onConfirm with the selected category and status', () => {
+  it('should call onConfirm with the selected category and status', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
@@ -63,23 +64,32 @@ describe('TaskFilterModal Component', () => {
     const dropdownMenu = getByLabelText('task type dropdown');
     const categoryTasks = within(dropdownMenu).getAllByText('Word Retrieval Task', { hidden: false }); // Scope search to dropdown
     expect(categoryTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
-    fireEvent.press(categoryTasks[0]); // Press the first and only visible element
 
-    // Open status dropdown and select a value
-    waitFor(() => {
-        const dropdownMenuTwo = getByLabelText('task status dropdown');
-        const notStartedTasks = within(dropdownMenuTwo).getAllByText('In Progress', { hidden: false }); // Scope search to dropdown
-        expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
-        fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+    await act(async() => {
+      fireEvent.press(categoryTasks[0]); // Press the first and only visible element
     });
 
-    waitFor(() => {
-        fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
+    // Open status dropdown and select a value
+    waitFor(async () => {
+        const dropdownMenuTwo = getByLabelText('task status dropdown');
+        expect(dropdownMenuTwo).toBeTruthy();
+    
+        const notStartedTasks = within(dropdownMenuTwo).getAllByText('In Progress', { hidden: false }); // Scope search to dropdown
+        expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
+        
+        await act(async() => {
+          fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+        });
+
+        await act(async() => {
+          fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
+        });
+
         expect(mockOnConfirm).toHaveBeenCalledWith(1, 3); // Verify onConfirm was called with correct values
     });
   });
 
-  it('should not call onConfirm when selected values are the same as current values', () => {
+  it('should not call onConfirm when selected values are the same as current values', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
@@ -93,22 +103,28 @@ describe('TaskFilterModal Component', () => {
     );
 
     // Open category dropdown and select the same value
-    // Open category dropdown and select a value
     const dropdownMenu = getByLabelText('task type dropdown');
     const categoryTasks = within(dropdownMenu).getAllByText('Word Retrieval Task', { hidden: false }); // Scope search to dropdown
     expect(categoryTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
-    fireEvent.press(categoryTasks[0]); // Press the first and only visible element
+
+    await act(async() => {
+      fireEvent.press(categoryTasks[0]); // Press the first and only visible element
+    });
 
     // Open status dropdown and select the same value
-    waitFor(() => {
+    waitFor(async () => {
         const dropdownMenuTwo = getByLabelText('task status dropdown');
         const notStartedTasks = within(dropdownMenuTwo).getAllByText('All', { hidden: false }); // Scope search to dropdown
         expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
-        fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
-    });
 
-    waitFor(() => {
-        fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
+        await act(async() => {
+          fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+        });
+
+        await act(async() => {
+          fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
+        });
+
         expect(mockOnConfirm).not.toHaveBeenCalled(); // Ensure onConfirm is not called
     });
   });

@@ -1,13 +1,8 @@
 import React from 'react';
-import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Chatbot from '@/app/chatbot/chatbot';
 import { AuthContext } from '@/context/AuthContext'; // Adjust context path
 import * as Speech from 'expo-speech';
-
-// Mock the saveValue function and expo-linking
-jest.mock('@/utils/SecureStore', () => ({
-  saveValue: jest.fn(),
-}));
 
 jest.mock('expo-linking', () => {
   const module: typeof import('expo-linking') = {
@@ -91,7 +86,6 @@ jest.mock('expo-file-system', () => {
 //   };
 // });
 
-
 describe('Chatbot Screen', () => {
   // Mock AuthContext with appUser and setAppUser
   const mockSetAppUser = jest.fn();
@@ -110,7 +104,6 @@ describe('Chatbot Screen', () => {
       </AuthContext.Provider>
     );
   };
-
 
   // Setting values for the variables
   beforeEach(() => {
@@ -704,9 +697,6 @@ describe('Chatbot Screen', () => {
       expect(speakSpy).toHaveBeenCalledTimes(1);
     });
   });
-
-  // TODO: should be able to stop transcribing given chatbot text to speech format when pressed button again
-
 
   it('renders empty word retrieval task chat history when press upon task image after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses

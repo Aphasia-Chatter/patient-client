@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import ChangePassword from '@/app/account/change_password';
 import Login from '@/app/(auth)/login';
 import { AuthContext } from '@/context/AuthContext';

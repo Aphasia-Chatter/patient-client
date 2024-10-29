@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Alert, Modal, StyleSheet, Text, Pressable, View, TextInput, Button, Image} from 'react-native';
+import { Alert, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import { MaterialIcons } from '@expo/vector-icons';

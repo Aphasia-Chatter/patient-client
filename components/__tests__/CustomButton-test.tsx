@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import CustomButton from '../CustomButton'; // Adjust the import to your file structure
-import { ActivityIndicator } from 'react-native';
-import { StyleProp, ViewStyle } from 'react-native';
+import CustomButton from '../CustomButton';
 
 // Mock the ActivityIndicator to simplify testing
 

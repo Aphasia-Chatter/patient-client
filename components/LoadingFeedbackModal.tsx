@@ -1,5 +1,5 @@
-import { Modal, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import React from 'react';
+import { Modal, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 
 interface LoadingFeedbackModalProps {
   modalVisible: boolean;

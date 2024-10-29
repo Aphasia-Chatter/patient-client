@@ -4,7 +4,7 @@ import { StyleSheet, ScrollView, ScrollViewProps, Image, Text, View, SafeAreaVie
 import { Drawer } from 'expo-router/drawer'
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer'
 import { Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
-import { router, Redirect, usePathname } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { useColorScheme } from 'nativewind';
 
 import { images } from "../../constants";

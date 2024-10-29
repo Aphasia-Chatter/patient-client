@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, userEvent, fireEvent, renderHook } from '@testing-library/react-native';
+import { render, fireEvent, renderHook } from '@testing-library/react-native';
 import Profile from '@/app/(drawer)/profile';
 import ChangePassword from '@/app/account/change_password';
 import DeleteAccount from '@/app/account/delete_account';
