@@ -196,7 +196,9 @@ const DeleteAccount = () => {
             <FormField
               title="Password"
               value={form.password}
-              handleChangeText={(e) => setForm({ ...form, password: e })}
+              handleChangeText={(e) => 
+                setForm({ ...form, password: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+              }
               placeholder="Enter your password"
               otherStyles="mt-7"
               keyboardType="default"

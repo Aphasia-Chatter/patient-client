@@ -164,7 +164,9 @@ const Register = () => {
               <FormField
                 title="Username"
                 value={form.username}
-                handleChangeText={(e) => setForm({ ...form, username: e })}
+                handleChangeText={(e) => 
+                  setForm({ ...form, username: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+                }
                 placeholder="Enter your username"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 accessibilityRole="search"
@@ -174,7 +176,9 @@ const Register = () => {
               <FormField
                 title="Password"
                 value={form.password}
-                handleChangeText={(e) => setForm({ ...form, password: e })}
+                handleChangeText={(e) => 
+                  setForm({ ...form, password: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+                }
                 placeholder="Enter your password"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 accessibilityRole="search"
@@ -184,7 +188,9 @@ const Register = () => {
               <FormField
                 title="Confirm Password"
                 value={form.confirmPassword}
-                handleChangeText={(e) => setForm({ ...form, confirmPassword: e })}
+                handleChangeText={(e) => 
+                  setForm({ ...form, confirmPassword: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+                }
                 placeholder="Re-enter your password"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 accessibilityRole="search"
@@ -194,7 +200,9 @@ const Register = () => {
               <FormField
                 title="Enrollment Code"
                 value={form.enrolmentCode}
-                handleChangeText={(e) => setForm({ ...form, enrolmentCode: e })}
+                handleChangeText={(e) => 
+                  setForm({ ...form, enrolmentCode: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+                }
                 placeholder="Enter the enrollment code"
                 otherStyles={`${Platform.OS === 'ios' ? 'mt-5' : 'mt-7'}`}
                 keyboardType="default"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TextInputProps, Pressable, TouchableWithoutFeedback, Keyboard} from "react-native";
+import { View, Text, TextInput, TextInputProps, Pressable, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useColorScheme } from 'nativewind';
 import { FontAwesome5 } from '@expo/vector-icons';
 

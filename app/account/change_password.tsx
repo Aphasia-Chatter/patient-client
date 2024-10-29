@@ -228,7 +228,9 @@ const ChangePassword = () => {
             <FormField
               title="Current Password"
               value={form.currentPassword}
-              handleChangeText={(e) => setForm({ ...form, currentPassword: e })}
+              handleChangeText={(e) => 
+                setForm({ ...form, currentPassword: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+              }
               placeholder="Enter your current password"
               otherStyles="mt-7"
               keyboardType="default"
@@ -239,7 +241,9 @@ const ChangePassword = () => {
             <FormField
               title="New Password"
               value={form.newPassword}
-              handleChangeText={(e) => setForm({ ...form, newPassword: e })}
+              handleChangeText={(e) => 
+                setForm({ ...form, newPassword: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+              }
               placeholder="Enter your new password"
               otherStyles="mt-4"
               accessibilityRole="search"
@@ -249,7 +253,9 @@ const ChangePassword = () => {
             <FormField
               title="Confirm New Password"
               value={form.confirmNewPassword}
-              handleChangeText={(e) => setForm({ ...form, confirmNewPassword: e })}
+              handleChangeText={(e) => 
+                setForm({ ...form, confirmNewPassword: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+              }
               placeholder="Enter your confirm password"
               otherStyles="mt-4"
               accessibilityRole="search"

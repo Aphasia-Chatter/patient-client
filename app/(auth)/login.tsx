@@ -150,7 +150,9 @@ const Login = () => {
           <FormField
             title="Username"
             value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e })}
+            handleChangeText={(e) => {
+              setForm({ ...form, username: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') }); // Update the state with the filtered text
+            }}
             placeholder="Enter your username"
             otherStyles="mt-7"
             onFocus={() => setIsFocused(true)}   // Set focus to true on focus
@@ -163,7 +165,9 @@ const Login = () => {
           <FormField
             title="Password"
             value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
+            handleChangeText={(e) => 
+              setForm({ ...form, password: e.replace(/\s/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '') })
+            }
             placeholder="Enter your password"
             otherStyles="mt-4"
             onFocus={() => setIsFocused(true)}   // Set focus to true on focus
