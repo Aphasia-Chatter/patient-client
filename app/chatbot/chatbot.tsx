@@ -66,8 +66,6 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
   const [ isRecordingSubmitting, setIsRecordingSubmitting ] = useState(false);
 
   useEffect(() => {
-    console.log("Params", { taskCategory, taskID, filePath, taskSessionID, completedAt, isTaskCompleted, taskName });
-
     if (typeof taskCategory === 'string' && typeof taskID === 'string' && typeof filePath === 'string') {
       if (taskCategory === "1") {
         // Get word retrieval task
@@ -701,6 +699,22 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
                 </ImageBackground>
               </Pressable>
             </View>
+            {
+              messages.length == 0 && (
+                <View>
+                  {/* Recording Animation (for initial recording when no chat history) */}
+                  { isRecording ? (
+                    <View className="rounded-xl p-2 ml-20 mt-6 bg-orange-500 dark:bg-orange-600">
+                      <Text className='text-base text-light'>Listening...</Text>
+                    </View>
+                  ) : isRecordingSubmitting && (
+                    <View className="rounded-xl p-2 ml-20 mt-6 bg-orange-500 dark:bg-orange-600">
+                      <Text className='text-base text-light'>Translating...</Text>
+                    </View>
+                  )}
+                </View>
+              )
+            }
             <FlatList
               data={messages}
               renderItem={renderMessage}
