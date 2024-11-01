@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Alert, Modal, StyleSheet, Text, Pressable, View, Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import { MaterialIcons } from '@expo/vector-icons';
@@ -13,6 +13,8 @@ interface TaskFilterModalProps {
   setModalVisible: (visible: boolean) => void;
   onConfirm: (categoryOfTask: number | null, statusOfTask: number | null) => void;
 }
+
+const { width } = Dimensions.get('window');
 
 const TaskFilterModal: React.FC<TaskFilterModalProps> = ({ headerMessage, taskFilterMessage, currentTaskCategoryValue, currentTaskStatusValue, modalVisible, setModalVisible, onConfirm }) => {
     const [ isTaskCategoryOpen, setIsTaskCategoryOpen ] = useState(false);
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
       backgroundColor:"#f9fafb",
-      width:"100%",
+      width: width * 0.8,
       borderRadius:5,
     },
     modalHeader:{

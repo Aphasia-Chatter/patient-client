@@ -9,7 +9,7 @@ interface SuccessModalProps {
     onDismiss: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const SuccessModal: React.FC<SuccessModalProps> = ({ headerMessage, successMessage, modalVisible, onDismiss }) => {
     // Modal Header
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
       backgroundColor:"#f9fafb",
-      width:"80%",
+      width: width * 0.8,
       borderRadius:5
     },
     modalHeader:{
