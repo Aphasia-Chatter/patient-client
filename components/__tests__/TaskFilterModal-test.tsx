@@ -77,11 +77,11 @@ describe('TaskFilterModal Component', () => {
         const notStartedTasks = within(dropdownMenuTwo).getAllByText('In Progress', { hidden: false }); // Scope search to dropdown
         expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
         
-        await act(async() => {
+        await (async() => {
           fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
         });
 
-        await act(async() => {
+        await (async() => {
           fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
         });
 
