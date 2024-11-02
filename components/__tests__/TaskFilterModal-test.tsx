@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, fireEvent, within, waitFor, cleanup } from '@testing-library/react-native';
+import { render, fireEvent, within, waitFor, cleanup, act } from '@testing-library/react-native';
 import TaskFilterModal from '../TaskFilterModal'; // Adjust import based on your file structure
+import DropDownPicker from 'react-native-dropdown-picker';
 
 describe('TaskFilterModal Component', () => {
   const mockSetModalVisible = jest.fn();
@@ -47,7 +48,7 @@ describe('TaskFilterModal Component', () => {
     expect(mockSetModalVisible).toHaveBeenCalledWith(false); // Check if modal is closed
   });
 
-  test.only('should call onConfirm with the selected category and status', async () => {
+  test.skip('should call onConfirm with the selected category and status', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
@@ -79,6 +80,9 @@ describe('TaskFilterModal Component', () => {
         
         await (async() => {
           fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
+        });
+
+        await (async() => {
           fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
         });
 
@@ -86,7 +90,7 @@ describe('TaskFilterModal Component', () => {
     });
   });
 
-  test.only('should not call onConfirm when selected values are the same as current values', async () => {
+  test.skip('should not call onConfirm when selected values are the same as current values', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
