@@ -38,10 +38,3 @@ jobs:
 
     - name: Run Jest tests
       run: npm run test
-
-    - name: Upload test results
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: coverage
