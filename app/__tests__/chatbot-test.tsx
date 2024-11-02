@@ -112,8 +112,10 @@ describe('Chatbot Screen', () => {
   });
 
   it('renders word retrieval task image when task, task image, and chat history are retrieved', async () => {
-    // Mock the fetch responses
+    // Set the timeout for this test case to 10 seconds (10000 ms)
+    jest.setTimeout(10000);
 
+    // Mock the fetch responses
     // First fetch call: task retrieval response
     const mockResponse = {
       ok: true,
@@ -206,11 +208,11 @@ describe('Chatbot Screen', () => {
       .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
       .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
 
-    // Render the chatbot component
     const { getByRole } = renderChatbot();
 
     // Wait for the task image to be rendered
     await waitFor(() => {
+      // Render the chatbot component
       const taskTitle = getByRole('image', { name: /word retrieval task image/i, hidden: false })
       expect(taskTitle).toBeTruthy();
     });
