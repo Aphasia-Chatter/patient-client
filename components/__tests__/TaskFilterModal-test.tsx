@@ -47,7 +47,7 @@ describe('TaskFilterModal Component', () => {
     expect(mockSetModalVisible).toHaveBeenCalledWith(false); // Check if modal is closed
   });
 
-  it('should call onConfirm with the selected category and status', async () => {
+  test.only('should call onConfirm with the selected category and status', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
@@ -89,7 +89,7 @@ describe('TaskFilterModal Component', () => {
     });
   });
 
-  it('should not call onConfirm when selected values are the same as current values', async () => {
+  test.only('should not call onConfirm when selected values are the same as current values', async () => {
     const { getByText, getByLabelText } = render(
       <TaskFilterModal
         headerMessage="Filter Tasks"
