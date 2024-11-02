@@ -7,8 +7,8 @@ describe('TaskFilterModal Component', () => {
   const mockOnConfirm = jest.fn();
 
   afterEach(() => {
-    cleanup();
     jest.clearAllMocks(); // Clear mock calls after each test
+    cleanup();
   });
 
   it('should render correctly when modal is visible', () => {
@@ -65,7 +65,7 @@ describe('TaskFilterModal Component', () => {
     const categoryTasks = within(dropdownMenu).getAllByText('Word Retrieval Task', { hidden: false }); // Scope search to dropdown
     expect(categoryTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
 
-    await act(async() => {
+    await (async() => {
       fireEvent.press(categoryTasks[0]); // Press the first and only visible element
     });
 
@@ -107,7 +107,7 @@ describe('TaskFilterModal Component', () => {
     const categoryTasks = within(dropdownMenu).getAllByText('Word Retrieval Task', { hidden: false }); // Scope search to dropdown
     expect(categoryTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
 
-    await act(async() => {
+    await (async() => {
       fireEvent.press(categoryTasks[0]); // Press the first and only visible element
     });
 
@@ -117,11 +117,11 @@ describe('TaskFilterModal Component', () => {
         const notStartedTasks = within(dropdownMenuTwo).getAllByText('All', { hidden: false }); // Scope search to dropdown
         expect(notStartedTasks.length).toBe(1); // Ensure there's one visible "Not Started" task in the dropdown
 
-        await act(async() => {
+        await (async() => {
           fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
         });
 
-        await act(async() => {
+        await (async() => {
           fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
         });
 
