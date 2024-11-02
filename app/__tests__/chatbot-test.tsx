@@ -112,9 +112,6 @@ describe('Chatbot Screen', () => {
   });
 
   it('renders word retrieval task image when task, task image, and chat history are retrieved', async () => {
-    // Set the timeout for this test case to 10 seconds (10000 ms)
-    jest.setTimeout(10000);
-
     // Mock the fetch responses
     // First fetch call: task retrieval response
     const mockResponse = {
@@ -216,7 +213,7 @@ describe('Chatbot Screen', () => {
       const taskTitle = await findByRole('image', { name: /word retrieval task image/i, hidden: false })
       expect(taskTitle).toBeTruthy();
     });
-  });
+  }, 10000);
 
   it('renders word retrieval task details when press upon task image after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses
@@ -330,7 +327,7 @@ describe('Chatbot Screen', () => {
       fireEvent.press(getByText('Dismiss'))
       expect(taskImage).toBeTruthy();
     });
-  });
+  }, 10000);
 
   it('renders multiple word retrieval task chat conversations in chat history after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses
