@@ -111,6 +111,113 @@ describe('Chatbot Screen', () => {
     jest.clearAllMocks(); // Clear mocks before each test
   });
 
+  it('renders word retrieval task image when task, task image, and chat history are retrieved', async () => {
+    // Set the timeout for this test case to 10 seconds (10000 ms)
+    jest.setTimeout(10000);
+
+    // Mock the fetch responses
+    // First fetch call: task retrieval response
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'OK',
+        message: 'Task found.',
+        data: {
+          task: {
+            word_retrieval_task: {
+              taskID: '1',
+              imagePath: '/path/to/image',
+              answer: 'sample answer',
+              inputRestriction: 'none'
+            },
+            task_editor: {
+              taskID: '1',
+              staffID: '123',
+              role: 'editor'
+            },
+            task: {
+              id: '1',
+              name: 'Sample Task',
+              description: 'This is a sample task description',
+              taskVisibility: 'public',
+              createdAt: new Date().toISOString(),
+            },
+            staff: {
+              id: '123',
+              username: 'doctor123',
+              hashedPassword: 'hashed_password123'
+            },
+            status: 'Not Started',
+            session: {
+              taskSessionID: 'session1',
+              startedAt: new Date(),
+              completedAt: new Date()
+            }
+          }
+        },
+        'taskSession': {
+          taskSessionID: "session789",
+          startedAt: new Date("2024-01-02T10:00:00Z"),
+          completedAt: null
+      }
+      }),
+    };
+
+    // Second fetch call: task image retrieval response
+    const mockResponseTwo = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        path: '/path/to/image',
+        data: Buffer.from('image_data').toString('base64'),
+      }),
+    };
+
+    // Third fetch call: chat history retrieval response
+    const mockResponseThree = {
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        status: 'SUCCESS',
+        message: 'message sent successfully!',
+        data: {
+          messages: [
+            {
+              id: 'msg1',
+              author: 'user',
+              content: "This is the user's message",
+              timestamp: new Date().toISOString(),
+              hasAudio: false,
+            },
+            {
+              id: 'msg2',
+              author: 'bot',
+              content: "This is the bot's response",
+              timestamp: new Date().toISOString(),
+              hasAudio: true,
+            },
+          ],
+        },
+      }),
+    };
+
+    // Mock fetch calls
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(mockResponse)   // First fetch (task)
+      .mockResolvedValueOnce(mockResponseTwo) // Second fetch (task image)
+      .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
+
+    const { findByRole } = renderChatbot();
+
+    // Wait for the task image to be rendered
+    await waitFor(async () => {
+      // Render the chatbot component
+      const taskTitle = await findByRole('image', { name: /word retrieval task image/i, hidden: false })
+      expect(taskTitle).toBeTruthy();
+    });
+  });
+
   it('renders word retrieval task details when press upon task image after task, task image, and chat history are retrieved', async () => {
     // Mock the fetch responses
 
@@ -207,11 +314,11 @@ describe('Chatbot Screen', () => {
       .mockResolvedValueOnce(mockResponseThree); // Third fetch (chat history)
 
     // Render the chatbot component
-    const { getByText, getByRole } = renderChatbot();
+    const { getByText, getByRole, findByRole } = renderChatbot();
 
     // Wait for the task image to be rendered
-    await waitFor(() => {
-      const taskImage = getByRole('image', { name: /word retrieval task image/i, hidden: false })
+    await waitFor(async () => {
+      const taskImage = await findByRole('image', { name: /word retrieval task image/i, hidden: false })
       expect(taskImage).toBeTruthy();
 
       fireEvent.press(taskImage)
