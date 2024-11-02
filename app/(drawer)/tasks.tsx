@@ -358,15 +358,21 @@ const Tasks: React.FC<TaskData> = () => {
             <View className='ml-2 flex-row'>
               <Fontisto name="date" size={18} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 10 }} />
               <Text className='text-sm mb-3 text-dark dark:text-light'>
-                {`${new Date(item.task.createdAt).toLocaleDateString('en-US', {
+                {new Date(item.task.createdAt).toLocaleString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
-                })}, ${new Date(item.task.createdAt).toLocaleTimeString('en-US', {
+                })}
+              </Text>
+            </View>
+            <View className='ml-2 flex-row'>
+              <MaterialCommunityIcons name="clock-time-three-outline" size={18} color={(colorScheme === 'dark' ? '#fff' : '#000')} style={{ marginRight: 10 }} />
+              <Text className='text-sm mb-3 text-dark dark:text-light'>
+                {new Date(item.task.createdAt).toLocaleString('en-US', {
                   hour: 'numeric',
                   minute: 'numeric',
-                  hour12: true,
-                })}`}
+                  hour12: true
+                })}
               </Text>
             </View>
             <View className='absolute bottom-3 right-0'>
