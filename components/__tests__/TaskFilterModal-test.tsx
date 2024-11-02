@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, within, waitFor, cleanup, act } from '@testing-library/react-native';
+import { render, fireEvent, within, waitFor, cleanup } from '@testing-library/react-native';
 import TaskFilterModal from '../TaskFilterModal'; // Adjust import based on your file structure
 
 describe('TaskFilterModal Component', () => {
@@ -79,9 +79,6 @@ describe('TaskFilterModal Component', () => {
         
         await (async() => {
           fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
-        });
-
-        await (async() => {
           fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
         });
 
@@ -119,9 +116,6 @@ describe('TaskFilterModal Component', () => {
 
         await (async() => {
           fireEvent.press(notStartedTasks[0]); // Press the first and only visible element
-        });
-
-        await (async() => {
           fireEvent.press(getByText('Confirm')); // Simulate pressing Confirm button
         });
 
