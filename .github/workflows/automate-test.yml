@@ -1,40 +1,62 @@
+# GitHub Worflow for automating unit and integration test cases
 name: Automate Test
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+# Controls when the action will run. This workflow is triggered
+# either manually using the UI or via an API call, or when changes
+# are pushed to the 'master' branch.
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering via UI/API
   push:
     branches:
-      - master
+      - master # Trigger on push to 'master' branch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   test:
-    # The type of runner that the job will run on
+    # This job will run on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
+
+    # Step 1: Check out the repository's code so that subsequent steps can access it.
     - name: Check out code
       uses: actions/checkout@v3
 
+    # Step 2: Set up Node.js version 18 on the runner for this job.
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        
+        node-version: '18' 
+
+    # Step 3: Cache Node modules to speed up future runs by storing them
+    # based on the hash of 'package-lock.json' to check for changes.
     - name: Cache Node modules
       uses: actions/cache@v3
       with:
-        path: ~/.npm
+        path: ~/.npm # Directory to store the cached dependencies
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
 
+    # Step 4: Install project dependencies via npm.
     - name: Install dependencies
       run: npm install
 
+    # Step 5: Run tests using Jest by executing the test script defined in package.json
     - name: Run Jest tests
       run: npm run test
+    
+    # Step 6: Send notification to Discord/Slack
+    - name: Notify Discord
+      if: success() || failure() # Send notification regardless of success or failure
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      run: |
+        STATUS="Test completed successfully"
+        if [ ${{ job.status }} != 'success' ]; then
+          STATUS="Test failed"
+        fi
+        curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"${STATUS}: Automated tests have finished running in GitHub Actions.\"}" \
+          $DISCORD_WEBHOOK_URL

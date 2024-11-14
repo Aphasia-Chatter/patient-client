@@ -31,33 +31,19 @@ describe('Login Screen', () => {
   // Define mock TaskData
   const mockTaskData: TaskData = {
     word_retrieval_task: {
-      taskID: '1',
       imagePath: '/path/to/image',
-      answer: 'sample answer',
-      inputRestriction: 'none'
-    },
-    task_editor: {
-      taskID: '1',
-      staffID: '123',
-      role: 'editor'
     },
     task: {
       id: '1',
       name: 'Sample Task',
-      description: 'This is a sample task description',
-      taskVisibility: 'public',
       createdAt: new Date().toISOString(),
     },
     staff: {
-      id: '123',
       username: 'staff1',
-      hashedPassword: 'hashed_password'
     },
     status: 'completed',
     session: {
       taskSessionID: 'session1',
-      startedAt: new Date(),
-      completedAt: new Date()
     }
   };
 
@@ -138,20 +124,18 @@ describe('Login Screen', () => {
     // Assert that the Pressable is rendered
     expect(registerLink).toBeTruthy();
   });
-  
-  it('allows typing in the username and password fields', () => {
-    // Arrange
-    const { getByPlaceholderText } = renderLogin();
 
-    // Act the username and password fields are rendered
+  it('should allow typing in the username and password text input fields', () => {
+    // Arrange (Create and set up Login Page and respective login text inputs)
+    const { getByPlaceholderText } = renderLogin();
     const usernameInput = getByPlaceholderText('Enter your username');
     const passwordInput = getByPlaceholderText('Enter your password');
 
-    // Act by typing into the fields
+    // Act (Simulate an user typing characters into the login text inputs fields)
     fireEvent.changeText(usernameInput, 'testUser');
     fireEvent.changeText(passwordInput, 'password123');
 
-    // Assert to check if the values are updated
+    // Assert (check if the values of the text input are updated according to what user typed)
     expect(usernameInput.props.value).toBe('testUser');
     expect(passwordInput.props.value).toBe('password123');
   });

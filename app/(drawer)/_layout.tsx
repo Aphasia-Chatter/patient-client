@@ -93,8 +93,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       {/* TASKS DRAWER ITEM */}
       <DrawerItem
         icon={({color, size}) => (
-          <View
-          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-red-500'>
+          <View className='w-30 h-30 p-1 ml-3 mr-2 rounded justify-items-center align-middle bg-red-500'>
             <FontAwesome5 name="tasks" size={24} color='#fff'/>
           </View>
         )}
@@ -132,7 +131,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       <DrawerItem
         icon={({color, size}) => (
           <View
-          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-amber-500'>
+          className='w-30 h-30 p-1 ml-3 mr-2 rounded justify-items-center align-middle bg-amber-500'>
             <Feather name="user" size={24} color='#fff'/>
           </View>
         )}
@@ -152,7 +151,7 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       <DrawerItem
         icon={({color, size}) => (
           <View
-          className='w-30 h-30 p-1 rounded justify-items-center align-middle bg-blue-500'>
+          className='w-30 h-30 p-1 ml-3 mr-2 rounded justify-items-center align-middle bg-blue-500'>
             <Feather name="help-circle" size={24} color='#fff'/>
           </View>
         )}
@@ -171,7 +170,10 @@ const CustomDrawerContent = (props: React.JSX.IntrinsicAttributes & ScrollViewPr
       <View className='flex-1 justify-end'>
         <DrawerItem
           icon={({color, size}) => (
-            <MaterialCommunityIcons name="logout" size={24} color={ '#d55e00'}/>
+            <View className='w-30 h-30 p-1 ml-3 mr-2 rounded justify-items-center align-middle'>
+              <MaterialCommunityIcons name="logout" size={24} color={ '#d55e00'}/>
+            </View>
+
           )}
           label={'Logout'}
           labelStyle={[
