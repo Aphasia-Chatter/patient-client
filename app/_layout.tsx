@@ -22,20 +22,9 @@ const RootLayout = () => {
   const [ isLoggedIn, setIsLoggedIn ] = useState<boolean>(false);
   const { colorScheme } = useColorScheme();
 
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
-    SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-Bold.ttf'),
-    SpaceMonoItalic: require('../assets/fonts/SpaceMono-Bold.ttf'),
-  });
-
   useEffect(() => {
     setTimeout(() => SplashScreen.hideAsync(), 1000)
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+  }, []);
 
   return (
     <AppProvider>
