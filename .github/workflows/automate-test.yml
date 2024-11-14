@@ -46,17 +46,3 @@ jobs:
     # Step 5: Run tests using Jest by executing the test script defined in package.json
     - name: Run Jest tests
       run: npm run test
-    
-    # Step 6: Send notification to Discord/Slack
-    - name: Notify Discord
-      if: success() || failure() # Send notification regardless of success or failure
-      env:
-        DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-      run: |
-        STATUS="Test completed successfully"
-        if [ ${{ job.status }} != 'success' ]; then
-          STATUS="Test failed"
-        fi
-        curl -X POST -H "Content-Type: application/json" \
-          -d "{\"content\": \"${STATUS}: Automated tests have finished running in GitHub Actions.\"}" \
-          $DISCORD_WEBHOOK_URL
