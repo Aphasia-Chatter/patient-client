@@ -750,7 +750,7 @@ const Chatbot: React.FC<{ initialMessages?: Message[] }> = ({ initialMessages = 
       )}
 
       {isTaskCompleted === "null" && (
-        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-1 ${Platform.OS === 'ios' ? 'pb-8' : 'pb-2'} bg-light dark:bg-dark`}>
+        <View className={`absolute bottom-0 left-0 right-0 justify-center items-center pt-2 ${Platform.OS === 'ios' ? 'pb-6' : 'pb-28'} bg-light dark:bg-dark`}>
           <Text className='text-sm font-medium text-dark dark:text-light'>{isRecording ? "Tap and submit your answer" : "Tap and say your answer"}</Text>
           {isRecording ? (
             <Pressable // Stop Recording Button
